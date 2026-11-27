@@ -32,6 +32,7 @@ from camera import Camera, box_corners  # noqa: E402
 MARGIN_L = (2, 58)        # columns sampled left of the tank
 MARGIN_R = (1018, 1078)   # columns sampled right of the tank
 FEATHER = 5
+GLOW_REMOVED = 0.65   # share of the tank's glow taken off the wall behind it
 
 
 def removal_mask(cam, room):
@@ -97,6 +98,13 @@ def fill_rows(img, mask, slope, untrusted):
         corr[take] = num[take] / den[take][:, None]
         done |= take
     corr = cv2.GaussianBlur(corr, (0, 0), 10)
+    # The rim is brightened by glow from the lit tank (in the lens as much as on
+    # the wall). Honour it fully at the edge so the join is invisible, but ease
+    # most of it away deeper in, where the wall will be seen through the water.
+    depth = cv2.distanceTransform((mask > 0).astype(np.uint8), cv2.DIST_L2, 5)
+    ease = np.clip(depth / 110.0, 0, 1)
+    ease = ease * ease * (3 - 2 * ease)
+    corr *= (1.0 - GLOW_REMOVED * ease)[..., None]
     fill = fill + corr
 
     alpha = cv2.GaussianBlur(mask.astype(np.float32) / 255.0, (0, 0), FEATHER)[..., None]

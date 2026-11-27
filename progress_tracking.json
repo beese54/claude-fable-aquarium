@@ -1,45 +1,265 @@
-{
-  "project": "Aquarium Dream",
-  "how_to_resume": "Read PROMPT.md, then this file. Find the first task whose status is not done, read its next_action, do it, verify, set status and commit hash, commit and push. Gates marked owner need the owner's reply before the tasks listed in blocks may start; everything else continues.",
-  "updated": "2026-11-27",
-  "gates": {
-    "G1_look_test":      { "status": "pending", "blocks": [] },
-    "G2_design_stills":  { "status": "pending", "blocks": ["T6.1"], "per_scape": { "01_iwagumi": "pending", "02_dutch": "pending", "03_forest": "pending", "04_blackwater": "pending", "05_floating": "pending" } },
-    "G3_draft_video":    { "status": "pending", "blocks": [] },
-    "G4_final_video":    { "status": "pending", "blocks": ["T7.3"] }
-  },
-  "tasks": [
-    { "id": "T0.1", "phase": 0, "title": "Blueprint files, repo skeleton, public GitHub repo", "status": "in_progress", "commit": null, "next_action": "git init, gh repo create, first commit" },
-    { "id": "T0.2", "phase": 0, "title": "Install Blender 4.5 LTS, init.sh proves the toolchain", "status": "in_progress", "commit": null, "next_action": "wait for winget, run init.sh" },
-    { "id": "T1.1", "phase": 1, "title": "Plate prep: tonemapped intro frames, committed clip without audio, clean lit plate, grain profile", "status": "todo", "commit": null, "next_action": "write src/plate/prep_plate.py" },
-    { "id": "T1.2", "phase": 1, "title": "Camera solve from tank corners, wireframe overlay still", "status": "todo", "commit": null, "next_action": "write src/plate/solve_camera.py" },
-    { "id": "T1.3", "phase": 1, "title": "Room rebuild in Blender with plate projection; empty-tank render matches plate", "status": "todo", "commit": null, "next_action": "write src/blender/room.py" },
-    { "id": "T2.1", "phase": 2, "title": "Base tank scene: glass, water, light, caustics, particles", "status": "todo", "commit": null, "next_action": "write src/blender/tank.py" },
-    { "id": "T2.2", "phase": 2, "title": "Iwagumi look test still composited into the room (Gate 1)", "status": "todo", "commit": null, "next_action": "source CC0 stone scans, build scape 01" },
-    { "id": "T3.1", "phase": 3, "title": "Neon tetra model, shading and swim rig", "status": "todo", "commit": null, "next_action": "" },
-    { "id": "T3.2", "phase": 3, "title": "Red shrimp and snail", "status": "todo", "commit": null, "next_action": "" },
-    { "id": "T3.3", "phase": 3, "title": "Plant library: carpet, stem, moss, epiphyte, floating", "status": "todo", "commit": null, "next_action": "" },
-    { "id": "T3.4", "phase": 3, "title": "CC0 asset sourcing and assets/MANIFEST.md", "status": "todo", "commit": null, "next_action": "" },
-    { "id": "T4.1", "phase": 4, "title": "Scape 02 Dutch garden still", "status": "todo", "commit": null, "next_action": "" },
-    { "id": "T4.2", "phase": 4, "title": "Scape 03 Forest still", "status": "todo", "commit": null, "next_action": "" },
-    { "id": "T4.3", "phase": 4, "title": "Scape 04 Blackwater Amazon still", "status": "todo", "commit": null, "next_action": "" },
-    { "id": "T4.4", "phase": 4, "title": "Scape 05 Floating Islands still", "status": "todo", "commit": null, "next_action": "" },
-    { "id": "T4.5", "phase": 4, "title": "Self-review and fresh-context review of all five stills; post Gate 2", "status": "todo", "commit": null, "next_action": "" },
-    { "id": "T5.1", "phase": 5, "title": "Schooling simulation, shrimp and snail motion, plant sway (baked)", "status": "todo", "commit": null, "next_action": "" },
-    { "id": "T5.2", "phase": 5, "title": "Camera moves per scape", "status": "todo", "commit": null, "next_action": "" },
-    { "id": "T5.3", "phase": 5, "title": "Transitions: awakening and four bubble and bloom reveals", "status": "todo", "commit": null, "next_action": "" },
-    { "id": "T5.4", "phase": 5, "title": "Compositor: plate merge, grain, captions, encode", "status": "todo", "commit": null, "next_action": "" },
-    { "id": "T5.5", "phase": 5, "title": "Sound design", "status": "todo", "commit": null, "next_action": "" },
-    { "id": "T5.6", "phase": 5, "title": "Low-quality full-length draft video (Gate 3)", "status": "todo", "commit": null, "next_action": "" },
-    { "id": "T6.1", "phase": 6, "title": "Full-quality render of approved scapes (detached, resumable)", "status": "todo", "commit": null, "next_action": "blocked until G2 per scape" },
-    { "id": "T6.2", "phase": 6, "title": "Final composite and automated QA (src/qa/checks.py all green)", "status": "todo", "commit": null, "next_action": "" },
-    { "id": "T7.1", "phase": 7, "title": "README with reproduction steps and stills", "status": "todo", "commit": null, "next_action": "" },
-    { "id": "T7.2", "phase": 7, "title": "Final video posted for Gate 4", "status": "todo", "commit": null, "next_action": "" },
-    { "id": "T7.3", "phase": 7, "title": "GitHub Release, lessons, Pattern AM playbook entry, remove heartbeat", "status": "todo", "commit": null, "next_action": "blocked until G4" }
-  ],
-  "render_jobs": [],
-  "notes": [
-    "Sleep was already disabled on this laptop (AC and DC), so no power setting was changed.",
-    "Heartbeat cron 671ef7a6 fires at :13 and :43 in the Claude Code session; it is session-only."
-  ]
+﻿{
+    "project":  "Aquarium Dream",
+    "how_to_resume":  "Read PROMPT.md, then this file. Find the first task whose status is not done, read its next_action, do it, verify, set status and commit hash, commit and push. Gates marked owner need the owner\u0027s reply before the tasks listed in blocks may start; everything else continues.",
+    "updated":  "2026-11-27",
+    "gates":  {
+                  "G1_look_test":  {
+                                       "status":  "posted, awaiting owner",
+                                       "blocks":  [
+
+                                                  ]
+                                   },
+                  "G2_design_stills":  {
+                                           "status":  "pending",
+                                           "blocks":  [
+                                                          "T6.1"
+                                                      ],
+                                           "per_scape":  {
+                                                             "01_iwagumi":  "pending",
+                                                             "02_dutch":  "pending",
+                                                             "03_forest":  "pending",
+                                                             "04_blackwater":  "pending",
+                                                             "05_floating":  "pending"
+                                                         }
+                                       },
+                  "G3_draft_video":  {
+                                         "status":  "pending",
+                                         "blocks":  [
+
+                                                    ]
+                                     },
+                  "G4_final_video":  {
+                                         "status":  "pending",
+                                         "blocks":  [
+                                                        "T7.3"
+                                                    ]
+                                     }
+              },
+    "tasks":  [
+                  {
+                      "id":  "T0.1",
+                      "phase":  0,
+                      "title":  "Blueprint files, repo skeleton, public GitHub repo",
+                      "status":  "done",
+                      "commit":  "see git log",
+                      "next_action":  ""
+                  },
+                  {
+                      "id":  "T0.2",
+                      "phase":  0,
+                      "title":  "Install Blender 4.5 LTS, init.sh proves the toolchain",
+                      "status":  "done",
+                      "commit":  "see git log",
+                      "next_action":  ""
+                  },
+                  {
+                      "id":  "T1.1",
+                      "phase":  1,
+                      "title":  "Plate prep: tonemapped intro frames, committed clip without audio, clean lit plate, grain profile",
+                      "status":  "done",
+                      "commit":  "see git log",
+                      "next_action":  ""
+                  },
+                  {
+                      "id":  "T1.2",
+                      "phase":  1,
+                      "title":  "Camera solve from tank corners, wireframe overlay still",
+                      "status":  "done",
+                      "commit":  "see git log",
+                      "next_action":  ""
+                  },
+                  {
+                      "id":  "T1.3",
+                      "phase":  1,
+                      "title":  "Room rebuild in Blender with plate projection; empty-tank render matches plate",
+                      "status":  "done",
+                      "commit":  "see git log",
+                      "next_action":  ""
+                  },
+                  {
+                      "id":  "T2.1",
+                      "phase":  2,
+                      "title":  "Base tank scene: glass, water, light, caustics, particles",
+                      "status":  "done",
+                      "commit":  "see git log",
+                      "next_action":  ""
+                  },
+                  {
+                      "id":  "T2.2",
+                      "phase":  2,
+                      "title":  "Iwagumi look test still composited into the room (Gate 1)",
+                      "status":  "in_progress",
+                      "commit":  null,
+                      "next_action":  "Gate 1 still posted in review/02_look_test_*.jpg; fold in owner feedback when it arrives; meanwhile continue T3.x"
+                  },
+                  {
+                      "id":  "T3.1",
+                      "phase":  3,
+                      "title":  "Neon tetra model, shading and swim rig",
+                      "status":  "in_progress",
+                      "commit":  null,
+                      "next_action":  "tetra model works (src/blender/fish.py); refine shading, then baked schooling sim in T5.1"
+                  },
+                  {
+                      "id":  "T3.2",
+                      "phase":  3,
+                      "title":  "Red shrimp and snail",
+                      "status":  "todo",
+                      "commit":  null,
+                      "next_action":  ""
+                  },
+                  {
+                      "id":  "T3.3",
+                      "phase":  3,
+                      "title":  "Plant library: carpet, stem, moss, epiphyte, floating",
+                      "status":  "todo",
+                      "commit":  null,
+                      "next_action":  ""
+                  },
+                  {
+                      "id":  "T3.4",
+                      "phase":  3,
+                      "title":  "CC0 asset sourcing and assets/MANIFEST.md",
+                      "status":  "done",
+                      "commit":  "see git log",
+                      "next_action":  ""
+                  },
+                  {
+                      "id":  "T4.1",
+                      "phase":  4,
+                      "title":  "Scape 02 Dutch garden still",
+                      "status":  "todo",
+                      "commit":  null,
+                      "next_action":  ""
+                  },
+                  {
+                      "id":  "T4.2",
+                      "phase":  4,
+                      "title":  "Scape 03 Forest still",
+                      "status":  "todo",
+                      "commit":  null,
+                      "next_action":  ""
+                  },
+                  {
+                      "id":  "T4.3",
+                      "phase":  4,
+                      "title":  "Scape 04 Blackwater Amazon still",
+                      "status":  "todo",
+                      "commit":  null,
+                      "next_action":  ""
+                  },
+                  {
+                      "id":  "T4.4",
+                      "phase":  4,
+                      "title":  "Scape 05 Floating Islands still",
+                      "status":  "todo",
+                      "commit":  null,
+                      "next_action":  ""
+                  },
+                  {
+                      "id":  "T4.5",
+                      "phase":  4,
+                      "title":  "Self-review and fresh-context review of all five stills; post Gate 2",
+                      "status":  "todo",
+                      "commit":  null,
+                      "next_action":  ""
+                  },
+                  {
+                      "id":  "T5.1",
+                      "phase":  5,
+                      "title":  "Schooling simulation, shrimp and snail motion, plant sway (baked)",
+                      "status":  "todo",
+                      "commit":  null,
+                      "next_action":  ""
+                  },
+                  {
+                      "id":  "T5.2",
+                      "phase":  5,
+                      "title":  "Camera moves per scape",
+                      "status":  "todo",
+                      "commit":  null,
+                      "next_action":  ""
+                  },
+                  {
+                      "id":  "T5.3",
+                      "phase":  5,
+                      "title":  "Transitions: awakening and four bubble and bloom reveals",
+                      "status":  "todo",
+                      "commit":  null,
+                      "next_action":  ""
+                  },
+                  {
+                      "id":  "T5.4",
+                      "phase":  5,
+                      "title":  "Compositor: plate merge, grain, captions, encode",
+                      "status":  "todo",
+                      "commit":  null,
+                      "next_action":  ""
+                  },
+                  {
+                      "id":  "T5.5",
+                      "phase":  5,
+                      "title":  "Sound design",
+                      "status":  "todo",
+                      "commit":  null,
+                      "next_action":  ""
+                  },
+                  {
+                      "id":  "T5.6",
+                      "phase":  5,
+                      "title":  "Low-quality full-length draft video (Gate 3)",
+                      "status":  "todo",
+                      "commit":  null,
+                      "next_action":  ""
+                  },
+                  {
+                      "id":  "T6.1",
+                      "phase":  6,
+                      "title":  "Full-quality render of approved scapes (detached, resumable)",
+                      "status":  "todo",
+                      "commit":  null,
+                      "next_action":  "blocked until G2 per scape"
+                  },
+                  {
+                      "id":  "T6.2",
+                      "phase":  6,
+                      "title":  "Final composite and automated QA (src/qa/checks.py all green)",
+                      "status":  "todo",
+                      "commit":  null,
+                      "next_action":  ""
+                  },
+                  {
+                      "id":  "T7.1",
+                      "phase":  7,
+                      "title":  "README with reproduction steps and stills",
+                      "status":  "todo",
+                      "commit":  null,
+                      "next_action":  ""
+                  },
+                  {
+                      "id":  "T7.2",
+                      "phase":  7,
+                      "title":  "Final video posted for Gate 4",
+                      "status":  "todo",
+                      "commit":  null,
+                      "next_action":  ""
+                  },
+                  {
+                      "id":  "T7.3",
+                      "phase":  7,
+                      "title":  "GitHub Release, lessons, Pattern AM playbook entry, remove heartbeat",
+                      "status":  "todo",
+                      "commit":  null,
+                      "next_action":  "blocked until G4"
+                  }
+              ],
+    "render_jobs":  [
+
+                    ],
+    "notes":  [
+                  "Sleep was already disabled on this laptop (AC and DC), so no power setting was changed.",
+                  "Heartbeat cron 671ef7a6 fires at :13 and :43 in the Claude Code session; it is session-only.",
+                  "Draft stills render in about 2 s, full-resolution preview (128 samples) in about 20 s on the RTX 4060; the first render after a cold start spends about 75 s loading kernels.",
+                  "While the camera is parked, src/comp/composite.py takes everything outside the wet part of the tank from the filmed plate."
+              ]
 }

@@ -258,7 +258,6 @@
                     ],
     "notes":  [
                   "Sleep was already disabled on this laptop (AC and DC), so no power setting was changed.",
-                  "Heartbeat cron 671ef7a6 fires at :13 and :43 in the Claude Code session; it is session-only.",
                   "Draft stills render in about 2 s, full-resolution preview (128 samples) in about 20 s on the RTX 4060; the first render after a cold start spends about 75 s loading kernels.",
                   "While the camera is parked, src/comp/composite.py takes everything outside the wet part of the tank from the filmed plate.",
                   "Renders needed per scape (python src/comp/assemble.py --needs): 01 606-967, 02 952-1282, 03 1267-1597, 04 1582-1912, 05 1897-2309. Sequence render: blender -b --python src/blender/build.py -- --scape ID --frames A-B --outdir \u003cwork\u003e/renders/ID --quality final.",
@@ -267,6 +266,7 @@
                   "Scapes 02 and 03 were briefed before fish.School existed: convert them from fish.shoal to SCAPE + fish.School + animate(ctx, frame) like scape 01, and add shrimp/snail where their briefs left TODOs.",
                   "Polish to do before final render: match the rendered glass edge colour to the filmed pale cyan (EDGE_GLOW and absorption in src/blender/tank.py) so the hand-over at frame 700 does not shift the edge strips; verify caustics are visible on sand and stone in motion.",
                   "Root cause worth remembering: any object a scape creates must be a Cycles caustics receiver or it gets no lamp light through the water. build.py now marks every object created after the base scene, including scatter sources.",
-                  "Never run two Blender renders at once on this machine (16 GB RAM): it triggered a low-memory stop of all background jobs. Subagents rendering in parallel count too."
+                  "Never run two Blender renders at once on this machine (16 GB RAM): it triggered a low-memory stop of all background jobs. Subagents rendering in parallel count too.",
+                  "Heartbeat: while everything is on hold for the owner, the session heartbeat runs every 3 hours (cron job 42be3d16) to save usage. When work resumes, replace it with a 30 minute one (CronCreate \"13,43 * * * *\", then CronDelete the old id). It is session-only."
               ]
 }

@@ -1,5 +1,5 @@
 {
-  "_comment": "CC0 assets for T3.4. Downloaded by src/assets/fetch_assets.py into paths.ASSETS/<source>/<id>/. Poly Haven models: glTF (.gltf + .bin + textures/ at the stated resolution). Poly Haven textures: diffuse/normal(GL)/roughness/AO as JPG, displacement as 16-bit PNG. ambientCG: 2K-JPG zip, listed maps extracted next to it. Thumbnails have no size in the API, so they are checked for presence only.",
+  "_comment": "CC0 assets for T3.4. Downloaded by src/assets/fetch_assets.py into paths.ASSETS/<source>/<id>/. Poly Haven models: glTF (.gltf + .bin + textures/ at the stated resolution). Poly Haven's glTF does NOT reference the opacity map of foliage (materials say MASK/BLEND but the diffuse is an alpha-less JPG), so alpha_map (and translucency_map where offered) are fetched into textures/ and must be wired to the material's alpha by the scene builder. Some rocks ship LOD0..LOD3 meshes in one glTF; use *_LOD0. Poly Haven textures: diffuse/normal(GL)/roughness/AO as JPG, displacement as 16-bit PNG. ambientCG: 2K-JPG zip, listed maps extracted next to it. Thumbnails have no size in the API, so they are checked for presence only.",
   "categories": {
     "seiryu": "1 grey angular stone (Seiryu stand-in)",
     "dragonstone": "2 pitted brown/red rock (dragon stone / lava rock stand-in)",
@@ -1119,6 +1119,12 @@
           "md5": "cdb092878a81b3208a162d79546892fe"
         },
         {
+          "path": "textures/moss_01_alpha_2k.png",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/2k/moss_01/moss_01_alpha_2k.png",
+          "size": 167941,
+          "md5": "838476c334c1c70807d9c3b999b81186"
+        },
+        {
           "path": "thumb.png",
           "url": "https://cdn.polyhaven.com/asset_img/thumbs/moss_01.png?width=512&height=512",
           "thumbnail": true
@@ -1131,7 +1137,8 @@
       ],
       "polycount": 246170,
       "format": "gltf",
-      "main_file": "moss_01_2k.gltf"
+      "main_file": "moss_01_2k.gltf",
+      "alpha_map": "textures/moss_01_alpha_2k.png"
     },
     {
       "id": "dry_decay_leaves",
@@ -1650,6 +1657,12 @@
           "md5": "00936dff4661dc9fe1f2fbe6c000615a"
         },
         {
+          "path": "textures/fern_02_alpha_2k.png",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/2k/fern_02/fern_02_alpha_2k.png",
+          "size": 230089,
+          "md5": "ff18f7e8e869c58eac8f9c7d7c519f4a"
+        },
+        {
           "path": "thumb.png",
           "url": "https://cdn.polyhaven.com/asset_img/thumbs/fern_02.png?width=512&height=512",
           "thumbnail": true
@@ -1662,7 +1675,8 @@
       ],
       "polycount": 6232,
       "format": "gltf",
-      "main_file": "fern_02_2k.gltf"
+      "main_file": "fern_02_2k.gltf",
+      "alpha_map": "textures/fern_02_alpha_2k.png"
     },
     {
       "id": "shrub_sorrel_01",
@@ -1708,6 +1722,12 @@
           "md5": "bef299def81bd55c2b378d53dad803b5"
         },
         {
+          "path": "textures/shrub_sorrel_01_alpha_1k.png",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/1k/shrub_sorrel_01/shrub_sorrel_01_alpha_1k.png",
+          "size": 64408,
+          "md5": "d73e433a4b041bb19e4dfb4266598e9a"
+        },
+        {
           "path": "thumb.png",
           "url": "https://cdn.polyhaven.com/asset_img/thumbs/shrub_sorrel_01.png?width=512&height=512",
           "thumbnail": true
@@ -1720,7 +1740,8 @@
       ],
       "polycount": 3319,
       "format": "gltf",
-      "main_file": "shrub_sorrel_01_1k.gltf"
+      "main_file": "shrub_sorrel_01_1k.gltf",
+      "alpha_map": "textures/shrub_sorrel_01_alpha_1k.png"
     },
     {
       "id": "anthurium_botany_01",
@@ -1767,6 +1788,12 @@
           "md5": "5e327c9486f0470a7808b6cea99993b4"
         },
         {
+          "path": "textures/anthurium_botany_01_alpha_2k.png",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/2k/anthurium_botany_01/anthurium_botany_01_alpha_2k.png",
+          "size": 95881,
+          "md5": "2a14dde9381b983427adcba195c7d6c6"
+        },
+        {
           "path": "thumb.png",
           "url": "https://cdn.polyhaven.com/asset_img/thumbs/anthurium_botany_01.png?width=512&height=512",
           "thumbnail": true
@@ -1779,7 +1806,8 @@
       ],
       "polycount": 4134,
       "format": "gltf",
-      "main_file": "anthurium_botany_01_2k.gltf"
+      "main_file": "anthurium_botany_01_2k.gltf",
+      "alpha_map": "textures/anthurium_botany_01_alpha_2k.png"
     },
     {
       "id": "calathea_orbifolia_01",
@@ -1826,6 +1854,12 @@
           "md5": "71dd2ea7aaba98bbd675db12ae382bbd"
         },
         {
+          "path": "textures/calathea_orbifolia_01_alpha_2k.png",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/2k/calathea_orbifolia_01/calathea_orbifolia_01_alpha_2k.png",
+          "size": 126330,
+          "md5": "389226faf0cbd6f4be2064ce073b0e73"
+        },
+        {
           "path": "thumb.png",
           "url": "https://cdn.polyhaven.com/asset_img/thumbs/calathea_orbifolia_01.png?width=512&height=512",
           "thumbnail": true
@@ -1838,7 +1872,8 @@
       ],
       "polycount": 16688,
       "format": "gltf",
-      "main_file": "calathea_orbifolia_01_2k.gltf"
+      "main_file": "calathea_orbifolia_01_2k.gltf",
+      "alpha_map": "textures/calathea_orbifolia_01_alpha_2k.png"
     },
     {
       "id": "shrub_04",
@@ -1884,6 +1919,12 @@
           "md5": "76f10cb443bc5964ec9484cfea474196"
         },
         {
+          "path": "textures/shrub_04_alpha_2k.png",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/2k/shrub_04/shrub_04_alpha_2k.png",
+          "size": 91048,
+          "md5": "c580b41967ed8e43358c2b8621fd07b1"
+        },
+        {
           "path": "thumb.png",
           "url": "https://cdn.polyhaven.com/asset_img/thumbs/shrub_04.png?width=512&height=512",
           "thumbnail": true
@@ -1896,7 +1937,8 @@
       ],
       "polycount": 47813,
       "format": "gltf",
-      "main_file": "shrub_04_2k.gltf"
+      "main_file": "shrub_04_2k.gltf",
+      "alpha_map": "textures/shrub_04_alpha_2k.png"
     },
     {
       "id": "periwinkle_plant",
@@ -1942,6 +1984,18 @@
           "md5": "dd2ff3280b0d69c3b03fed2753a6ee84"
         },
         {
+          "path": "textures/periwinkle_plant_opacity_2k.png",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/2k/periwinkle_plant/periwinkle_plant_opacity_2k.png",
+          "size": 195845,
+          "md5": "63e47a58bf56a98091302ccc1dd45413"
+        },
+        {
+          "path": "textures/periwinkle_plant_translucency_2k.png",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/2k/periwinkle_plant/periwinkle_plant_translucency_2k.png",
+          "size": 18487011,
+          "md5": "bab89fb8338673469c1241a73a8775b3"
+        },
+        {
           "path": "thumb.png",
           "url": "https://cdn.polyhaven.com/asset_img/thumbs/periwinkle_plant.png?width=512&height=512",
           "thumbnail": true
@@ -1954,7 +2008,9 @@
       ],
       "polycount": 67388,
       "format": "gltf",
-      "main_file": "periwinkle_plant_2k.gltf"
+      "main_file": "periwinkle_plant_2k.gltf",
+      "alpha_map": "textures/periwinkle_plant_opacity_2k.png",
+      "translucency_map": "textures/periwinkle_plant_translucency_2k.png"
     },
     {
       "id": "nettle_plant",
@@ -2001,6 +2057,12 @@
           "md5": "dee323f552417bf65614c1f9bbb73214"
         },
         {
+          "path": "textures/nettle_plant_alpha_2k.png",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/2k/nettle_plant/nettle_plant_alpha_2k.png",
+          "size": 421402,
+          "md5": "e41081a23ef3480364649e152b0a09b3"
+        },
+        {
           "path": "thumb.png",
           "url": "https://cdn.polyhaven.com/asset_img/thumbs/nettle_plant.png?width=512&height=512",
           "thumbnail": true
@@ -2013,7 +2075,8 @@
       ],
       "polycount": 46195,
       "format": "gltf",
-      "main_file": "nettle_plant_2k.gltf"
+      "main_file": "nettle_plant_2k.gltf",
+      "alpha_map": "textures/nettle_plant_alpha_2k.png"
     },
     {
       "id": "grass_bermuda_01",
@@ -2059,6 +2122,12 @@
           "md5": "2940aa3405004b62983fd70bede8e47f"
         },
         {
+          "path": "textures/grass_bermuda_01_alpha_1k.png",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/1k/grass_bermuda_01/grass_bermuda_01_alpha_1k.png",
+          "size": 59564,
+          "md5": "274285abb11b3b7a0fd277b9923d1074"
+        },
+        {
           "path": "thumb.png",
           "url": "https://cdn.polyhaven.com/asset_img/thumbs/grass_bermuda_01.png?width=512&height=512",
           "thumbnail": true
@@ -2071,7 +2140,8 @@
       ],
       "polycount": 223596,
       "format": "gltf",
-      "main_file": "grass_bermuda_01_1k.gltf"
+      "main_file": "grass_bermuda_01_1k.gltf",
+      "alpha_map": "textures/grass_bermuda_01_alpha_1k.png"
     },
     {
       "id": "bark_brown_02",

@@ -128,17 +128,17 @@
                       "id":  "T4.1",
                       "phase":  4,
                       "title":  "Scape 02 Dutch garden still",
-                      "status":  "in_progress",
-                      "commit":  null,
-                      "next_action":  "Opus subagent drafting src/blender/scapes/02_dutch.py; review its preview, polish, commit."
+                      "status":  "done",
+                      "commit":  "f3b453e",
+                      "next_action":  "Still for Gate 2 to be rendered with the others (frame about 1100). Known weak spots: groups a little hedge-like; open foreground smaller than a fifth."
                   },
                   {
                       "id":  "T4.2",
                       "phase":  4,
                       "title":  "Scape 03 Forest still",
-                      "status":  "in_progress",
-                      "commit":  null,
-                      "next_action":  "Opus subagent drafting src/blender/scapes/03_forest.py; review, polish, commit."
+                      "status":  "done",
+                      "commit":  "6b3c1d0",
+                      "next_action":  "Still for Gate 2 at about frame 1400. Known weak spots: crowns a little topiary-like; back of the forest thin."
                   },
                   {
                       "id":  "T4.3",
@@ -264,6 +264,7 @@
                   "Renders needed per scape (python src/comp/assemble.py --needs): 01 606-967, 02 952-1282, 03 1267-1597, 04 1582-1912, 05 1897-2309. Sequence render: blender -b --python src/blender/build.py -- --scape ID --frames A-B --outdir \u003cwork\u003e/renders/ID --quality final.",
                   "When several Blender renders share the GPU, set AQUARIUM_CPU_DENOISE=1 to avoid OIDN out-of-memory errors.",
                   "Lamp is ten spot LEDs totalling 50 W by default; scapes override via LIGHT/WATER dicts (see src/blender/README.md).",
-                  "Scapes 02 and 03 were briefed before fish.School existed: convert them from fish.shoal to SCAPE + fish.School + animate(ctx, frame) like scape 01, and add shrimp/snail where their briefs left TODOs."
+                  "Scapes 02 and 03 were briefed before fish.School existed: convert them from fish.shoal to SCAPE + fish.School + animate(ctx, frame) like scape 01, and add shrimp/snail where their briefs left TODOs.",
+                  "Polish to do before final render: match the rendered glass edge colour to the filmed pale cyan (EDGE_GLOW and absorption in src/blender/tank.py) so the hand-over at frame 700 does not shift the edge strips; verify caustics are visible on sand and stone in motion."
               ]
 }

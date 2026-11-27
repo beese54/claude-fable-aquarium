@@ -22,8 +22,8 @@ The machine-readable ledger is `progress_tracking.json`. This file is the human 
 - [x] T3.4 CC0 asset sourcing and manifest
 
 ## Phase 4: the other four scapes
-- [ ] T4.1 Dutch garden
-- [ ] T4.2 Forest
+- [x] T4.1 Dutch garden
+- [x] T4.2 Forest
 - [ ] T4.3 Blackwater Amazon
 - [ ] T4.4 Floating Islands
 - [ ] T4.5 Reviews and **Gate 2 (owner): five design stills**
@@ -48,6 +48,8 @@ The machine-readable ledger is `progress_tracking.json`. This file is the human 
 ## Review
 
 (filled in at the end)
+
+
 
 
 

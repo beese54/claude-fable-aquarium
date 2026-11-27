@@ -18,7 +18,7 @@ from bl_common import MM, new_material, new_mesh_object
 TANK = 300.0 * MM
 GLASS = 5.0 * MM
 OVERLAP = 1.0 * MM
-EDGE_GLOW = 3.0
+EDGE_GLOW = 4.5
 
 
 def glass_material():
@@ -36,9 +36,29 @@ def glass_material():
     # Lamp light that enters the panes is piped along them and makes their edges
     # glow teal in the footage. A path tracer will not find that light, so the
     # glass is given a faint glow of its own: invisible across 5 mm, bright along 300.
+    # The glow is confined to the two side panes, which the camera only ever sees
+    # end-on; in the front and back panes it would lay a faint veil over the whole tank.
     glow = nt.nodes.new("ShaderNodeEmission")
-    glow.inputs["Color"].default_value = (0.20, 0.95, 0.80, 1.0)
-    glow.inputs["Strength"].default_value = EDGE_GLOW
+    glow.inputs["Color"].default_value = (0.82, 0.84, 1.0, 1.0)
+    geo = nt.nodes.new("ShaderNodeNewGeometry")
+    sep = nt.nodes.new("ShaderNodeSeparateXYZ")
+    nt.links.new(geo.outputs["Position"], sep.inputs[0])
+    mid = nt.nodes.new("ShaderNodeMath")            # distance from the tank's centre plane
+    mid.operation = "SUBTRACT"
+    mid.inputs[1].default_value = TANK / 2
+    nt.links.new(sep.outputs["X"], mid.inputs[0])
+    dist = nt.nodes.new("ShaderNodeMath")
+    dist.operation = "ABSOLUTE"
+    nt.links.new(mid.outputs[0], dist.inputs[0])
+    side = nt.nodes.new("ShaderNodeMath")
+    side.operation = "GREATER_THAN"
+    side.inputs[1].default_value = TANK / 2 - GLASS - 0.2 * MM
+    nt.links.new(dist.outputs[0], side.inputs[0])
+    amount = nt.nodes.new("ShaderNodeMath")
+    amount.operation = "MULTIPLY"
+    amount.inputs[1].default_value = EDGE_GLOW
+    nt.links.new(side.outputs[0], amount.inputs[0])
+    nt.links.new(amount.outputs[0], glow.inputs["Strength"])
     add = nt.nodes.new("ShaderNodeAddShader")
     nt.links.new(absorb.outputs[0], add.inputs[0])
     nt.links.new(glow.outputs[0], add.inputs[1])

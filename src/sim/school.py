@@ -20,7 +20,7 @@ import numpy as np
 
 FPS = 30
 SUBSTEPS = 4
-VERSION = 2      # bump whenever the model changes, so cached runs are not reused
+VERSION = 3      # bump whenever the model changes, so cached runs are not reused
 
 
 def _smooth_noise(t, phases, periods):
@@ -33,7 +33,7 @@ def simulate(n, frame_start, frame_end, box, seed=0, obstacles=(), ground=None,
     """Simulate `n` fish for frames [frame_start, frame_end).
 
     box        (xmin, xmax, ymin, ymax, zmin, zmax): the open water the shoal roams
-    obstacles  cylinders (x, y, radius, top_z) fish must stay out of
+    obstacles  cylinders (x, y, radius, top_z[, bottom_z]) fish must stay out of
     ground     function (x, y) -> floor height; fish stay 18 mm above it
     spread     how loosely the fish sit around the shoal's centre
     cruise     typical speed in mm/s
@@ -61,7 +61,8 @@ def simulate(n, frame_start, frame_end, box, seed=0, obstacles=(), ground=None,
     wander_ph = rng.uniform(0, 2 * math.pi, (n, 3, 2))
     wander_T = rng.uniform(4.0, 11.0, (n, 3, 2))
     burst = np.zeros(n)
-    obstacles = np.array(obstacles, dtype=np.float64).reshape(-1, 4)
+    # an obstacle is (x, y, radius, top_z) or, to let fish pass underneath, (x, y, radius, top_z, bottom_z)
+    obstacles = np.array([tuple(o) + (-1.0e9,) * (5 - len(o)) for o in obstacles], dtype=np.float64).reshape(-1, 5)
     lo = np.array([22.0, 22.0, 0.0])
     hi = np.array([278.0, 278.0, 250.0])
 
@@ -97,12 +98,12 @@ def simulate(n, frame_start, frame_end, box, seed=0, obstacles=(), ground=None,
         A -= np.clip(P - (hi - m), 0, None) * 9.0
 
         # hardscape
-        for ox, oy, orad, otop in obstacles:
+        for ox, oy, orad, otop, obot in obstacles:
             r = P[:, :2] - np.array([ox, oy])
             d = np.linalg.norm(r, axis=1) + 1e-6
-            pen = np.clip(orad + 20.0 - d, 0, None) * (P[:, 2] < otop + 16.0)
+            pen = np.clip(orad + 20.0 - d, 0, None) * (P[:, 2] < otop + 16.0) * (P[:, 2] > obot - 16.0)
             A[:, :2] += (r / d[:, None]) * pen[:, None] * 14.0
-            A[:, 2] += pen * 3.0
+            A[:, 2] += pen * 3.0 * np.where(P[:, 2] > (otop + obot) / 2, 1.0, -1.0) if obot > -1.0e8 else pen * 3.0
 
         # each fish's own pace: idle, cruise, and the odd dart
         mood = _smooth_noise(t, mood_ph, mood_T)

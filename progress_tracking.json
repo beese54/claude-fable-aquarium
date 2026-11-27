@@ -1,10 +1,10 @@
 ﻿{
     "project":  "Aquarium Dream",
     "how_to_resume":  "Read PROMPT.md, then this file. Find the first task whose status is not done, read its next_action, do it, verify, set status and commit hash, commit and push. Gates marked owner need the owner\u0027s reply before the tasks listed in blocks may start; everything else continues.",
-    "updated":  "2026-11-27",
+    "updated":  "2026-11-28",
     "gates":  {
                   "G1_look_test":  {
-                                       "status":  "posted, awaiting owner",
+                                       "status":  "posted (reworked version), awaiting owner; not blocking",
                                        "blocks":  [
 
                                                   ]
@@ -90,29 +90,29 @@
                       "title":  "Iwagumi look test still composited into the room (Gate 1)",
                       "status":  "in_progress",
                       "commit":  null,
-                      "next_action":  "Gate 1 still posted in review/02_look_test_*.jpg; fold in owner feedback when it arrives; meanwhile continue T3.x"
+                      "next_action":  "Gate 1 stills are in review/02_look_test_*.jpg (reworked after an independent review scored the first one 3/10). Awaiting owner feedback; not blocking."
                   },
                   {
                       "id":  "T3.1",
                       "phase":  3,
                       "title":  "Neon tetra model, shading and swim rig",
-                      "status":  "in_progress",
+                      "status":  "done",
                       "commit":  null,
-                      "next_action":  "tetra model works (src/blender/fish.py); refine shading, then baked schooling sim in T5.1"
+                      "next_action":  ""
                   },
                   {
                       "id":  "T3.2",
                       "phase":  3,
                       "title":  "Red shrimp and snail",
-                      "status":  "todo",
+                      "status":  "in_progress",
                       "commit":  null,
-                      "next_action":  ""
+                      "next_action":  "Opus subagents are writing src/blender/shrimp.py and snail.py; verify with tests/closeup.py --what shrimp|snail, then commit."
                   },
                   {
                       "id":  "T3.3",
                       "phase":  3,
                       "title":  "Plant library: carpet, stem, moss, epiphyte, floating",
-                      "status":  "todo",
+                      "status":  "done",
                       "commit":  null,
                       "next_action":  ""
                   },
@@ -128,17 +128,17 @@
                       "id":  "T4.1",
                       "phase":  4,
                       "title":  "Scape 02 Dutch garden still",
-                      "status":  "todo",
+                      "status":  "in_progress",
                       "commit":  null,
-                      "next_action":  ""
+                      "next_action":  "Opus subagent drafting src/blender/scapes/02_dutch.py; review its preview, polish, commit."
                   },
                   {
                       "id":  "T4.2",
                       "phase":  4,
                       "title":  "Scape 03 Forest still",
-                      "status":  "todo",
+                      "status":  "in_progress",
                       "commit":  null,
-                      "next_action":  ""
+                      "next_action":  "Opus subagent drafting src/blender/scapes/03_forest.py; review, polish, commit."
                   },
                   {
                       "id":  "T4.3",
@@ -146,7 +146,7 @@
                       "title":  "Scape 04 Blackwater Amazon still",
                       "status":  "todo",
                       "commit":  null,
-                      "next_action":  ""
+                      "next_action":  "Launch an Opus subagent with a brief like the Dutch and Forest ones (see git history of this session or write anew from PROMPT.md and src/blender/README.md): tea-coloured WATER, roots via wood.grow gravity\u003e0, dead_leaves, floaters, dark sand, 14 tetras."
                   },
                   {
                       "id":  "T4.4",
@@ -154,7 +154,7 @@
                       "title":  "Scape 05 Floating Islands still",
                       "status":  "todo",
                       "commit":  null,
-                      "next_action":  ""
+                      "next_action":  "Launch an Opus subagent: moss-covered rocks hung mid-water (assets dragonstone ids), hanging roots, white sand, sand-fall, 12 tetras, 2 shrimp, 1 snail."
                   },
                   {
                       "id":  "T4.5",
@@ -168,9 +168,9 @@
                       "id":  "T5.1",
                       "phase":  5,
                       "title":  "Schooling simulation, shrimp and snail motion, plant sway (baked)",
-                      "status":  "todo",
+                      "status":  "in_progress",
                       "commit":  null,
-                      "next_action":  ""
+                      "next_action":  "src/sim/school.py and fish.School work and scape 01 uses them (animate()). Still to do: shrimp, snail motion in animate(); R3 depth-change check per scape."
                   },
                   {
                       "id":  "T5.2",
@@ -184,25 +184,25 @@
                       "id":  "T5.3",
                       "phase":  5,
                       "title":  "Transitions: awakening and four bubble and bloom reveals",
-                      "status":  "todo",
+                      "status":  "in_progress",
                       "commit":  null,
-                      "next_action":  ""
+                      "next_action":  "src/comp/assemble.py does bloom and bubble transitions in 2D. Upgrade the awakening to a real rising water level (animate water mesh height, reveal scape below the surface) if time allows."
                   },
                   {
                       "id":  "T5.4",
                       "phase":  5,
                       "title":  "Compositor: plate merge, grain, captions, encode",
-                      "status":  "todo",
+                      "status":  "in_progress",
                       "commit":  null,
-                      "next_action":  ""
+                      "next_action":  "assemble.py works: captions, transitions, encode. Add spill-light dimming on the floor when the tank fills (reviewer item 12) and front-glass detail from the plate (item 10)."
                   },
                   {
                       "id":  "T5.5",
                       "phase":  5,
                       "title":  "Sound design",
-                      "status":  "todo",
+                      "status":  "in_progress",
                       "commit":  null,
-                      "next_action":  ""
+                      "next_action":  "Opus subagent writing src/comp/audio.py (pure synthesis). Verify loudness and timing, commit."
                   },
                   {
                       "id":  "T5.6",
@@ -260,6 +260,9 @@
                   "Sleep was already disabled on this laptop (AC and DC), so no power setting was changed.",
                   "Heartbeat cron 671ef7a6 fires at :13 and :43 in the Claude Code session; it is session-only.",
                   "Draft stills render in about 2 s, full-resolution preview (128 samples) in about 20 s on the RTX 4060; the first render after a cold start spends about 75 s loading kernels.",
-                  "While the camera is parked, src/comp/composite.py takes everything outside the wet part of the tank from the filmed plate."
+                  "While the camera is parked, src/comp/composite.py takes everything outside the wet part of the tank from the filmed plate.",
+                  "Renders needed per scape (python src/comp/assemble.py --needs): 01 606-967, 02 952-1282, 03 1267-1597, 04 1582-1912, 05 1897-2309. Sequence render: blender -b --python src/blender/build.py -- --scape ID --frames A-B --outdir \u003cwork\u003e/renders/ID --quality final.",
+                  "When several Blender renders share the GPU, set AQUARIUM_CPU_DENOISE=1 to avoid OIDN out-of-memory errors.",
+                  "Lamp is ten spot LEDs totalling 50 W by default; scapes override via LIGHT/WATER dicts (see src/blender/README.md)."
               ]
 }

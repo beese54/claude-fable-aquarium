@@ -16,9 +16,9 @@ The machine-readable ledger is `progress_tracking.json`. This file is the human 
 - [ ] T2.2 Iwagumi look test still in the room. **Gate 1 (owner)**
 
 ## Phase 3: asset library
-- [ ] T3.1 Neon tetra
+- [x] T3.1 Neon tetra
 - [ ] T3.2 Red shrimp and snail
-- [ ] T3.3 Plants
+- [x] T3.3 Plants
 - [x] T3.4 CC0 asset sourcing and manifest
 
 ## Phase 4: the other four scapes
@@ -48,4 +48,5 @@ The machine-readable ledger is `progress_tracking.json`. This file is the human 
 ## Review
 
 (filled in at the end)
+
 

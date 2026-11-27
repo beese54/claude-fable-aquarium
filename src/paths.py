@@ -18,7 +18,10 @@ def _expand(p: str) -> Path:
 WORK = Path(os.environ.get("AQUARIUM_WORK_DIR") or _expand(_cfg["work_dir"]))
 PLATE = WORK / "plate"          # tonemapped frames, clean plates, masks
 ASSETS = WORK / "assets"        # downloaded CC0 assets
-RENDERS = WORK / "renders"      # frame sequences per segment
+# Frame sequences per scape. AQUARIUM_RENDER_SET=draft keeps a rough cut's frames
+# apart from the final ones (renders_draft/ beside renders/).
+_set = os.environ.get("AQUARIUM_RENDER_SET")
+RENDERS = WORK / (f"renders_{_set}" if _set else "renders")
 CACHE = WORK / "cache"          # baked animation, misc
 REVIEW = REPO / "review"        # stills shown to the owner (committed)
 OUTPUT = REPO / "output"

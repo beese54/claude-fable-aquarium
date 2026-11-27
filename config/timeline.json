@@ -4,7 +4,7 @@
   "segments": [
     { "id": "intro",       "kind": "footage",    "start": 0,    "end": 499 },
     { "id": "hold",        "kind": "plate",      "start": 499,  "end": 555 },
-    { "id": "awakening",   "kind": "transition", "start": 555,  "end": 690,  "to": "01_iwagumi" },
+    { "id": "awakening",   "kind": "transition", "start": 555,  "end": 690,  "to": "01_iwagumi", "rise": [568, 664], "level_from_mm": 39 },
     { "id": "01_iwagumi",  "kind": "scape",      "start": 690,  "end": 930 },
     { "id": "t_12",        "kind": "transition", "start": 930,  "end": 990,  "to": "02_dutch" },
     { "id": "02_dutch",    "kind": "scape",      "start": 990,  "end": 1245 },

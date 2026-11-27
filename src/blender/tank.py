@@ -164,7 +164,76 @@ def build_water(level_mm=268.0, collection=None, ripple_mm=0.35, ripple_scale=0.
     mod2.vertex_group = "Surface"
     obj.cycles.is_caustics_caster = True
     obj.visible_shadow = True
+    obj["top_count"] = top_count
+    obj["ripple_strengths"] = [mod.strength, mod2.strength]
     return obj, drift
+
+
+def set_water_level(obj, level_mm, turbulence=1.0):
+    """Move the surface to a new height and scale its ripples. Called per frame
+    while the tank fills; the body's sides and bottom stay where they are."""
+    n = obj["top_count"]
+    me = obj.data
+    z = level_mm * MM
+    for i in range(n):
+        me.vertices[i].co.z = z
+    me.update()
+    base = obj["ripple_strengths"]
+    obj.modifiers["Ripples"].strength = base[0] * turbulence
+    obj.modifiers["RipplesFine"].strength = base[1] * (0.6 + 0.4 * turbulence)
+
+
+# --- reveal: the scape exists only below the water --------------------------------
+
+REVEAL_GROUP = "RevealLevel"
+
+
+def _reveal_group():
+    g = bpy.data.node_groups.get(REVEAL_GROUP)
+    if g is None:
+        g = bpy.data.node_groups.new(REVEAL_GROUP, "ShaderNodeTree")
+        g.interface.new_socket("Level", in_out="OUTPUT", socket_type="NodeSocketFloat")
+        val = g.nodes.new("ShaderNodeValue")
+        val.name = "level"
+        val.outputs[0].default_value = 100.0
+        out = g.nodes.new("NodeGroupOutput")
+        g.links.new(val.outputs[0], out.inputs[0])
+    return g
+
+
+def add_reveal(materials):
+    """Make each material invisible above a shared height, so that as the tank
+    fills, the scape appears beneath the rising surface and nowhere else."""
+    g = _reveal_group()
+    for mat in materials:
+        if mat is None or not mat.use_nodes or mat.get("reveal"):
+            continue
+        nt = mat.node_tree
+        out = next((n for n in nt.nodes if n.type == "OUTPUT_MATERIAL" and n.is_active_output), None)
+        if out is None or not out.inputs["Surface"].links:
+            continue
+        src = out.inputs["Surface"].links[0].from_socket
+        geo = nt.nodes.new("ShaderNodeNewGeometry")
+        sep = nt.nodes.new("ShaderNodeSeparateXYZ")
+        nt.links.new(geo.outputs["Position"], sep.inputs[0])
+        grp = nt.nodes.new("ShaderNodeGroup")
+        grp.node_tree = g
+        above = nt.nodes.new("ShaderNodeMath")
+        above.operation = "GREATER_THAN"
+        nt.links.new(sep.outputs["Z"], above.inputs[0])
+        nt.links.new(grp.outputs[0], above.inputs[1])
+        clear = nt.nodes.new("ShaderNodeBsdfTransparent")
+        mix = nt.nodes.new("ShaderNodeMixShader")
+        nt.links.new(above.outputs[0], mix.inputs["Fac"])
+        nt.links.new(src, mix.inputs[1])
+        nt.links.new(clear.outputs[0], mix.inputs[2])
+        nt.links.new(mix.outputs[0], out.inputs["Surface"])
+        mat["reveal"] = True
+
+
+def set_reveal_level(level_mm):
+    """Everything wrapped by add_reveal is hidden above this height (give a huge value to show all)."""
+    _reveal_group().nodes["level"].outputs[0].default_value = level_mm * MM
 
 
 def animate_ripples(drift, frame_start, frame_end, speed_mm_per_s=14.0, fps=30):

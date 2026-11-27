@@ -25,6 +25,7 @@ for p in (HERE, HERE.parent):
 import bl_common as bc  # noqa: E402
 import room as room_mod  # noqa: E402
 import tank as tank_mod  # noqa: E402
+import timeline  # noqa: E402
 
 
 def build(scape="empty", frame=1, quality="preview", out=None, lamp_watts=None):
@@ -71,14 +72,34 @@ def build(scape="empty", frame=1, quality="preview", out=None, lamp_watts=None):
         water, drift = tank_mod.build_water(level_mm=level, material=material, **ripple)
         tank_mod.animate_ripples(drift, 0, 2400)
         ctx["water"] = water
+    protected = set(bpy.data.materials)        # room, lamp, glass, water: never hidden by the reveal
+    ctx["scape"] = scape
+    ctx["module"] = mod
     if mod is not None:
         mod.build(ctx)
+        if timeline.is_filling(scape):
+            tank_mod.add_reveal([m for m in bpy.data.materials if m not in protected])
         # Behind a filled tank the cable only shows as confusing mirror images in
         # the side glass and the surface; it is left out once there is water.
         lamp["cable"].hide_render = True
         add_fill(ctx, watts)
-    scene.frame_set(frame)
+    apply_frame(ctx, frame)
     return scene, device, ctx
+
+
+def apply_frame(ctx, frame):
+    """Put the scene in its state for this frame: clock, water level, and whatever the scape animates by code."""
+    ctx["scene"].frame_set(frame)
+    ctx["frame"] = frame
+    scape = ctx.get("scape")
+    if ctx.get("water") is not None and timeline.is_filling(scape):
+        level = timeline.water_level_mm(frame, scape)
+        tank_mod.set_water_level(ctx["water"], level, timeline.turbulence(frame, scape))
+        tank_mod.set_reveal_level(level - 0.6 if level < timeline.FULL_MM else 1.0e5)
+        ctx["water_level_mm"] = level
+    mod = ctx.get("module")
+    if mod is not None and hasattr(mod, "animate"):
+        mod.animate(ctx, frame)
 
 
 def add_fill(ctx, key_watts):
@@ -141,14 +162,10 @@ def main():
         if not todo:
             return
         scene, device, ctx = build(a.scape, todo[0], a.quality, None, a.lamp_watts)
-        mod = sys.modules.get(f"scapes.{a.scape}")
         print(f"[build] scape={a.scape} quality={a.quality} device={device} built in {time.time() - t0:.1f}s")
         for f in todo:
             t1 = time.time()
-            scene.frame_set(f)
-            ctx["frame"] = f
-            if mod is not None and hasattr(mod, "animate"):
-                mod.animate(ctx, f)
+            apply_frame(ctx, f)
             # write to a temporary name first so a killed render never leaves a half file that looks finished
             tmp = outdir / f"_{f:05d}.exr"
             scene.render.filepath = str(tmp)

@@ -329,7 +329,7 @@ class Tetra:
         self.d = np.clip(-self.rest[:, 0] / (TOTAL_MM * MM), 0.0, 1.0)     # 0 snout, 1 tail tip
         self.obj.cycles.is_caustics_receiver = True
 
-    def pose(self, position, forward, phase=0.0, amp=0.5, bend=0.0, roll=0.0):
+    def pose(self, position, forward, phase=0.0, amp=0.5, bend=0.0, roll=0.0, grow=1.0):
         """position: metres. forward: direction of travel. phase: tail-beat phase
         in radians. amp: 0 still .. 1 hard swimming. bend: -1..1 turn (positive
         swings the tail toward local -Y, steering the head toward +Y)."""
@@ -352,7 +352,7 @@ class Tetra:
         rot = Matrix((f, side, up2)).transposed().to_4x4()
         if roll:
             rot = rot @ Matrix.Rotation(roll, 4, "X")
-        self.obj.matrix_world = Matrix.Translation(Vector(position)) @ rot @ Matrix.Scale(self.size, 4)
+        self.obj.matrix_world = Matrix.Translation(Vector(position)) @ rot @ Matrix.Scale(max(self.size * grow, 1e-4), 4)
 
 def shoal(n, centre_mm, spread_mm, seed=0, heading_deg=180.0, name="Tetra", keep_out=(), floor=None, z_max=250.0):
     """Place a loose shoal for a still: fish cluster round a centre, mostly
@@ -412,10 +412,12 @@ class School:
     def objects(self):
         return [t.obj for t in self.fish]
 
-    def pose(self, frame):
+    def pose(self, frame, grow=None):
+        """grow: optional function index -> 0..1 size, for animals that appear over time."""
         f = min(max(frame - self.frame_start, 0), self.frames - 1)
         d = self.data
         for i, t in enumerate(self.fish):
             t.pose(tuple(float(c) * MM for c in d["pos"][f, i]), tuple(float(c) for c in d["fwd"][f, i]),
                    phase=float(d["phase"][f, i]), amp=float(d["amp"][f, i]),
-                   bend=float(d["bend"][f, i]), roll=float(d["roll"][f, i]))
+                   bend=float(d["bend"][f, i]), roll=float(d["roll"][f, i]),
+                   grow=1.0 if grow is None else grow(i))

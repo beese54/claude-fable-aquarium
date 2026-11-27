@@ -13,6 +13,7 @@ import assets
 import fish
 import plants
 import substrate
+import timeline
 from bl_common import MM, shot_frames
 from scatter import collection_of, scatter
 
@@ -85,10 +86,10 @@ def build(ctx):
     assets.mark_underwater(made, ctx)
     ctx["bed"] = bed
     ctx["school"] = school
-    animate(ctx, ctx["frame"])
     return ctx
 
 
 def animate(ctx, frame):
     """Everything that moves by code rather than by keyframes."""
-    ctx["school"].pose(frame)
+    n = len(ctx["school"].fish)
+    ctx["school"].pose(frame, grow=lambda i: timeline.arrival(frame, SCAPE, i, n))

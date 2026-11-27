@@ -27,6 +27,7 @@ sys.path.insert(0, str(SRC))
 sys.path.insert(0, str(SRC / "comp"))
 import composite as comp  # noqa: E402
 import paths  # noqa: E402
+import timeline  # noqa: E402
 
 W, H = 1080, 1920
 FONTS = paths.REPO / "assets" / "fonts"
@@ -84,7 +85,7 @@ def scape_frame(scape, n, grain=True):
     lin = render_linear(scape, n)
     if lin is None:
         return placeholder(scape)
-    return comp.composite(lin, seed=n, add_grain=grain)
+    return comp.composite(lin, level_mm=timeline.water_level_mm(n, scape), seed=n, add_grain=grain)
 
 
 def plate_frame(n, grain=True):
@@ -250,11 +251,19 @@ class Film:
             k = n - s["start"]
             p = (k + 0.5) / length
             a_id = self.prev_scape[s["id"]]
-            a = plate_frame(n) if a_id is None else scape_frame(a_id, n)
-            b = scape_frame(s["to"], n)
-            if s["id"] not in self.bubbles:
-                self.bubbles[s["id"]] = Bubbles(seed=s["start"], frames=length)
-            img = transition_frame(a, b, p, k, self.bubbles[s["id"]])
+            if "rise" in s:
+                # The awakening is not a blend: water rises in the scene itself and
+                # the compositor follows the waterline. Before it starts, the lamp swells.
+                img = plate_frame(n) if n < s["rise"][0] else scape_frame(s["to"], n)
+                pulse = timeline.lamp_pulse(n)
+                if pulse > 0:
+                    img = np.clip(img + lamp_glow()[..., None] * (0.22 * pulse) * np.array([1.0, 0.97, 0.93], np.float32), 0, 1)
+            else:
+                a = plate_frame(n) if a_id is None else scape_frame(a_id, n)
+                b = scape_frame(s["to"], n)
+                if s["id"] not in self.bubbles:
+                    self.bubbles[s["id"]] = Bubbles(seed=s["start"], frames=length)
+                img = transition_frame(a, b, p, k, self.bubbles[s["id"]])
         else:
             raise ValueError(kind)
         img = add_captions(img, n, self.tl)
@@ -271,7 +280,7 @@ class Film:
             first, last = s["start"], s["end"] - 1
             if i > 0 and segs[i - 1]["kind"] == "transition":
                 t = segs[i - 1]
-                first = t["start"] + int(0.38 * (t["end"] - t["start"]))
+                first = t["rise"][0] if "rise" in t else t["start"] + int(0.38 * (t["end"] - t["start"]))
             if i + 1 < len(segs) and segs[i + 1]["kind"] == "transition":
                 t = segs[i + 1]
                 last = t["start"] + int(0.62 * (t["end"] - t["start"]))

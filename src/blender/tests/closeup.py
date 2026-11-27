@@ -31,6 +31,11 @@ def main():
     ap.add_argument("--what", default="tetra")
     ap.add_argument("--out", required=True)
     ap.add_argument("--samples", type=int, default=96)
+    ap.add_argument("--shrimp-t", default="0,0.3,0.6", help="shrimp: comma-separated t per shrimp (s)")
+    ap.add_argument("--walk", type=float, default=1.0, help="shrimp: 0 grazing .. 1 walking")
+    ap.add_argument("--snail-t", default="0,0.4,0.8", help="snail: comma-separated t per snail (s)")
+    ap.add_argument("--snail-view", default="side", choices=("side", "glass"),
+                    help="snail: on a floor seen from the side, or on the front glass seen through it")
     a = ap.parse_args(bc.script_args())
 
     scene = bc.reset_scene()
@@ -61,15 +66,29 @@ def main():
         span = 0.135
     elif a.what == "shrimp":
         import shrimp
+        ts = [float(v) for v in a.shrimp_t.split(",")]
         for i, (pos, yaw) in enumerate([((-0.035, 0, 0), 0.0), ((0.0, 0, 0), -0.8), ((0.032, 0, 0), -1.45)]):
             s = shrimp.Shrimp(f"Shrimp{i}")
-            s.pose(pos, yaw=yaw, t=0.3 * i)
+            s.pose(pos, yaw=yaw, t=ts[i % len(ts)], walk=a.walk)
         span = 0.105
     elif a.what == "snail":
         import snail
-        for i, (pos, yaw) in enumerate([((-0.025, 0, 0), 0.0), ((0.0, 0, 0), -0.9), ((0.025, 0, 0), -1.9)]):
+        ts = [float(v) for v in a.snail_t.split(",")]
+        if a.snail_view == "glass":
+            # on the far face of a front pane (y = 0), seen through it from -Y:
+            # the soles should show as pale ovals ringed by the shell edge
+            pane = bc.box_object("Pane", (-0.05, -0.00405, -0.03), (0.05, -0.00005, 0.03))
+            pane.data.materials.append(bc.principled_material("Glass", (1, 1, 1), roughness=0.0, **{
+                "Transmission Weight": 1.0, "IOR": 1.5}))
+            places = [((-0.025, 0, 0), 0.0), ((0.0, 0, 0.004), 1.2), ((0.025, 0, -0.002), -2.4)]
+            up = (0, 1, 0)
+        else:
+            # lowered so the 10 mm-high animals sit in the middle of the frame
+            places = [((-0.025, 0, -0.005), 0.0), ((0.0, 0, -0.005), -0.9), ((0.025, 0, -0.005), -1.9)]
+            up = (0, 0, 1)
+        for i, (pos, yaw) in enumerate(places):
             s = snail.Snail(f"Snail{i}")
-            s.pose(pos, yaw=yaw, t=0.4 * i)
+            s.pose(pos, yaw=yaw, t=ts[i % len(ts)], up=up)
         span = 0.08
     else:
         sys.exit(f"unknown --what {a.what}")

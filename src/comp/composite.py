@@ -40,22 +40,28 @@ def lit_plate():
 
 
 def wet_matte(level_mm=268.0, feather=1.2):
-    """1 where the camera looks into water: the front glass from the tray's rim up to the waterline."""
-    key = ("wet", level_mm)
+    """1 where the camera looks into water: the front glass from the tray's rim
+    up to the waterline, and, while the surface is still below the camera, the
+    surface itself seen from above."""
+    key = ("wet", round(level_mm, 2))
     if key not in _cache:
+        if len(_cache) > 40:                                  # a rising level makes many mattes; keep the cache small
+            for k in [k for k in _cache if isinstance(k, tuple) and k[0] == "wet"]:
+                del _cache[k]
         cam = Camera()
         room = json.loads((paths.CONFIG / "room.json").read_text(encoding="utf-8"))
         z0 = room["floor_z"] + room["tray"]["height"] + 1.0
         # The side panes seen edge-on (the outer 5 mm each side) stay as filmed:
         # water behind them barely changes how the glass edge looks.
-        quad = cam.project([(5.5, 0, z0), (294.5, 0, z0), (294.5, 0, level_mm), (5.5, 0, level_mm)])
+        pts = [(5.5, 0, z0), (294.5, 0, z0), (294.5, 0, level_mm), (5.5, 0, level_mm),
+               (5.5, 295, level_mm), (294.5, 295, level_mm)]
+        px = cam.project(pts)
         S = 4
         m = np.zeros((H * S, W * S), np.uint8)
-        cv2.fillConvexPoly(m, np.round(quad * S).astype(np.int32), 255)
+        cv2.fillConvexPoly(m, cv2.convexHull(np.round(px * S).astype(np.int32)), 255)
         m = cv2.resize(m, (W, H), interpolation=cv2.INTER_AREA).astype(np.float32) / 255.0
         _cache[key] = cv2.GaussianBlur(m, (0, 0), feather) if feather else m
     return _cache[key]
-
 
 def grain(shape, luma, rng, stats=None):
     """Luma-weighted noise shaped like the footage's: slightly soft, strongest in the mid-tones."""

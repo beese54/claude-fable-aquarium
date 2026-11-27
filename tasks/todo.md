@@ -24,15 +24,15 @@ The machine-readable ledger is `progress_tracking.json`. This file is the human 
 ## Phase 4: the other four scapes
 - [x] T4.1 Dutch garden
 - [x] T4.2 Forest
-- [ ] T4.3 Blackwater Amazon
-- [ ] T4.4 Floating Islands
+- [x] T4.3 Blackwater Amazon
+- [x] T4.4 Floating Islands
 - [ ] T4.5 Reviews and **Gate 2 (owner): five design stills**
 
 ## Phase 5: motion, sound, draft
-- [ ] T5.1 Animal and plant animation (baked)
+- [x] T5.1 Animal and plant animation (baked)
 - [x] T5.2 Camera moves
-- [ ] T5.3 Transitions
-- [ ] T5.4 Compositor, captions, encode
+- [x] T5.3 Transitions
+- [x] T5.4 Compositor, captions, encode
 - [x] T5.5 Sound design
 - [ ] T5.6 Draft video. **Gate 3 (owner)**
 
@@ -48,6 +48,8 @@ The machine-readable ledger is `progress_tracking.json`. This file is the human 
 ## Review
 
 (filled in at the end)
+
+
 
 
 

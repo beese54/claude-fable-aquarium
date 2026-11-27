@@ -10,7 +10,7 @@
                                                   ]
                                    },
                   "G2_design_stills":  {
-                                           "status":  "pending",
+                                           "status":  "posted, awaiting owner; final render (T6.1) must not start for a scape until the owner approves its still",
                                            "blocks":  [
                                                           "T6.1"
                                                       ],
@@ -144,33 +144,33 @@
                       "id":  "T4.3",
                       "phase":  4,
                       "title":  "Scape 04 Blackwater Amazon still",
-                      "status":  "in_progress",
-                      "commit":  null,
-                      "next_action":  "Opus subagent drafting src/blender/scapes/04_blackwater.py; review, polish, commit."
+                      "status":  "done",
+                      "commit":  "bc2e826",
+                      "next_action":  "Still for Gate 2 at about frame 1700. Known weak spots: plain amber background low down; little dappled light."
                   },
                   {
                       "id":  "T4.4",
                       "phase":  4,
                       "title":  "Scape 05 Floating Islands still",
-                      "status":  "in_progress",
-                      "commit":  null,
-                      "next_action":  "Opus subagent drafting src/blender/scapes/05_floating.py; review, polish, commit."
+                      "status":  "done",
+                      "commit":  "3912eb5",
+                      "next_action":  "Known weak spots: the sand-fall can read as a pole in a still; snail shows only its sole on the front glass."
                   },
                   {
                       "id":  "T4.5",
                       "phase":  4,
                       "title":  "Self-review and fresh-context review of all five stills; post Gate 2",
-                      "status":  "todo",
+                      "status":  "in_progress",
                       "commit":  null,
-                      "next_action":  ""
+                      "next_action":  "Five stills are in review/03_design_*.jpg (Gate 2 posted). A fresh-context reviewer is scoring them; record scores in review/scores.md and fix the shared problems it finds."
                   },
                   {
                       "id":  "T5.1",
                       "phase":  5,
                       "title":  "Schooling simulation, shrimp and snail motion, plant sway (baked)",
-                      "status":  "in_progress",
-                      "commit":  null,
-                      "next_action":  "src/sim/school.py and fish.School work and scape 01 uses them (animate()). Still to do: shrimp, snail motion in animate(); R3 depth-change check per scape."
+                      "status":  "done",
+                      "commit":  "see cf9c3a7, 6b3c1d0",
+                      "next_action":  ""
                   },
                   {
                       "id":  "T5.2",
@@ -184,17 +184,17 @@
                       "id":  "T5.3",
                       "phase":  5,
                       "title":  "Transitions: awakening and four bubble and bloom reveals",
-                      "status":  "in_progress",
-                      "commit":  null,
-                      "next_action":  "Awakening (rising water) done in 3D. Scape-to-scape transitions are a 2D bloom and bubble veil in assemble.py; refine look after the draft video."
+                      "status":  "done",
+                      "commit":  "35e9333",
+                      "next_action":  ""
                   },
                   {
                       "id":  "T5.4",
                       "phase":  5,
                       "title":  "Compositor: plate merge, grain, captions, encode",
-                      "status":  "in_progress",
-                      "commit":  null,
-                      "next_action":  "assemble.py works: captions, transitions, encode. Add spill-light dimming on the floor when the tank fills (reviewer item 12) and front-glass detail from the plate (item 10)."
+                      "status":  "done",
+                      "commit":  "7325599",
+                      "next_action":  ""
                   },
                   {
                       "id":  "T5.5",
@@ -208,9 +208,9 @@
                       "id":  "T5.6",
                       "phase":  5,
                       "title":  "Low-quality full-length draft video (Gate 3)",
-                      "status":  "todo",
+                      "status":  "in_progress",
                       "commit":  null,
-                      "next_action":  ""
+                      "next_action":  "Draft frames are rendering: AQUARIUM_RENDER_SET=draft python src/render_all.py --quality draft --step 2 (resumable; log in \u003cwork\u003e/renders_draft/render_all.log). Then: python src/comp/audio.py (if soundtrack.wav is missing) and AQUARIUM_RENDER_SET=draft python src/comp/assemble.py --out review/04_draft.mp4 --half --crf 23 --preset fast; post Gate 3."
                   },
                   {
                       "id":  "T6.1",

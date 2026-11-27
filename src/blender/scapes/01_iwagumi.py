@@ -13,8 +13,10 @@ import assets
 import fish
 import plants
 import substrate
-from bl_common import MM
+from bl_common import MM, shot_frames
 from scatter import collection_of, scatter
+
+SCAPE = "01_iwagumi"
 
 # name, model, x, y, height above soil, how the scan is stood up, (lean, lean, heading), fraction buried
 STONES = [
@@ -74,11 +76,19 @@ def build(ctx):
     scatter(bed.obj, tufts, name="Hairgrass", min_distance=3.3 * MM, weight_attr="carpet", seed=21,
             scale=(0.45, 1.15), align="UP", tilt=0.30, sway=(0.07, 9.0, 0.35))
 
+    # The shoal roams the open water above and to the right of the stones.
     keep = [(sx, sy, r * 0.8, top) for _, sx, sy, r, top in stones]
-    school = fish.shoal(12, centre_mm=(196, 120, 172), spread_mm=(42, 50, 24), seed=4, heading_deg=175, keep_out=keep, floor=ground)
-    made += [t.obj for t in school]
+    f0, f1 = shot_frames(SCAPE)
+    school = fish.School(SCAPE, 12, f0, f1, box=(40, 264, 28, 250, 128, 236), seed=4, obstacles=keep, ground=ground)
+    made += school.objects
 
     assets.mark_underwater(made, ctx)
     ctx["bed"] = bed
     ctx["school"] = school
+    animate(ctx, ctx["frame"])
     return ctx
+
+
+def animate(ctx, frame):
+    """Everything that moves by code rather than by keyframes."""
+    ctx["school"].pose(frame)

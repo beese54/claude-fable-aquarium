@@ -4,6 +4,7 @@ small mesh and material builders. Scene units are metres in the tank frame
 front-left-bottom corner). Config files are in millimetres; MM converts.
 """
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -64,8 +65,10 @@ def setup_render(scene, quality="preview", out_path=None):
     c.use_denoising = True
     c.denoiser = "OPENIMAGEDENOISE"
     c.denoising_input_passes = "RGB_ALBEDO_NORMAL"
+    # Denoising on the GPU is faster but needs spare memory; when several renders
+    # share the card, set AQUARIUM_CPU_DENOISE=1 to keep it off the GPU.
     try:
-        c.denoising_use_gpu = True
+        c.denoising_use_gpu = os.environ.get("AQUARIUM_CPU_DENOISE") != "1"
     except Exception:
         pass
     # A tank is glass inside glass: long refraction chains must not be cut short.
@@ -175,3 +178,9 @@ def script_args():
     """Arguments after the '--' on Blender's command line."""
     argv = sys.argv
     return argv[argv.index("--") + 1:] if "--" in argv else []
+
+def shot_frames(scape_id, pad=75):
+    """First and one-past-last frame a scape is ever on screen, with padding to
+    cover the transitions into and out of it."""
+    seg = next(s for s in paths.timeline()["segments"] if s["id"] == scape_id)
+    return seg["start"] - pad, seg["end"] + pad

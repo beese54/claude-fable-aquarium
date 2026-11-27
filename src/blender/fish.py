@@ -338,7 +338,7 @@ class Tetra:
         env = (0.018 - 0.085 * d + 0.235 * d * d) * amp
         wave = env * Lm * np.sin(phase - 2 * math.pi * d / 1.05)
         co = self.rest.copy()
-        co[:, 1] += wave - bend * 0.16 * Lm * d * d
+        co[:, 1] += wave - bend * 0.10 * Lm * d * d
         self.obj.data.vertices.foreach_set("co", co.ravel())
         self.obj.data.update()
 
@@ -389,3 +389,33 @@ def shoal(n, centre_mm, spread_mm, seed=0, heading_deg=180.0, name="Tetra", keep
                bend=rng.gauss(0, 0.3), roll=rng.gauss(0, 0.09))
         out.append(t)
     return out
+
+class School:
+    """A simulated shoal for a whole shot: build once, then pose(frame) at will.
+
+    The motion comes from src/sim/school.py, cached on disk under `key`, so a
+    frame rendered today and one rendered next week line up exactly.
+    """
+
+    def __init__(self, key, n, frame_start, frame_end, box, seed=0, obstacles=(), ground=None, name="Tetra", **sim_kw):
+        import random
+        import paths
+        from sim import school as sim
+        self.data = sim.cached(paths.CACHE, key, n=n, frame_start=frame_start, frame_end=frame_end, box=box,
+                               seed=seed, obstacles=obstacles, ground=ground, **sim_kw)
+        self.frame_start = int(self.data["frame_start"])
+        self.frames = self.data["pos"].shape[0]
+        rng = random.Random(seed)
+        self.fish = [Tetra(f"{name}_{i:02d}", size=rng.uniform(0.84, 1.08)) for i in range(n)]
+
+    @property
+    def objects(self):
+        return [t.obj for t in self.fish]
+
+    def pose(self, frame):
+        f = min(max(frame - self.frame_start, 0), self.frames - 1)
+        d = self.data
+        for i, t in enumerate(self.fish):
+            t.pose(tuple(float(c) * MM for c in d["pos"][f, i]), tuple(float(c) for c in d["fwd"][f, i]),
+                   phase=float(d["phase"][f, i]), amp=float(d["amp"][f, i]),
+                   bend=float(d["bend"][f, i]), roll=float(d["roll"][f, i]))

@@ -184,3 +184,30 @@ def shot_frames(scape_id, pad=75):
     cover the transitions into and out of it."""
     seg = next(s for s in paths.timeline()["segments"] if s["id"] == scape_id)
     return seg["start"] - pad, seg["end"] + pad
+
+def _rodrigues(rvec):
+    import numpy as np
+    r = np.array(rvec, dtype=np.float64)
+    th = np.linalg.norm(r)
+    if th < 1e-12:
+        return np.eye(3)
+    k = r / th
+    K = np.array([[0, -k[2], k[1]], [k[2], 0, -k[0]], [-k[1], k[0], 0]])
+    return np.eye(3) + np.sin(th) * K + (1 - np.cos(th)) * (K @ K)
+
+
+def move_camera(cam_obj, frame):
+    """Place the camera for this frame of the film's slow move (see src/camera_move.py)."""
+    import numpy as np
+    import camera_move
+    cam = cfg("camera.json")
+    R0 = _rodrigues(cam["opencv"]["rvec"])
+    C0 = -R0.T @ np.array(cam["opencv"]["tvec_mm"])
+    R, C = camera_move.moved(R0, C0, camera_move.offset(frame))
+    Rb = R.T @ np.diag([1.0, -1.0, -1.0])       # OpenCV camera axes to Blender's
+    M = Matrix.Identity(4)
+    for i in range(3):
+        for j in range(3):
+            M[i][j] = float(Rb[i, j])
+        M[i][3] = float(C[i]) * MM
+    cam_obj.matrix_world = M

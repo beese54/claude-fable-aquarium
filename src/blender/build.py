@@ -53,6 +53,7 @@ def build(scape="empty", frame=1, quality="preview", out=None, lamp_watts=None):
     room = room_mod.build_room()
     lamp = room_mod.build_lamp()
     glass = tank_mod.build_glass()
+    room_mod.build_glass_dirt()
     watts = lamp_watts if lamp_watts is not None else light_cfg["watts"]
     for led in lamp["lights"]:
         led.data.energy = watts / len(lamp["lights"])
@@ -91,6 +92,7 @@ def apply_frame(ctx, frame):
     """Put the scene in its state for this frame: clock, water level, and whatever the scape animates by code."""
     ctx["scene"].frame_set(frame)
     ctx["frame"] = frame
+    bc.move_camera(ctx["scene"].camera, frame)
     scape = ctx.get("scape")
     if ctx.get("water") is not None and timeline.is_filling(scape):
         level = timeline.water_level_mm(frame, scape)

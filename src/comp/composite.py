@@ -39,16 +39,18 @@ def lit_plate():
     return _cache["plate"]
 
 
-def wet_matte(level_mm=268.0, feather=1.2):
+def wet_matte(level_mm=268.0, feather=1.2, frame=None):
     """1 where the camera looks into water: the front glass from the tray's rim
     up to the waterline, and, while the surface is still below the camera, the
     surface itself seen from above."""
-    key = ("wet", round(level_mm, 2))
+    import camera_move
+    off = camera_move.offset(frame) if frame is not None else np.zeros(3)
+    key = ("wet", round(level_mm, 2), tuple(np.round(off, 2)))
     if key not in _cache:
         if len(_cache) > 40:                                  # a rising level makes many mattes; keep the cache small
             for k in [k for k in _cache if isinstance(k, tuple) and k[0] == "wet"]:
                 del _cache[k]
-        cam = Camera()
+        cam = Camera() if frame is None else Camera().at_frame(frame)
         room = json.loads((paths.CONFIG / "room.json").read_text(encoding="utf-8"))
         z0 = room["floor_z"] + room["tray"]["height"] + 1.0
         # The side panes seen edge-on (the outer 5 mm each side) stay as filmed:
@@ -85,15 +87,19 @@ def unsharp(img, radius=1.1, amount=0.45):
     return img + amount * (img - cv2.GaussianBlur(img, (0, 0), radius))
 
 
-def composite(render_linear, level_mm=268.0, seed=0, use_plate=True, add_grain=True):
+def composite(render_linear, level_mm=268.0, seed=0, use_plate=True, add_grain=True, plate_weight=1.0):
     """render_linear: HxWx3 BGR scene-linear float. Returns HxWx3 BGR display float in 0..1."""
     disp = colour.linear_to_display(render_linear.astype(np.float64)).astype(np.float32)
     if disp.shape[:2] != (H, W):
         disp = cv2.resize(disp, (W, H), interpolation=cv2.INTER_CUBIC)
     sharp = unsharp(disp)
-    if use_plate:
+    if use_plate and plate_weight > 0:
+        # plate_weight falls to 0 once the camera leaves the filmed position, where
+        # the plate no longer lines up and the render carries the whole frame.
         m = wet_matte(level_mm)[..., None]
         out = lit_plate() * (1 - m) + sharp * m
+        if plate_weight < 1:
+            out = out * plate_weight + sharp * (1 - plate_weight)
     else:
         out = sharp
     out = np.clip(out, 0, 1)

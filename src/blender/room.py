@@ -145,8 +145,10 @@ def build_lamp(collection=None, led_strength=40.0):
     # The lamp's own parts sit right beside its light source, where an idealised
     # area light would burn them out. They are given the tones they have in the
     # footage instead (emission), and still block light like any solid.
-    black = emission_material("LampBlack", (0.020, 0.020, 0.026), 1.0)
-    grey = emission_material("ClampGrey", (0.30, 0.30, 0.40), 1.0)
+    # They carry the filmed frame itself by projection, so from the filmed
+    # position they are the real lamp, and they keep its look as the camera moves.
+    black = plate_material("LampPlate", "lit_plate_linear.exr")
+    grey = black
 
     # Head as a box in its measured position (it sits a few degrees off square).
     rl, rr, fl, fr = (Vector(h[k]) * MM for k in ("rear_left", "rear_right", "front_left", "front_right"))
@@ -173,6 +175,9 @@ def build_lamp(collection=None, led_strength=40.0):
     led.visible_diffuse = False
     led.visible_volume_scatter = False
     led.visible_shadow = False
+    # Seen directly, the head shows the filmed LEDs (projected); this bright panel
+    # is only for what the water and glass reflect and refract of the lamp.
+    led.visible_camera = False
 
     s = lamp["stem"]
     sx, sy = s["x"] * MM, s["y"] * MM
@@ -191,7 +196,7 @@ def build_lamp(collection=None, led_strength=40.0):
     b2.width = 1.5 * MM
     b2.segments = 2
 
-    cable = _cable(cam_json, col, black)
+    cable = _cable(cam_json, col, emission_material("CableBlack", (0.020, 0.020, 0.026), 1.0))
 
     # The light that actually illuminates the tank. The real fixture is a bar of
     # separate LED chips, and that matters: each chip is nearly a point, so each
@@ -257,4 +262,33 @@ def _cable(cam_json, col, mat):
     obj = bpy.data.objects.new("LampCable", cu)
     col.objects.link(obj)
     obj.data.materials.append(mat)
+    return obj
+
+def build_glass_dirt(collection=None):
+    """The dry front glass's limescale and smears, as a sheet of added light just
+    in front of the pane. Only the camera sees it."""
+    col = collection or bpy.context.scene.collection
+    mat, nt, out = new_material("GlassDirt")
+    img = bpy.data.images.load(str(paths.PLATE / "glass_dirt_linear.exr"), check_existing=True)
+    img.colorspace_settings.name = "Linear Rec.709"
+    tex = nt.nodes.new("ShaderNodeTexImage")
+    tex.image = img
+    tex.interpolation = "Cubic"
+    tex.extension = "EXTEND"
+    nt.links.new(projection_uv(nt, cfg("camera.json")), tex.inputs["Vector"])
+    em = nt.nodes.new("ShaderNodeEmission")
+    nt.links.new(tex.outputs["Color"], em.inputs["Color"])
+    clear = nt.nodes.new("ShaderNodeBsdfTransparent")
+    add = nt.nodes.new("ShaderNodeAddShader")
+    nt.links.new(clear.outputs[0], add.inputs[0])
+    nt.links.new(em.outputs[0], add.inputs[1])
+    nt.links.new(add.outputs[0], out.inputs["Surface"])
+    y = -0.3 * MM
+    obj = new_mesh_object("GlassDirt", [(0.004, y, 0.258), (0.296, y, 0.258), (0.296, y, 0.302), (0.004, y, 0.302)], [(0, 1, 2, 3)], col)
+    obj.data.materials.append(mat)
+    obj.visible_diffuse = False
+    obj.visible_glossy = False
+    obj.visible_transmission = False
+    obj.visible_volume_scatter = False
+    obj.visible_shadow = False
     return obj

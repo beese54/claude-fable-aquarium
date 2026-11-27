@@ -25,6 +25,7 @@ from PIL import Image, ImageDraw, ImageFont  # noqa: E402
 SRC = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(SRC))
 sys.path.insert(0, str(SRC / "comp"))
+import camera_move  # noqa: E402
 import composite as comp  # noqa: E402
 import paths  # noqa: E402
 import timeline  # noqa: E402
@@ -85,7 +86,8 @@ def scape_frame(scape, n, grain=True):
     lin = render_linear(scape, n)
     if lin is None:
         return placeholder(scape)
-    return comp.composite(lin, level_mm=timeline.water_level_mm(n, scape), seed=n, add_grain=grain)
+    return comp.composite(lin, level_mm=timeline.water_level_mm(n, scape), seed=n, add_grain=grain,
+                          plate_weight=1.0 - camera_move.render_weight(n))
 
 
 def plate_frame(n, grain=True):
@@ -140,12 +142,12 @@ def lamp_glow():
     return comp._cache["glow"]
 
 
-def transition_frame(a_img, b_img, p, k, bubbles):
+def transition_frame(a_img, b_img, p, k, bubbles, n=None):
     """a_img, b_img: display frames (already composited). p: 0..1 through the transition."""
     veil = math.sin(math.pi * p) ** 1.4
     mix = _smooth(0.40, 0.60, p)
     img = a_img * (1 - mix) + b_img * mix
-    m = comp.wet_matte()[..., None]
+    m = comp.wet_matte(frame=n)[..., None]
     # the tank fills with light from the top down
     yy = np.linspace(0, 1, H, dtype=np.float32)[:, None, None]
     white = np.array([1.0, 0.985, 0.96], np.float32) * (1.0 - 0.10 * yy)
@@ -263,7 +265,7 @@ class Film:
                 b = scape_frame(s["to"], n)
                 if s["id"] not in self.bubbles:
                     self.bubbles[s["id"]] = Bubbles(seed=s["start"], frames=length)
-                img = transition_frame(a, b, p, k, self.bubbles[s["id"]])
+                img = transition_frame(a, b, p, k, self.bubbles[s["id"]], n)
         else:
             raise ValueError(kind)
         img = add_captions(img, n, self.tl)

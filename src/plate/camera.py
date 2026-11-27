@@ -24,6 +24,18 @@ class Camera:
         self.t = np.array(cam["opencv"]["tvec_mm"], dtype=np.float64)
         self.C = -self.R.T @ self.t
 
+    def at_frame(self, frame):
+        """This camera as it stands at a frame of the film's camera move."""
+        import copy
+        import camera_move
+        off = camera_move.offset(frame)
+        if not off.any():
+            return self
+        cam = copy.copy(self)
+        cam.R, cam.C = camera_move.moved(self.R, self.C, off)
+        cam.t = -cam.R @ cam.C
+        return cam
+
     def project(self, pts_mm):
         cam = (self.R @ np.atleast_2d(np.asarray(pts_mm, dtype=np.float64)).T).T + self.t
         return np.stack([self.f * cam[:, 0] / cam[:, 2] + self.cx,

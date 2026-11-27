@@ -145,6 +145,13 @@ def main():
     assert ok, "EXR write failed"
     lin_lit = colour.display_to_linear(plate.astype(np.float64)).astype(np.float32)
     cv2.imwrite(str(paths.PLATE / "lit_plate_linear.exr"), lin_lit, [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
+    # What the dry front glass adds to the view: limescale, smears and glare,
+    # as light on top of whatever is behind. Kept only above the waterline; it
+    # rides on the glass in 3D so it shows the right parallax when the camera moves.
+    dry = cam.hull_mask([(7, 0, 263), (293, 0, 263), (293, 0, 299), (7, 0, 299)])
+    dry = cv2.GaussianBlur(dry.astype(np.float32) / 255.0, (0, 0), 2.0)[..., None]
+    dirt = np.clip(lin_lit - linear, 0, None) * dry
+    cv2.imwrite(str(paths.PLATE / "glass_dirt_linear.exr"), dirt.astype(np.float32), [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
     back = colour.linear_to_display(cv2.imread(str(paths.PLATE / "room_plate_linear.exr"), cv2.IMREAD_UNCHANGED).astype(np.float64))
     err = float(np.abs(back - room_plate)[room_plate.max(axis=2) < 0.995].max())
     print(f"EXR round-trip max error {err:.4f} (display units)")

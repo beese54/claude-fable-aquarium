@@ -26,7 +26,7 @@ The machine-readable ledger is `progress_tracking.json`. This file is the human 
 - [x] T4.2 Forest
 - [x] T4.3 Blackwater Amazon
 - [x] T4.4 Floating Islands
-- [ ] T4.5 Reviews and **Gate 2 (owner): five design stills**
+- [x] T4.5 Reviews and **Gate 2 (owner): five design stills**
 
 ## Phase 5: motion, sound, draft
 - [x] T5.1 Animal and plant animation (baked)
@@ -48,6 +48,7 @@ The machine-readable ledger is `progress_tracking.json`. This file is the human 
 ## Review
 
 (filled in at the end)
+
 
 
 

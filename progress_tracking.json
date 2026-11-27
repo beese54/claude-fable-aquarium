@@ -160,9 +160,9 @@
                       "id":  "T4.5",
                       "phase":  4,
                       "title":  "Self-review and fresh-context review of all five stills; post Gate 2",
-                      "status":  "in_progress",
-                      "commit":  null,
-                      "next_action":  "Five stills are in review/03_design_*.jpg (Gate 2 posted). A fresh-context reviewer is scoring them; record scores in review/scores.md and fix the shared problems it finds."
+                      "status":  "done",
+                      "commit":  "3e6a1af",
+                      "next_action":  "Gate 2 stills posted (review/03_design_*.jpg, scores in review/scores.md). Open items listed there. Awaiting owner approval per scape before T6.1."
                   },
                   {
                       "id":  "T5.1",
@@ -210,7 +210,7 @@
                       "title":  "Low-quality full-length draft video (Gate 3)",
                       "status":  "in_progress",
                       "commit":  null,
-                      "next_action":  "Draft frames are rendering: AQUARIUM_RENDER_SET=draft python src/render_all.py --quality draft --step 2 (resumable; log in \u003cwork\u003e/renders_draft/render_all.log). Then: python src/comp/audio.py (if soundtrack.wav is missing) and AQUARIUM_RENDER_SET=draft python src/comp/assemble.py --out review/04_draft.mp4 --half --crf 23 --preset fast; post Gate 3."
+                      "next_action":  "Draft frames rendering in background (AQUARIUM_RENDER_SET=draft python src/render_all.py --quality draft --step 2; log \u003cwork\u003e/renders_draft/render_all.log). Scapes 01 and 02 drafts were rendered before the lighting and fish fixes of commit 3e6a1af: when the pass finishes, delete \u003cwork\u003e/renders_draft/01_iwagumi and 02_dutch and run the same command again. Then assemble: $env:AQUARIUM_RENDER_SET=\u0027draft\u0027; python src/comp/assemble.py --out review/04_draft.mp4 --half --crf 23 --preset fast; view frames; post Gate 3."
                   },
                   {
                       "id":  "T6.1",
@@ -265,6 +265,7 @@
                   "When several Blender renders share the GPU, set AQUARIUM_CPU_DENOISE=1 to avoid OIDN out-of-memory errors.",
                   "Lamp is ten spot LEDs totalling 50 W by default; scapes override via LIGHT/WATER dicts (see src/blender/README.md).",
                   "Scapes 02 and 03 were briefed before fish.School existed: convert them from fish.shoal to SCAPE + fish.School + animate(ctx, frame) like scape 01, and add shrimp/snail where their briefs left TODOs.",
-                  "Polish to do before final render: match the rendered glass edge colour to the filmed pale cyan (EDGE_GLOW and absorption in src/blender/tank.py) so the hand-over at frame 700 does not shift the edge strips; verify caustics are visible on sand and stone in motion."
+                  "Polish to do before final render: match the rendered glass edge colour to the filmed pale cyan (EDGE_GLOW and absorption in src/blender/tank.py) so the hand-over at frame 700 does not shift the edge strips; verify caustics are visible on sand and stone in motion.",
+                  "Root cause worth remembering: any object a scape creates must be a Cycles caustics receiver or it gets no lamp light through the water. build.py now marks every object created after the base scene, including scatter sources."
               ]
 }

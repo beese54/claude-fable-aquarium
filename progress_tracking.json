@@ -200,9 +200,9 @@
                       "id":  "T5.5",
                       "phase":  5,
                       "title":  "Sound design",
-                      "status":  "in_progress",
-                      "commit":  null,
-                      "next_action":  "Opus subagent writing src/comp/audio.py (pure synthesis). Verify loudness and timing, commit."
+                      "status":  "done",
+                      "commit":  "4f6d8c6",
+                      "next_action":  "Not yet judged by ear; the owner may want levels adjusted (see SCAPE_COLOURS and the mix levels in src/comp/audio.py)."
                   },
                   {
                       "id":  "T5.6",

@@ -33,7 +33,7 @@ The machine-readable ledger is `progress_tracking.json`. This file is the human 
 - [x] T5.2 Camera moves
 - [ ] T5.3 Transitions
 - [ ] T5.4 Compositor, captions, encode
-- [ ] T5.5 Sound design
+- [x] T5.5 Sound design
 - [ ] T5.6 Draft video. **Gate 3 (owner)**
 
 ## Phase 6: final render
@@ -48,6 +48,7 @@ The machine-readable ledger is `progress_tracking.json`. This file is the human 
 ## Review
 
 (filled in at the end)
+
 
 
 

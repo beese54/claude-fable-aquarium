@@ -104,9 +104,9 @@
                       "id":  "T3.2",
                       "phase":  3,
                       "title":  "Red shrimp and snail",
-                      "status":  "in_progress",
+                      "status":  "done",
                       "commit":  null,
-                      "next_action":  "Opus subagents are writing src/blender/shrimp.py and snail.py; verify with tests/closeup.py --what shrimp|snail, then commit."
+                      "next_action":  ""
                   },
                   {
                       "id":  "T3.3",
@@ -144,17 +144,17 @@
                       "id":  "T4.3",
                       "phase":  4,
                       "title":  "Scape 04 Blackwater Amazon still",
-                      "status":  "todo",
+                      "status":  "in_progress",
                       "commit":  null,
-                      "next_action":  "Launch an Opus subagent with a brief like the Dutch and Forest ones (see git history of this session or write anew from PROMPT.md and src/blender/README.md): tea-coloured WATER, roots via wood.grow gravity\u003e0, dead_leaves, floaters, dark sand, 14 tetras."
+                      "next_action":  "Opus subagent drafting src/blender/scapes/04_blackwater.py; review, polish, commit."
                   },
                   {
                       "id":  "T4.4",
                       "phase":  4,
                       "title":  "Scape 05 Floating Islands still",
-                      "status":  "todo",
+                      "status":  "in_progress",
                       "commit":  null,
-                      "next_action":  "Launch an Opus subagent: moss-covered rocks hung mid-water (assets dragonstone ids), hanging roots, white sand, sand-fall, 12 tetras, 2 shrimp, 1 snail."
+                      "next_action":  "Opus subagent drafting src/blender/scapes/05_floating.py; review, polish, commit."
                   },
                   {
                       "id":  "T4.5",
@@ -176,9 +176,9 @@
                       "id":  "T5.2",
                       "phase":  5,
                       "title":  "Camera moves per scape",
-                      "status":  "todo",
+                      "status":  "done",
                       "commit":  null,
-                      "next_action":  ""
+                      "next_action":  "src/camera_move.py; tune amounts in config/timeline.json under camera_move if wanted"
                   },
                   {
                       "id":  "T5.3",
@@ -186,7 +186,7 @@
                       "title":  "Transitions: awakening and four bubble and bloom reveals",
                       "status":  "in_progress",
                       "commit":  null,
-                      "next_action":  "src/comp/assemble.py does bloom and bubble transitions in 2D. Upgrade the awakening to a real rising water level (animate water mesh height, reveal scape below the surface) if time allows."
+                      "next_action":  "Awakening (rising water) done in 3D. Scape-to-scape transitions are a 2D bloom and bubble veil in assemble.py; refine look after the draft video."
                   },
                   {
                       "id":  "T5.4",
@@ -263,6 +263,7 @@
                   "While the camera is parked, src/comp/composite.py takes everything outside the wet part of the tank from the filmed plate.",
                   "Renders needed per scape (python src/comp/assemble.py --needs): 01 606-967, 02 952-1282, 03 1267-1597, 04 1582-1912, 05 1897-2309. Sequence render: blender -b --python src/blender/build.py -- --scape ID --frames A-B --outdir \u003cwork\u003e/renders/ID --quality final.",
                   "When several Blender renders share the GPU, set AQUARIUM_CPU_DENOISE=1 to avoid OIDN out-of-memory errors.",
-                  "Lamp is ten spot LEDs totalling 50 W by default; scapes override via LIGHT/WATER dicts (see src/blender/README.md)."
+                  "Lamp is ten spot LEDs totalling 50 W by default; scapes override via LIGHT/WATER dicts (see src/blender/README.md).",
+                  "Scapes 02 and 03 were briefed before fish.School existed: convert them from fish.shoal to SCAPE + fish.School + animate(ctx, frame) like scape 01, and add shrimp/snail where their briefs left TODOs."
               ]
 }

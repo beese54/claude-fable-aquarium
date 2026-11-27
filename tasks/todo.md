@@ -17,7 +17,7 @@ The machine-readable ledger is `progress_tracking.json`. This file is the human 
 
 ## Phase 3: asset library
 - [x] T3.1 Neon tetra
-- [ ] T3.2 Red shrimp and snail
+- [x] T3.2 Red shrimp and snail
 - [x] T3.3 Plants
 - [x] T3.4 CC0 asset sourcing and manifest
 
@@ -30,7 +30,7 @@ The machine-readable ledger is `progress_tracking.json`. This file is the human 
 
 ## Phase 5: motion, sound, draft
 - [ ] T5.1 Animal and plant animation (baked)
-- [ ] T5.2 Camera moves
+- [x] T5.2 Camera moves
 - [ ] T5.3 Transitions
 - [ ] T5.4 Compositor, captions, encode
 - [ ] T5.5 Sound design
@@ -48,5 +48,6 @@ The machine-readable ledger is `progress_tracking.json`. This file is the human 
 ## Review
 
 (filled in at the end)
+
 
 

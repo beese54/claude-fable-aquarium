@@ -90,8 +90,34 @@ def scape_frame(scape, n, grain=True):
                           plate_weight=1.0 - camera_move.render_weight(n), frame=n)
 
 
-def plate_frame(n, grain=True):
+_settle = {}
+SETTLE_FRAMES = 45
+
+
+def settle_offset(first_plate_frame):
+    """The clean plate is a median of the clip's last frames, so it sits a hair
+    off the very last filmed frame (the phone's exposure was still easing). The
+    broad difference between the two is carried into the hold and faded out, so
+    the cut from footage to plate is invisible; grain is left out of it."""
+    if "d" not in _settle:
+        cap = cv2.VideoCapture(str(paths.PLATE / "intro_sdr.mp4"))
+        cap.set(cv2.CAP_PROP_POS_FRAMES, first_plate_frame - 1)
+        ok, last = cap.read()
+        cap.release()
+        if not ok:
+            _settle["d"] = None
+        else:
+            d = last.astype(np.float32) / 255.0 - comp.lit_plate()
+            _settle["d"] = cv2.GaussianBlur(d, (0, 0), 18)
+    return _settle["d"]
+
+
+def plate_frame(n, grain=True, hold_start=None):
     out = comp.lit_plate()
+    if hold_start is not None and n - hold_start < SETTLE_FRAMES:
+        d = settle_offset(hold_start)
+        if d is not None:
+            out = out + d * (1.0 - _smooth(0, SETTLE_FRAMES, n - hold_start + 1))
     if grain:
         luma = 0.0722 * out[..., 0] + 0.7152 * out[..., 1] + 0.2126 * out[..., 2]
         out = np.clip(out + comp.grain(out.shape, luma, np.random.default_rng(n)), 0, 1)
@@ -243,7 +269,7 @@ class Film:
         if kind == "footage":
             img = self.intro.frame(n)
         elif kind == "plate":
-            img = plate_frame(n)
+            img = plate_frame(n, hold_start=s["start"])
         elif kind == "scape":
             img = scape_frame(s["id"], n)
         elif kind == "outro":

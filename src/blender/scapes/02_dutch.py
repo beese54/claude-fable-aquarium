@@ -399,8 +399,8 @@ def build(ctx):
     # The shoal keeps to the open water above the low and mid-ground plants, in
     # front of the tall background.
     f0, f1 = shot_frames(SCAPE)
-    school = fish.School(SCAPE, 10, f0, f1, box=(38, 262, 26, 150, 182, 242), seed=7,
-                         obstacles=keep_out, ground=ground, spread=(55.0, 34.0, 16.0))
+    school = fish.School(SCAPE, 10, f0, f1, box=(38, 262, 24, 160, 182, 242), seed=7,
+                         obstacles=keep_out, ground=ground, spread=(50.0, 20.0, 14.0))
     made += school.objects
 
     # Red cherry shrimp grazing on the open soil, spread in depth as well as across.

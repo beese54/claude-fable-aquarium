@@ -1,0 +1,67 @@
+{
+  "image_size": [
+    1080,
+    1920
+  ],
+  "focal_px": 1678.632,
+  "principal_point": [
+    540.0,
+    960.0
+  ],
+  "vertical_fov_deg": 59.53,
+  "opencv": {
+    "rvec": [
+      1.60525304,
+      0.01887089,
+      0.02325839
+    ],
+    "tvec_mm": [
+      -157.1659,
+      119.1896,
+      559.0507
+    ]
+  },
+  "blender": {
+    "units": "metres, tank frame: X right, Y away from camera, Z up, origin at outer front-left-bottom corner",
+    "matrix_world": [
+      [
+        0.99963991,
+        -0.02663741,
+        -0.00324032,
+        0.15212288
+      ],
+      [
+        -0.00231792,
+        0.03458617,
+        -0.99939903,
+        -0.55495672
+      ],
+      [
+        0.02673347,
+        0.99904667,
+        0.03451197,
+        0.14257152
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "sensor_fit": "VERTICAL",
+    "sensor_height_mm": 36.0,
+    "lens_mm": 31.47435
+  },
+  "camera_position_mm": [
+    152.12,
+    -554.96,
+    142.57
+  ],
+  "fit": {
+    "rms_points_px": 1.6,
+    "rms_lines_px": 1.202,
+    "rms_all_px": 1.415,
+    "max_point_px": 2.159
+  }
+}

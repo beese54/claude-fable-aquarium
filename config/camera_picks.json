@@ -1,0 +1,25 @@
+{
+  "_comment": "Hand-read features on the unlit plate (pixels, x right, y down) tied to tank geometry in millimetres. Tank frame: X right, Y away from the camera, Z up; origin at the outer front-left-bottom corner. Glass is 5 mm (the edge-on side panes measure 14 to 17 px at about 3.05 px/mm).",
+  "tank_mm": [300, 300, 300],
+  "glass_mm": 5,
+  "points": [
+    { "name": "front top left, outer",        "px": [84.5, 409.0],   "mm": [0, 0, 300] },
+    { "name": "front top right, outer",       "px": [1001.0, 432.0], "mm": [300, 0, 300] },
+    { "name": "front top left, inner",        "px": [99.5, 410.0],   "mm": [5, 0, 300] },
+    { "name": "front top right, inner",       "px": [984.0, 432.0],  "mm": [295, 0, 300] },
+    { "name": "back top left, inner",         "px": [250.0, 580.5],  "mm": [5, 295, 300] },
+    { "name": "back top right, inner",        "px": [829.0, 597.5],  "mm": [295, 295, 300] },
+    { "name": "back floor left, inner",       "px": [241.0, 1163.0], "mm": [5, 295, 5] },
+    { "name": "back floor right, inner",      "px": [809.0, 1181.0], "mm": [295, 295, 5] }
+  ],
+  "lines": [
+    { "name": "front left outer vertical",   "px": [70.5, 1170.0],  "a_mm": [0, 0, 0],     "b_mm": [0, 0, 300] },
+    { "name": "front right outer vertical",  "px": [973.5, 1200.0], "a_mm": [300, 0, 0],   "b_mm": [300, 0, 300] },
+    { "name": "front left inner vertical",   "px": [84.5, 1170.0],  "a_mm": [5, 0, 0],     "b_mm": [5, 0, 300] },
+    { "name": "front right inner vertical",  "px": [959.5, 1200.0], "a_mm": [295, 0, 0],   "b_mm": [295, 0, 300] },
+    { "name": "left floor inner edge",       "px": [185.0, 1210.0], "a_mm": [5, 0, 5],     "b_mm": [5, 295, 5] },
+    { "name": "right floor inner edge",      "px": [860.0, 1232.0], "a_mm": [295, 0, 5],   "b_mm": [295, 295, 5] },
+    { "name": "left top inner edge",         "px": [190.0, 510.0],  "a_mm": [5, 0, 300],   "b_mm": [5, 295, 300] },
+    { "name": "right top inner edge",        "px": [920.0, 500.0],  "a_mm": [295, 0, 300], "b_mm": [295, 295, 300] }
+  ]
+}

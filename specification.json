@@ -1,0 +1,52 @@
+{
+  "project": "Aquarium Dream",
+  "brief": "PROMPT.md",
+  "deliverable": {
+    "path": "output/aquarium_dream.mp4",
+    "container": "mp4 (faststart)",
+    "video": { "codec": "h264 high", "pix_fmt": "yuv420p", "width": 1080, "height": 1920, "fps": 30, "colour": "bt709 SDR [ASSUMED: SDR, not HDR]" },
+    "audio": { "codec": "aac", "rate": 48000, "channels": 2, "content": "ambient sound design only, CC0 or synthesised" },
+    "duration_s": { "target": 77, "min": 70, "max": 80 },
+    "max_size_mb": 95
+  },
+  "source_clip": {
+    "path": "Aquarium_Blank.mp4 (local only); footage/aquarium_blank_noaudio.mp4 (committed, audio stripped)",
+    "facts": { "stored": "1920x1080 hevc 10-bit HLG bt2020, rotation -90", "display": "1080x1920", "fps": 30, "frames": 499, "duration_s": 16.63, "light_on_s": 14.0, "exposure_settled_s": 16.0 },
+    "allowed_changes": ["rotate to display orientation", "tonemap HLG to bt709 SDR", "strip audio"]
+  },
+  "tank": { "outer_cm": [30, 30, 30], "glass_mm": "[ASSUMED: 5] measure from plate if visible", "water_level": "about 3 cm below the rim, below the light clamp" },
+  "render_method": "Blender 4.5 LTS, Cycles on GPU (OptiX), headless Python scripts",
+  "timeline": "config/timeline.json",
+  "scapes": [
+    { "id": "01_iwagumi", "title": "Iwagumi", "summary": "Odd group of grey Seiryu-style stones, main stone off-centre, hairgrass carpet, open water", "livestock": { "neon_tetra": 12, "red_shrimp": 0, "snail": 0 } },
+    { "id": "02_dutch", "title": "Dutch garden", "summary": "Terraced rows of stem plants in greens, reds and pinks, no hardscape showing", "livestock": { "neon_tetra": 10, "red_shrimp": 4, "snail": 0 } },
+    { "id": "03_forest", "title": "Forest", "summary": "Driftwood trees with moss canopies, white sand path, light shafts", "livestock": { "neon_tetra": 10, "red_shrimp": 3, "snail": 1 } },
+    { "id": "04_blackwater", "title": "Blackwater Amazon", "summary": "Tea-coloured water, roots, leaf litter, floating plants, dim amber light", "livestock": { "neon_tetra": 14, "red_shrimp": 0, "snail": 0 } },
+    { "id": "05_floating", "title": "Floating Islands", "summary": "Moss-covered rocks suspended mid-water with hanging roots, white sand, a thin sand-fall", "livestock": { "neon_tetra": 12, "red_shrimp": 2, "snail": 1 } }
+  ],
+  "captions": {
+    "placement": "[ASSUMED: clean floor area below the tank, soft fades, open-licence font]",
+    "lines": "config/timeline.json"
+  },
+  "camera": {
+    "solve": "OpenCV solvePnP against the 30 cm cube corners; RMS reprojection error 2 px or less",
+    "moves": "small real dolly or arc per scape over a projection-mapped rebuild of the room, limited so the projection does not tear"
+  },
+  "pipeline": [
+    { "stage": "plate", "dir": "src/plate", "does": "tonemap, clean lit plate, grain profile, camera solve, masks" },
+    { "stage": "scene", "dir": "src/blender", "does": "room proxy, tank, water, light, assets, scapes, animation, render" },
+    { "stage": "comp", "dir": "src/comp", "does": "merge over plate, grain match, captions, audio, encode" },
+    { "stage": "qa", "dir": "src/qa", "does": "automated checks and contact sheets" }
+  ],
+  "storage": {
+    "repo": "code, config, review stills, committed clip without audio, final video",
+    "work_dir": "config/paths.json (outside OneDrive): downloaded assets, frame sequences, caches"
+  },
+  "assets_policy": "CC0 only; each listed in assets/MANIFEST.md with source URL",
+  "orchestration": {
+    "coordinator": "Claude Fable 5.2",
+    "subagents": "Opus 5.5 for bounded tasks, one task each, verified by the coordinator before commit",
+    "owner_gates": ["G1 look test still", "G2 five design stills (blocks final render per scape)", "G3 draft video", "G4 final video"],
+    "resume": "progress_tracking.json ledger plus a 30 minute heartbeat scheduled in the session"
+  }
+}

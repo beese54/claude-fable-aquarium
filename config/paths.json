@@ -1,0 +1,9 @@
+{
+  "_comment": "Heavy intermediates stay out of the synced project folder. Environment variables are expanded by src/paths.py. Override with the AQUARIUM_WORK_DIR environment variable.",
+  "work_dir": "%LOCALAPPDATA%/aquarium_dream",
+  "source_clip": "Aquarium_Blank.mp4",
+  "blender_candidates": [
+    "%ProgramFiles%/Blender Foundation/Blender 4.5/blender.exe",
+    "blender"
+  ]
+}

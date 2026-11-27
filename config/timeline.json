@@ -1,0 +1,29 @@
+{
+  "fps": 30,
+  "total_frames": 2310,
+  "segments": [
+    { "id": "intro",       "kind": "footage",    "start": 0,    "end": 499 },
+    { "id": "hold",        "kind": "plate",      "start": 499,  "end": 555 },
+    { "id": "awakening",   "kind": "transition", "start": 555,  "end": 690,  "to": "01_iwagumi" },
+    { "id": "01_iwagumi",  "kind": "scape",      "start": 690,  "end": 930 },
+    { "id": "t_12",        "kind": "transition", "start": 930,  "end": 990,  "to": "02_dutch" },
+    { "id": "02_dutch",    "kind": "scape",      "start": 990,  "end": 1245 },
+    { "id": "t_23",        "kind": "transition", "start": 1245, "end": 1305, "to": "03_forest" },
+    { "id": "03_forest",   "kind": "scape",      "start": 1305, "end": 1560 },
+    { "id": "t_34",        "kind": "transition", "start": 1560, "end": 1620, "to": "04_blackwater" },
+    { "id": "04_blackwater","kind": "scape",     "start": 1620, "end": 1875 },
+    { "id": "t_45",        "kind": "transition", "start": 1875, "end": 1935, "to": "05_floating" },
+    { "id": "05_floating", "kind": "scape",      "start": 1935, "end": 2190 },
+    { "id": "outro",       "kind": "outro",      "start": 2190, "end": 2310 }
+  ],
+  "captions": [
+    { "text": "Every empty tank is a blank page.",          "start": 505,  "end": 555 },
+    { "text": "Imagine stillness.",                         "start": 570,  "end": 680 },
+    { "text": "Imagine abundance.",                         "start": 925,  "end": 995 },
+    { "text": "Imagine a forest beneath the surface.",      "start": 1240, "end": 1310 },
+    { "text": "Imagine a river, a world away.",             "start": 1555, "end": 1625 },
+    { "text": "Imagine the impossible.",                    "start": 1870, "end": 1940 },
+    { "text": "Whatever you can imagine, you can build.",   "start": 2195, "end": 2262 },
+    { "text": "Created with Claude Fable 5.2",              "start": 2262, "end": 2310 }
+  ]
+}

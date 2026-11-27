@@ -1,0 +1,11 @@
+# The original clip (with room audio) stays local; the committed copy is footage/aquarium_blank_noaudio.mp4
+/Aquarium_Blank.mp4
+
+# Heavy intermediates live in the work dir (see config/paths.json); these are belt and braces
+/renders/
+/assets/downloads/
+*.blend1
+*.exr
+__pycache__/
+*.pyc
+.claude/

@@ -80,7 +80,7 @@ def main():
             pane = bc.box_object("Pane", (-0.05, -0.00405, -0.03), (0.05, -0.00005, 0.03))
             pane.data.materials.append(bc.principled_material("Glass", (1, 1, 1), roughness=0.0, **{
                 "Transmission Weight": 1.0, "IOR": 1.5}))
-            places = [((-0.025, 0, 0), 0.0), ((0.0, 0, 0.004), 1.2), ((0.025, 0, -0.002), -2.4)]
+            places = [((-0.025, 0, 0), 0.0), ((0.0, 0, 0.0), 0.7), ((0.025, 0, 0.0), -2.6)]
             up = (0, 1, 0)
         else:
             # lowered so the 10 mm-high animals sit in the middle of the frame

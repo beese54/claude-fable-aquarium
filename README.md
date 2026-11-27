@@ -6,7 +6,9 @@ Built with Claude Fable 5.2 as a demonstration that whatever you can imagine, yo
 
 **Status:** in progress. `tasks/todo.md` shows where things stand; `review/` holds the stills posted for feedback so far.
 
-![Look test: the first scape composited into the filmed frame](review/02_look_test_iwagumi.jpg)
+![The five designs: Iwagumi, Dutch garden, Forest, Blackwater Amazon, Floating Islands](review/03_design_all_five.jpg)
+
+Each of these is the same filmed tank. Below the waterline everything is rendered; `review/scores.md` records two independent realism reviews of these stills and what was done about each finding.
 
 ## How it works
 

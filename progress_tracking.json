@@ -41,7 +41,7 @@
                       "phase":  0,
                       "title":  "Blueprint files, repo skeleton, public GitHub repo",
                       "status":  "done",
-                      "commit":  "see git log",
+                      "commit":  "b2a381a",
                       "next_action":  ""
                   },
                   {
@@ -49,7 +49,7 @@
                       "phase":  0,
                       "title":  "Install Blender 4.5 LTS, init.sh proves the toolchain",
                       "status":  "done",
-                      "commit":  "see git log",
+                      "commit":  "b2a381a",
                       "next_action":  ""
                   },
                   {
@@ -57,7 +57,7 @@
                       "phase":  1,
                       "title":  "Plate prep: tonemapped intro frames, committed clip without audio, clean lit plate, grain profile",
                       "status":  "done",
-                      "commit":  "see git log",
+                      "commit":  "9519bdb",
                       "next_action":  ""
                   },
                   {
@@ -65,7 +65,7 @@
                       "phase":  1,
                       "title":  "Camera solve from tank corners, wireframe overlay still",
                       "status":  "done",
-                      "commit":  "see git log",
+                      "commit":  "553e445",
                       "next_action":  ""
                   },
                   {
@@ -73,7 +73,7 @@
                       "phase":  1,
                       "title":  "Room rebuild in Blender with plate projection; empty-tank render matches plate",
                       "status":  "done",
-                      "commit":  "see git log",
+                      "commit":  "8f096fe",
                       "next_action":  ""
                   },
                   {
@@ -81,7 +81,7 @@
                       "phase":  2,
                       "title":  "Base tank scene: glass, water, light, caustics, particles",
                       "status":  "done",
-                      "commit":  "see git log",
+                      "commit":  "8f096fe",
                       "next_action":  ""
                   },
                   {
@@ -89,7 +89,7 @@
                       "phase":  2,
                       "title":  "Iwagumi look test still composited into the room (Gate 1)",
                       "status":  "in_progress",
-                      "commit":  null,
+                      "commit":  "b826044",
                       "next_action":  "Gate 1 stills are in review/02_look_test_*.jpg (reworked after an independent review scored the first one 3/10). Awaiting owner feedback; not blocking."
                   },
                   {
@@ -97,7 +97,7 @@
                       "phase":  3,
                       "title":  "Neon tetra model, shading and swim rig",
                       "status":  "done",
-                      "commit":  null,
+                      "commit":  "3e6a1af",
                       "next_action":  ""
                   },
                   {
@@ -105,7 +105,7 @@
                       "phase":  3,
                       "title":  "Red shrimp and snail",
                       "status":  "done",
-                      "commit":  null,
+                      "commit":  "4219751",
                       "next_action":  ""
                   },
                   {
@@ -113,7 +113,7 @@
                       "phase":  3,
                       "title":  "Plant library: carpet, stem, moss, epiphyte, floating",
                       "status":  "done",
-                      "commit":  null,
+                      "commit":  "b826044",
                       "next_action":  ""
                   },
                   {
@@ -121,7 +121,7 @@
                       "phase":  3,
                       "title":  "CC0 asset sourcing and assets/MANIFEST.md",
                       "status":  "done",
-                      "commit":  "see git log",
+                      "commit":  "321633d",
                       "next_action":  ""
                   },
                   {
@@ -169,7 +169,7 @@
                       "phase":  5,
                       "title":  "Schooling simulation, shrimp and snail motion, plant sway (baked)",
                       "status":  "done",
-                      "commit":  "see cf9c3a7, 6b3c1d0",
+                      "commit":  "cf9c3a7",
                       "next_action":  ""
                   },
                   {
@@ -177,7 +177,7 @@
                       "phase":  5,
                       "title":  "Camera moves per scape",
                       "status":  "done",
-                      "commit":  null,
+                      "commit":  "9de4270",
                       "next_action":  "src/camera_move.py; tune amounts in config/timeline.json under camera_move if wanted"
                   },
                   {

@@ -1,0 +1,80 @@
+{
+  "units": "mm, tank frame",
+  "floor_z": -2.0,
+  "tray": {
+    "front_bottom_left": [
+      -4.4,
+      -12.3,
+      -2.0
+    ],
+    "front_bottom_right": [
+      303.3,
+      -15.4,
+      -2.0
+    ],
+    "front_y": -13.9,
+    "height": 40.4,
+    "x_min": -4.4,
+    "x_max": 303.3
+  },
+  "wall": {
+    "floor_junction_left": [
+      -544.9,
+      1790.7,
+      -2.0
+    ],
+    "floor_junction_right": [
+      881.0,
+      1853.6,
+      -2.0
+    ],
+    "y": 1822.1,
+    "yaw_deg": 2.53,
+    "skirting_top_z": 88.1,
+    "gap_behind_tank": 1522.1
+  },
+  "lamp": {
+    "stem": {
+      "x": 146.6,
+      "y": 303.0,
+      "z_top": 422.1,
+      "width": 8.1
+    },
+    "head": {
+      "underside_z": 422.1,
+      "rear_left": [
+        85.7,
+        308.1,
+        422.1
+      ],
+      "rear_right": [
+        210.9,
+        297.6,
+        422.1
+      ],
+      "front_left": [
+        87.4,
+        242.6,
+        422.1
+      ],
+      "front_right": [
+        208.6,
+        233.1,
+        422.1
+      ],
+      "width": 123.6,
+      "depth": 65.0,
+      "thickness": 12.4,
+      "centre_xy": [
+        148.1,
+        270.4
+      ]
+    },
+    "clamp": {
+      "x_min": 120.8,
+      "x_max": 174.7,
+      "z_min": 283.8,
+      "z_max": 306.5
+    }
+  }
+}

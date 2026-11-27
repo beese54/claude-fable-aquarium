@@ -87,7 +87,7 @@ def scape_frame(scape, n, grain=True):
     if lin is None:
         return placeholder(scape)
     return comp.composite(lin, level_mm=timeline.water_level_mm(n, scape), seed=n, add_grain=grain,
-                          plate_weight=1.0 - camera_move.render_weight(n))
+                          plate_weight=1.0 - camera_move.render_weight(n), frame=n)
 
 
 def plate_frame(n, grain=True):

@@ -65,6 +65,38 @@ def wet_matte(level_mm=268.0, feather=1.2, frame=None):
         _cache[key] = cv2.GaussianBlur(m, (0, 0), feather) if feather else m
     return _cache[key]
 
+SPILL_DIM = 0.14      # share of the floor's light pool lost once the tank is full
+
+
+def spill_matte(frame=None):
+    """Where the lamp's light spills through the empty tank onto the floor in
+    front of it. Filmed with the tank empty, that pool is brighter than it would
+    be through water, soil and plants, so it is eased down as the tank fills."""
+    import camera_move
+    off = camera_move.offset(frame) if frame is not None else np.zeros(3)
+    key = ("spill", tuple(np.round(off, 1)))
+    if key not in _cache:
+        cam = Camera() if frame is None else Camera().at_frame(frame)
+        near = cam.project([(-420, -46, -2), (720, -46, -2), (720, -150, -2), (-420, -150, -2)])
+        far = cam.project([(-420, -46, -2), (720, -46, -2), (720, -420, -2), (-420, -420, -2)])
+        m = np.zeros((H, W), np.float32)
+        a = np.zeros((H, W), np.uint8)
+        cv2.fillConvexPoly(a, np.round(far).astype(np.int32), 255)
+        m += 0.45 * cv2.GaussianBlur(a.astype(np.float32) / 255.0, (0, 0), 55)
+        a[:] = 0
+        cv2.fillConvexPoly(a, np.round(near).astype(np.int32), 255)
+        m += 0.55 * cv2.GaussianBlur(a.astype(np.float32) / 255.0, (0, 0), 9)
+        _cache[key] = np.clip(m, 0, 1)
+    return _cache[key]
+
+
+def dim_spill(img, fill, frame=None):
+    """fill: 0 empty tank .. 1 full. Slightly greener as well as dimmer, as light through plants is."""
+    if fill <= 0:
+        return img
+    k = (SPILL_DIM * fill) * spill_matte(frame)[..., None]
+    return img * (1.0 - k * np.array([1.05, 0.97, 1.04], np.float32))
+
 def grain(shape, luma, rng, stats=None):
     """Luma-weighted noise shaped like the footage's: slightly soft, strongest in the mid-tones."""
     if stats is None:
@@ -87,7 +119,7 @@ def unsharp(img, radius=1.1, amount=0.45):
     return img + amount * (img - cv2.GaussianBlur(img, (0, 0), radius))
 
 
-def composite(render_linear, level_mm=268.0, seed=0, use_plate=True, add_grain=True, plate_weight=1.0):
+def composite(render_linear, level_mm=268.0, seed=0, use_plate=True, add_grain=True, plate_weight=1.0, frame=None):
     """render_linear: HxWx3 BGR scene-linear float. Returns HxWx3 BGR display float in 0..1."""
     disp = colour.linear_to_display(render_linear.astype(np.float64)).astype(np.float32)
     if disp.shape[:2] != (H, W):
@@ -102,6 +134,7 @@ def composite(render_linear, level_mm=268.0, seed=0, use_plate=True, add_grain=T
             out = out * plate_weight + sharp * (1 - plate_weight)
     else:
         out = sharp
+    out = dim_spill(out, min(1.0, max(0.0, (level_mm - 39.0) / 229.0)), frame)
     out = np.clip(out, 0, 1)
     if add_grain:
         luma = 0.0722 * out[..., 0] + 0.7152 * out[..., 1] + 0.2126 * out[..., 2]

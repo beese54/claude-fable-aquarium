@@ -196,7 +196,9 @@ def build_lamp(collection=None, led_strength=40.0):
                                         location=(sx, sy, (s["z_top"] + 300.0) / 2 * MM))
     stem = bpy.context.active_object
     stem.name = "LampStem"
-    stem.data.materials.append(black)
+    # A plain dark rod: projecting the frame onto it baked in the limescale band
+    # that crosses it on the front glass, which then slid about as the camera moved.
+    stem.data.materials.append(emission_material("StemBlack", (0.020, 0.020, 0.026), 1.0))
     _relink(stem, col)
 
     cl = lamp["clamp"]

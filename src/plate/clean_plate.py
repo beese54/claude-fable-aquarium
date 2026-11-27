@@ -151,6 +151,13 @@ def main():
     dry = cam.hull_mask([(7, 0, 263), (293, 0, 263), (293, 0, 299), (7, 0, 299)])
     dry = cv2.GaussianBlur(dry.astype(np.float32) / 255.0, (0, 0), 2.0)[..., None]
     dirt = np.clip(lin_lit - linear, 0, None) * dry
+    # The lamp's stem stands behind this glass and leaves a gap in the smears
+    # where it blocked the view; bridge the gap from either side.
+    s = room["lamp"]["stem"]
+    sx = cam.project([(s["x"], s["y"], 290.0)])[0][0]
+    a, b = int(sx - 16), int(sx + 16)
+    w = np.linspace(0, 1, b - a, dtype=np.float32)[None, :, None]
+    dirt[:, a:b] = dirt[:, a - 1:a] * (1 - w) + dirt[:, b:b + 1] * w
     cv2.imwrite(str(paths.PLATE / "glass_dirt_linear.exr"), dirt.astype(np.float32), [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
     back = colour.linear_to_display(cv2.imread(str(paths.PLATE / "room_plate_linear.exr"), cv2.IMREAD_UNCHANGED).astype(np.float64))
     err = float(np.abs(back - room_plate)[room_plate.max(axis=2) < 0.995].max())

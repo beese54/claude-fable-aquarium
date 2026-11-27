@@ -244,7 +244,7 @@ def tetra_materials():
     N[-1].inputs[2].default_value = 2.00
     dz = _math(nt, "SUBTRACT", z, zc)
     adz = _math(nt, "ABSOLUTE", dz)
-    band = _smooth(nt, adz, 0.62, 0.92, 1.0, 0.0)
+    band = _smooth(nt, adz, 0.78, 1.08, 1.0, 0.0)
     along = _math(nt, "MULTIPLY", _smooth(nt, s, 0.035, 0.07), _smooth(nt, s, 0.74, 0.80, 1.0, 0.0))
     blue_m = _math(nt, "MULTIPLY", band, along)
     red_m = _math(nt, "MULTIPLY", _smooth(nt, dz, -0.85, -0.50, 1.0, 0.0), _smooth(nt, s, 0.40, 0.52))
@@ -254,7 +254,7 @@ def tetra_materials():
     lw.inputs["Blend"].default_value = 0.45
     blue = _mix(nt, lw.outputs["Facing"], (0.00, 0.30, 1.00), (0.00, 0.95, 0.85))
     col = _mix(nt, red_m, (0.30, 0.32, 0.31), (0.50, 0.004, 0.004))
-    col = _mix(nt, back_m, col, (0.085, 0.072, 0.030))
+    col = _mix(nt, back_m, col, (0.020, 0.019, 0.010))
     col = _mix(nt, blue_m, col, blue)
 
     bsdf = N.new("ShaderNodeBsdfPrincipled")
@@ -262,11 +262,13 @@ def tetra_materials():
     silver_m = _math(nt, "SUBTRACT", 1.0, _math(nt, "MAXIMUM", red_m, back_m))
     metal = _math(nt, "MAXIMUM", _math(nt, "MULTIPLY", blue_m, 0.9), _math(nt, "MULTIPLY", silver_m, 0.55))
     L.new(metal, bsdf.inputs["Metallic"])
-    bsdf.inputs["Roughness"].default_value = 0.28
+    # The back is matt and dark so it does not flare white under the lamp.
+    L.new(_math(nt, "MULTIPLY_ADD", back_m, 0.24), bsdf.inputs["Roughness"])
+    N[-1].inputs[2].default_value = 0.28
     L.new(blue, bsdf.inputs["Emission Color"])
-    L.new(_math(nt, "MULTIPLY", blue_m, 0.85), bsdf.inputs["Emission Strength"])
+    L.new(_math(nt, "MULTIPLY", blue_m, 0.30), bsdf.inputs["Emission Strength"])
     # A tetra is a small, thin, half-transparent animal: light gets into the body.
-    bsdf.inputs["Subsurface Weight"].default_value = 0.35
+    L.new(_math(nt, "MULTIPLY", _math(nt, "SUBTRACT", 1.0, back_m), 0.35), bsdf.inputs["Subsurface Weight"])
     bsdf.inputs["Subsurface Radius"].default_value = (1.0, 0.6, 0.45)
     bsdf.inputs["Subsurface Scale"].default_value = 0.002
     L.new(bsdf.outputs[0], out.inputs["Surface"])

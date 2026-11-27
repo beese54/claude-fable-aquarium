@@ -62,7 +62,7 @@ def build(ctx):
         obj.name = name
         full = h / (1 - buried)
         assets.place(obj, bed.at(x, y), height_mm=full, pre_rot_deg=pre, rot_deg=rot, sink_mm=full * buried)
-        assets.grade_stone(obj, seed=k * 1.7)
+        assets.grade_stone(obj, vein_amount=0.42, seed=k * 1.7)
         stones.append((obj, x, y, assets.footprint_radius_mm(obj), ground(x, y) + h))
         made.append(obj)
 
@@ -71,7 +71,9 @@ def build(ctx):
         for _, sx, sy, r, _ in stones:
             d = math.hypot(x - sx, y - sy)
             w = min(w, max(0.0, min(1.0, (d - r * 0.70) / (r * 0.25))))
-        return w * (0.55 + 0.45 * min(1.0, y / 60))      # thinner against the front glass
+        # blades lean and sway, so tufts start a little in from the side and back glass
+        wall = max(0.0, min(1.0, (min(x - 5, 295 - x, 295 - y) - 6.0) / 12.0))
+        return w * wall * (0.55 + 0.45 * min(1.0, y / 60))      # thinner against the front glass
     bed.set_weight("carpet", carpet)
     tufts = collection_of("HairgrassSrc", plants.hairgrass_tufts(variants=6, blades=(10, 18), height_mm=(14, 34)))
     scatter(bed.obj, tufts, name="Hairgrass", min_distance=3.3 * MM, weight_attr="carpet", seed=21,

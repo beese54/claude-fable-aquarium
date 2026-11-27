@@ -74,10 +74,18 @@ def build(scape="empty", frame=1, quality="preview", out=None, lamp_watts=None):
         tank_mod.animate_ripples(drift, 0, 2400)
         ctx["water"] = water
     protected = set(bpy.data.materials)        # room, lamp, glass, water: never hidden by the reveal
+    scene_objects = set(bpy.data.objects)
     ctx["scape"] = scape
     ctx["module"] = mod
     if mod is not None:
         mod.build(ctx)
+        # Every object the scape made must take the lamp's light through the water
+        # surface, including the source objects that scatters instance (which are
+        # in no scene collection and so are easy to miss). An object left out is
+        # lit only by the soft fill: flat, and without shadows.
+        for ob in bpy.data.objects:
+            if ob not in scene_objects and ob.type in {"MESH", "CURVE"}:
+                ob.cycles.is_caustics_receiver = True
         if timeline.is_filling(scape):
             tank_mod.add_reveal([m for m in bpy.data.materials if m not in protected])
         # Behind a filled tank the cable only shows as confusing mirror images in

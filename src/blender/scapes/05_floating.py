@@ -34,6 +34,10 @@ from scatter import collection_of, scatter, set_point_attribute
 
 SCAPE = "05_floating"
 
+# Less soft fill than the other scapes: the islands' shadows on the pale sand are
+# what make them read as really hanging there, and fill washes them out.
+LIGHT = dict(fill=0.006, bounce=0.018)
+
 # name, model, piece, longest side, (x, y, underside z), how the scan is stood up,
 # (lean, lean, heading), hanging roots (count, shortest, longest, base radius),
 # what grows on top. Each scan is stood so it is broad on top and narrows
@@ -717,6 +721,9 @@ def build(ctx):
     path = _FallPath(lip, ground(lip.x / MM, lip.y / MM) - 1.5, seed=3)
     verts, faces = _sandfall_mesh(path)
     fall = new_mesh_object("SandFall", verts, faces, smooth=True)
+    # The solid core read as a white rod holding the island up. The fall is left
+    # to its moving grains alone, which read as sand in the act of falling.
+    fall.hide_render = True
     fall_mat, fall_maps = _sandfall_material()
     fall.data.materials.append(fall_mat)
     grains = _FallGrains("SandFallGrains", path, substrate.sand_material("FallGrain", colour=(0.66, 0.62, 0.54)))
@@ -929,11 +936,11 @@ def animate(ctx, frame):
     y = 40 + 3.0 * math.sin(t * 0.3)
     s.pose(Vector(ctx["bed"].at(x, y)), yaw=0.05 * math.cos(t * 0.3), t=t, up=tuple(_ground_normal(x, y)), walk=w)
 
-    # the nerite creeps up the front glass, low on the left, sole against the pane
-    yaw = -1.25
-    d = Vector((math.cos(yaw), 0.0, -math.sin(yaw)))
-    p = Vector((34.0, 5.3, 71.0)) + d * (t - 67.0) * 0.8
-    ctx["critters"]["snail"].pose(p * MM, yaw=yaw, t=t, up=(0, 1, 0))
+    # The nerite crosses the sand at the front left, side-on to the camera so its
+    # striped shell shows (on the front glass it showed only a grey sole).
+    x = 58.0 + (t - 67.0) * 0.55
+    y = 34.0
+    ctx["critters"]["snail"].pose(Vector(ctx["bed"].at(x, y)), yaw=0.1, t=t, up=tuple(_ground_normal(x, y)))
 
 
 # --- checks (FLOAT_CHECK=1) -------------------------------------------------------

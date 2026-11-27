@@ -20,7 +20,7 @@ import numpy as np
 
 FPS = 30
 SUBSTEPS = 4
-VERSION = 3      # bump whenever the model changes, so cached runs are not reused
+VERSION = 7      # bump whenever the model changes, so cached runs are not reused
 
 
 def _smooth_noise(t, phases, periods):
@@ -29,7 +29,7 @@ def _smooth_noise(t, phases, periods):
 
 
 def simulate(n, frame_start, frame_end, box, seed=0, obstacles=(), ground=None,
-             spread=(45.0, 45.0, 20.0), cruise=22.0, tour=(17.0, 12.0, 9.0), warmup_s=12.0):
+             spread=(45.0, 45.0, 20.0), cruise=22.0, tour=(17.0, 10.0, 9.0), warmup_s=12.0):
     """Simulate `n` fish for frames [frame_start, frame_end).
 
     box        (xmin, xmax, ymin, ymax, zmin, zmax): the open water the shoal roams
@@ -51,7 +51,7 @@ def simulate(n, frame_start, frame_end, box, seed=0, obstacles=(), ground=None,
     tour = np.array(tour)
     tour_phase = rng.uniform(0, 2 * math.pi, 3)
 
-    offset = rng.normal(0, 1, (n, 3)) * spread * 0.75
+    offset = np.clip(rng.normal(0, 1, (n, 3)), -1.6, 1.6) * spread * 0.75     # no stragglers far outside the group
     P = centre + offset + rng.normal(0, 4, (n, 3))
     V = rng.normal(0, 6, (n, 3)) * np.array([1, 1, 0.3])
     H = V / (np.linalg.norm(V, axis=1, keepdims=True) + 1e-6)
@@ -79,7 +79,7 @@ def simulate(n, frame_start, frame_end, box, seed=0, obstacles=(), ground=None,
         T = centre + roam * np.sin(2 * math.pi * t / tour + tour_phase)
         wander = np.mean(np.sin(2 * math.pi * t / wander_T + wander_ph), axis=2) * spread * 0.45
         goal = T + offset + wander
-        A = (goal - P) * 0.55
+        A = (goal - P) * np.array([0.55, 1.0, 0.55])       # follow the group's front-to-back wander closely
 
         # neighbours: keep apart, roughly agree on direction
         D = P[:, None, :] - P[None, :, :]
@@ -91,7 +91,7 @@ def simulate(n, frame_start, frame_end, box, seed=0, obstacles=(), ground=None,
         A += (np.sum(np.where(nb[..., None], V[None, :, :], 0.0), axis=1) / cnt - V) * 1.3 * (nb.any(axis=1, keepdims=True))
 
         # soft walls, surface and floor
-        floor = np.full(n, 30.0) if ground is None else np.array([ground(x, y) for x, y in P[:, :2]])
+        floor = np.full(n, 30.0) if ground is None else np.array([ground(min(max(float(x), 0.0), 300.0), min(max(float(y), 0.0), 300.0)) for x, y in P[:, :2]])
         lo_i = np.column_stack([np.full(n, lo[0]), np.full(n, lo[1]), floor + 18.0])
         m = 32.0
         A += np.clip(lo_i + m - P, 0, None) * 9.0
@@ -129,6 +129,9 @@ def simulate(n, frame_start, frame_end, box, seed=0, obstacles=(), ground=None,
         Hn = H + (V / (speed[:, None] + 1e-6) - H) * (np.minimum(1.0, speed / 20.0) * dt / 0.45)[:, None]
         # Tetras swim close to level: cap the pitch at about 20 degrees, measured
         # against the horizontal part of the heading so a hovering fish cannot tip on end.
+        # Seen dead head-on or tail-on a tetra is just a dot, so headings stay at
+        # least a third of the way toward side-on; fish still travel in depth, at a slant.
+        Hn[:, 1] = np.clip(Hn[:, 1], -1.6 * np.abs(Hn[:, 0]) - 1e-3, 1.6 * np.abs(Hn[:, 0]) + 1e-3)
         hxy = np.linalg.norm(Hn[:, :2], axis=1)
         flat = hxy < 0.2
         Hn[flat, :2] = H[flat, :2]

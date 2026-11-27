@@ -33,7 +33,7 @@ def collection_of(name, objects, hide=True):
 
 def scatter(target, source_collection, name="Scatter", density=None, min_distance=None, density_max=None,
             weight_attr=None, seed=0, scale=(0.8, 1.2), align="NORMAL", spin=True, tilt=0.0,
-            keep_surface=True, sink=0.0):
+            keep_surface=True, sink=0.0, sway=None):
     """Add a Geometry Nodes modifier to `target` that scatters `source_collection`.
 
     density        points per square metre (random mode)
@@ -42,6 +42,8 @@ def scatter(target, source_collection, name="Scatter", density=None, min_distanc
     align          "NORMAL" (sit on the surface) or "UP" (grow straight up)
     tilt           radians of random lean
     sink           metres to push each instance into the surface along its up axis
+    sway           (amplitude in radians, spatial frequency per metre, speed) to
+                   make instances lean with a drifting current; None for none
     """
     tree = bpy.data.node_groups.new(name, "GeometryNodeTree")
     tree.interface.new_socket("Geometry", in_out="INPUT", socket_type="NodeSocketGeometry")
@@ -94,7 +96,37 @@ def scatter(target, source_collection, name="Scatter", density=None, min_distanc
     rnd.inputs["Max"].default_value = (tilt, tilt, 2 * math.pi if spin else 0.0)
     rnd.inputs["Seed"].default_value = seed + 11
     to_rot = N.new("FunctionNodeEulerToRotation")
-    L.new(rnd.outputs["Value"], to_rot.inputs["Euler"])
+    euler = rnd.outputs["Value"]
+    if sway:
+        # Plants lean with a slow current: a noise field that drifts through
+        # time tilts neighbours together, so the bed moves in waves, not jitter.
+        amp, per_metre, speed = sway
+        pos = N.new("GeometryNodeInputPosition")
+        clock = N.new("GeometryNodeInputSceneTime")
+        w = N.new("ShaderNodeMath")
+        w.operation = "MULTIPLY"
+        w.inputs[1].default_value = speed
+        L.new(clock.outputs["Seconds"], w.inputs[0])
+        noise = N.new("ShaderNodeTexNoise")
+        noise.noise_dimensions = "4D"
+        noise.inputs["Scale"].default_value = per_metre
+        noise.inputs["Detail"].default_value = 1.0
+        L.new(pos.outputs["Position"], noise.inputs["Vector"])
+        L.new(w.outputs[0], noise.inputs["W"])
+        centre = N.new("ShaderNodeVectorMath")
+        centre.operation = "SUBTRACT"
+        centre.inputs[1].default_value = (0.5, 0.5, 0.5)
+        L.new(noise.outputs["Color"], centre.inputs[0])
+        scale_v = N.new("ShaderNodeVectorMath")
+        scale_v.operation = "MULTIPLY"
+        scale_v.inputs[1].default_value = (2 * amp, 2 * amp, 0.0)
+        L.new(centre.outputs["Vector"], scale_v.inputs[0])
+        add = N.new("ShaderNodeVectorMath")
+        add.operation = "ADD"
+        L.new(rnd.outputs["Value"], add.inputs[0])
+        L.new(scale_v.outputs["Vector"], add.inputs[1])
+        euler = add.outputs["Vector"]
+    L.new(euler, to_rot.inputs["Euler"])
     if align == "NORMAL":
         rot = N.new("FunctionNodeRotateRotation")
         rot.rotation_space = "LOCAL"

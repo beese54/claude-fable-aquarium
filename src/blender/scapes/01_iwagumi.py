@@ -8,7 +8,6 @@ and a hairgrass carpet covers everything else. Coordinates are millimetres:
 X left to right, Y front to back.
 """
 import math
-import random
 
 import assets
 import fish
@@ -17,73 +16,68 @@ import substrate
 from bl_common import MM
 from scatter import collection_of, scatter
 
-# id, model, x, y, height, pre-rotation, final rotation (lean, lean, heading), sink
+# name, model, x, y, height above soil, how the scan is stood up, (lean, lean, heading), fraction buried
 STONES = [
-    ("oyaishi",  "moon_rock_05", 106, 178, 166, (0, 0, 0),   (0, -9, 18),   16),
-    ("fukuishi", "moon_rock_06", 206, 128, 90,  (0, 0, 0),   (0, -11, -35), 11),
-    ("soeishi",  "moon_rock_03", 50,  122, 58,  (0, 0, 0),   (0, -8, 70),   9),
-    ("sute_1",   "moon_rock_07", 254, 196, 44,  (0, 0, 0),   (0, -6, 140),  7),
-    ("sute_2",   "moon_rock_04", 148, 74,  26,  (0, 0, 0),   (0, -4, 25),   6),
+    ("oyaishi",  "moon_rock_05", 108, 176, 150, (90, 0, 0), (0, -8, 200),  0.24),
+    ("fukuishi", "moon_rock_06", 204, 132, 84,  (90, 0, 0), (0, -10, 160), 0.26),
+    ("soeishi",  "moon_rock_03", 52,  120, 62,  (0, 90, 0), (0, -9, 30),   0.28),
+    ("sute_1",   "moon_rock_01", 252, 205, 30,  (0, 0, 0),  (0, -5, 140),  0.35),
+    ("sute_2",   "moon_rock_04", 150, 72,  20,  (0, 0, 0),  (0, -4, 25),   0.40),
 ]
 
+
 def ground(x, y):
-    """Soil height in mm: low at the front glass, banked at the back, mounded under the main group."""
-    slope = 44 + 58 * (y / 300) ** 1.25
-    mound = 20 * math.exp(-(((x - 120) / 85) ** 2 + ((y - 185) / 75) ** 2))
-    swell = 6 * math.exp(-(((x - 215) / 55) ** 2 + ((y - 150) / 60) ** 2))
-    ripple = 1.6 * math.sin(x * 0.045 + 1.3) * math.cos(y * 0.038)
+    """Soil height in mm. Deep enough at the front glass to show as a dark band
+    above the tray, banked high at the back, mounded under the main group."""
+    slope = 60 + 60 * (y / 300) ** 1.2
+    mound = 16 * math.exp(-(((x - 118) / 85) ** 2 + ((y - 185) / 75) ** 2))
+    swell = 5 * math.exp(-(((x - 212) / 55) ** 2 + ((y - 140) / 60) ** 2))
+    ripple = 2.2 * math.sin(x * 0.045 + 1.3) * math.cos(y * 0.038) + 1.0 * math.sin(x * 0.19) * math.sin(y * 0.11 + 0.5)
     return slope + mound + swell + ripple
 
 
+def _clumps(x, y):
+    """Patchiness for the carpet: 0.5 in thin spots to 1 in thick ones."""
+    n = math.sin(x * 0.083 + 1.7 * math.sin(y * 0.061)) * math.cos(y * 0.079 + 1.3 * math.sin(x * 0.047))
+    n2 = math.sin(x * 0.31 + 0.5) * math.sin(y * 0.27 + 1.1)
+    v = 0.5 + 0.38 * n + 0.18 * n2
+    return max(0.5, min(1.0, (v - 0.05) / 0.4))
+
+
 def build(ctx):
-    rng = random.Random(11)
     made = []
 
     soil = substrate.soil_material()
     bed = substrate.build_bed(ground, "Soil")
     bed.obj.data.materials.append(soil)
-    substrate.add_granules(bed, soil, size_mm=2.4, seed=5)
+    substrate.add_granules(bed, soil, size_mm=2.6, seed=5)
     made.append(bed.obj)
 
     stones = []
-    for k, (name, model, x, y, h, pre, rot, sink) in enumerate(STONES):
+    for k, (name, model, x, y, h, pre, rot, buried) in enumerate(STONES):
         obj = assets.import_model(model)[0]
         obj.name = name
-        assets.place(obj, bed.at(x, y), height_mm=h, pre_rot_deg=pre, rot_deg=rot, sink_mm=sink)
+        full = h / (1 - buried)
+        assets.place(obj, bed.at(x, y), height_mm=full, pre_rot_deg=pre, rot_deg=rot, sink_mm=full * buried)
         assets.grade_stone(obj, seed=k * 1.7)
-        stones.append((obj, x, y, assets.footprint_radius_mm(obj)))
+        stones.append((obj, x, y, assets.footprint_radius_mm(obj), ground(x, y) + h))
         made.append(obj)
 
     def carpet(x, y):
-        w = 1.0
-        for _, sx, sy, r in stones:
+        w = _clumps(x, y)
+        for _, sx, sy, r, _ in stones:
             d = math.hypot(x - sx, y - sy)
-            w = min(w, max(0.0, min(1.0, (d - r * 0.62) / (r * 0.30))))
-        return w
+            w = min(w, max(0.0, min(1.0, (d - r * 0.70) / (r * 0.25))))
+        return w * (0.55 + 0.45 * min(1.0, y / 60))      # thinner against the front glass
     bed.set_weight("carpet", carpet)
-    tufts = collection_of("HairgrassSrc", plants.hairgrass_tufts())
-    scatter(bed.obj, tufts, name="Hairgrass", min_distance=4.2 * MM, weight_attr="carpet", seed=21,
-            scale=(0.7, 1.2), align="UP", tilt=0.22)
+    tufts = collection_of("HairgrassSrc", plants.hairgrass_tufts(variants=6, blades=(10, 18), height_mm=(14, 34)))
+    scatter(bed.obj, tufts, name="Hairgrass", min_distance=3.3 * MM, weight_attr="carpet", seed=21,
+            scale=(0.45, 1.15), align="UP", tilt=0.30, sway=(0.07, 9.0, 0.35))
 
-    # A loose shoal in the open water to the right of the main stone, with a
-    # few stragglers further back and to the left for depth.
-    school = []
-    spots = []
-    while len(spots) < 12:
-        if len(spots) < 9:
-            p = (rng.uniform(150, 272), rng.uniform(28, 250), rng.uniform(95, 212))
-        else:
-            p = (rng.uniform(30, 120), rng.uniform(30, 95), rng.uniform(100, 190))
-        if all(math.dist(p, q) > 30 for q in spots):
-            spots.append(p)
-    for i, (x, y, z) in enumerate(spots):
-        heading = math.radians(180 + rng.uniform(-30, 30)) if rng.random() < 0.75 else math.radians(rng.uniform(-40, 40))
-        pitch = rng.uniform(-0.12, 0.12)
-        fwd = (math.cos(heading) * math.cos(pitch), math.sin(heading) * math.cos(pitch) * 0.6, math.sin(pitch))
-        t = fish.Tetra(f"Tetra_{i:02d}", size=rng.uniform(0.86, 1.08))
-        t.pose((x * MM, y * MM, z * MM), fwd, phase=rng.uniform(0, 6.283), amp=rng.uniform(0.25, 0.6), bend=rng.uniform(-0.25, 0.25))
-        school.append(t)
-        made.append(t.obj)
+    keep = [(sx, sy, r * 0.8, top) for _, sx, sy, r, top in stones]
+    school = fish.shoal(12, centre_mm=(196, 120, 172), spread_mm=(42, 50, 24), seed=4, heading_deg=175, keep_out=keep, floor=ground)
+    made += [t.obj for t in school]
+
     assets.mark_underwater(made, ctx)
     ctx["bed"] = bed
     ctx["school"] = school

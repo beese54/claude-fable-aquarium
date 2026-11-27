@@ -42,14 +42,16 @@ def build(scape="empty", frame=1, quality="preview", out=None, lamp_watts=None):
     room = room_mod.build_room()
     lamp = room_mod.build_lamp()
     glass = tank_mod.build_glass()
-    lamp["light"].data.energy = lamp_watts if lamp_watts is not None else 120.0
+    watts = lamp_watts if lamp_watts is not None else 50.0
+    for led in lamp["lights"]:
+        led.data.energy = watts / len(lamp["lights"])
 
     # Everything a scape puts under water goes in this collection, so lights can
     # be linked to the tank's contents alone.
     underwater = bpy.data.collections.new("Underwater")
     scene.collection.children.link(underwater)
     ctx = {"scene": scene, "room": room, "lamp": lamp, "glass": glass, "frame": frame, "water": None,
-           "underwater": underwater, "fill": 0.05}
+           "underwater": underwater, "fill": 0.015, "bounce": 0.05}
     if scape != "empty":
         water, drift = tank_mod.build_water()
         tank_mod.animate_ripples(drift, 0, 2400)
@@ -57,42 +59,50 @@ def build(scape="empty", frame=1, quality="preview", out=None, lamp_watts=None):
     if scape not in ("empty", "water"):
         mod = importlib.import_module(f"scapes.{scape}")
         mod.build(ctx)
-        add_fill(ctx, lamp["light"].data.energy)
+        # Behind a filled tank the cable only shows as confusing mirror images in
+        # the side glass and the surface; it is left out once there is water.
+        lamp["cable"].hide_render = True
+        add_fill(ctx, watts)
 
     scene.frame_set(frame)
     return scene, device, ctx
 
 
 def add_fill(ctx, key_watts):
-    """Soft frontal fill for the tank's contents only.
+    """Soft light for the tank's contents only, standing in for trapped light.
 
     A path tracer finds the lamp's light after it refracts through the surface,
-    but not the further share that a real tank traps and bounces between its
-    mirror-like walls and the underside of the surface. That lost light is what
-    keeps the camera-facing side of a real scape from going black. It is put
-    back as one broad, soft source above and in front, as a fraction of the
-    lamp's power, lighting only what is under water and shadowed only by it.
+    but not the further share that a real tank keeps: light scattered up off
+    the bed is thrown back down by the mirror-like underside of the surface,
+    and the glass walls return most of what reaches them. That is what stops
+    the shaded sides of a real scape going black. It is put back as two broad
+    sources, each a fraction of the lamp's power: `bounce`, lying just under
+    the surface and shining down, and a weaker `fill` from the front. Both
+    light only what is under water and are shadowed only by it.
     """
-    frac = ctx.get("fill", 0.0)
-    if frac <= 0:
-        return None
-    ld = bpy.data.lights.new("TankFill", "AREA")
-    ld.shape = "RECTANGLE"
-    ld.size, ld.size_y = 0.50, 0.40
-    ld.energy = key_watts * frac
-    ld.color = (0.92, 0.97, 1.0)
-    ob = bpy.data.objects.new("TankFill", ld)
-    ctx["scene"].collection.objects.link(ob)
-    ob.location = (0.15, -0.30, 0.46)
-    aim = Vector((0.15, 0.15, 0.10)) - ob.location
-    ob.rotation_euler = aim.to_track_quat("-Z", "Y").to_euler()
-    ob.visible_camera = False
-    ob.visible_glossy = False
-    ob.visible_transmission = False
-    ob.light_linking.receiver_collection = ctx["underwater"]
-    ob.light_linking.blocker_collection = ctx["underwater"]
-    return ob
-
+    made = []
+    specs = (("TankBounce", ctx.get("bounce", 0.0), (0.15, 0.15, 0.262), (0.15, 0.15, 0.0), 0.27, 0.27),
+             ("TankFill", ctx.get("fill", 0.0), (0.15, -0.30, 0.40), (0.15, 0.15, 0.10), 0.50, 0.40))
+    for name, frac, loc, aim_at, sx, sy in specs:
+        if frac <= 0:
+            continue
+        ld = bpy.data.lights.new(name, "AREA")
+        ld.shape = "RECTANGLE"
+        ld.size, ld.size_y = sx, sy
+        ld.energy = key_watts * frac
+        ld.color = (0.92, 0.97, 1.0)
+        ob = bpy.data.objects.new(name, ld)
+        ctx["scene"].collection.objects.link(ob)
+        ob.location = loc
+        aim = Vector(aim_at) - ob.location
+        ob.rotation_euler = aim.to_track_quat("-Z", "Y").to_euler()
+        ob.visible_camera = False
+        ob.visible_glossy = False
+        ob.visible_transmission = False
+        ob.light_linking.receiver_collection = ctx["underwater"]
+        ob.light_linking.blocker_collection = ctx["underwater"]
+        made.append(ob)
+    return made
 
 def main():
     ap = argparse.ArgumentParser()

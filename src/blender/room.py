@@ -193,21 +193,32 @@ def build_lamp(collection=None, led_strength=40.0):
 
     cable = _cable(cam_json, col, black)
 
-    # The light that actually illuminates the tank.
-    ldata = bpy.data.lights.new("LampLight", "AREA")
-    ldata.shape = "RECTANGLE"
-    ldata.size = h["width"] * MM * 0.85
-    ldata.size_y = h["depth"] * MM * 0.80
-    ldata.spread = 2.6          # radians; LED panel with a wide beam
-    ldata.color = (0.90, 0.95, 1.0)
-    light = bpy.data.objects.new("LampLight", ldata)
-    col.objects.link(light)
-    light.location = (c.x, c.y, zu - 1.0 * MM)
-    light.rotation_euler = (math.radians(-LAMP_TILT_DEG), 0.0, 0.0)   # area lights shine along -Z; tilt throws the beam forward over the tank
-    light.visible_camera = False
-    ldata.cycles.is_caustics_light = True
-
-    return {"head": head, "led": led, "stem": stem, "clamp": clamp, "cable": cable, "light": light}
+    # The light that actually illuminates the tank. The real fixture is a bar of
+    # separate LED chips, and that matters: each chip is nearly a point, so each
+    # throws its own crisp caustic net through the ripples and its own hard
+    # shadow. One broad panel would smear all of that into mush.
+    lights = []
+    rows, cols = 2, 5
+    for r in range(rows):
+        for q in range(cols):
+            u = (q + 0.5) / cols
+            v = (r + 0.5) / rows
+            front = fl.lerp(fr, 0.12 + 0.76 * u)
+            rear = rl.lerp(rr, 0.12 + 0.76 * u)
+            p = front.lerp(rear, 0.22 + 0.56 * v)
+            ld = bpy.data.lights.new(f"LED_{r}{q}", "SPOT")
+            ld.spot_size = math.radians(150)
+            ld.spot_blend = 0.6
+            ld.shadow_soft_size = 0.0022
+            ld.color = (0.90, 0.95, 1.0)
+            ld.cycles.is_caustics_light = True
+            ob = bpy.data.objects.new(f"LED_{r}{q}", ld)
+            col.objects.link(ob)
+            ob.location = (p.x, p.y, zu - 1.0 * MM)
+            ob.rotation_euler = (math.radians(-LAMP_TILT_DEG), 0.0, 0.0)   # spots shine along -Z; the tilt throws the beam forward
+            ob.visible_camera = False
+            lights.append(ob)
+    return {"head": head, "led": led, "stem": stem, "clamp": clamp, "cable": cable, "lights": lights}
 
 
 def _relink(obj, col):

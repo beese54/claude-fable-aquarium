@@ -98,7 +98,7 @@ def footprint_radius_mm(obj):
 
 
 def grade_stone(obj, dark=(0.030, 0.036, 0.048), light=(0.40, 0.44, 0.50), lum_range=(0.16, 0.58),
-                vein_amount=0.30, vein_scale=34.0, bump=0.45, normal_strength=2.2, algae=0.45, seed=0.0):
+                vein_amount=0.70, vein_scale=30.0, bump=0.45, normal_strength=2.2, algae=0.45, rust=0.45, seed=0.0):
     """Turn a pale photoscanned rock into Seiryu-like stone.
 
     The scan's own brightness pattern is kept but re-coloured between a dark and
@@ -169,8 +169,8 @@ def grade_stone(obj, dark=(0.030, 0.036, 0.048), light=(0.40, 0.44, 0.50), lum_r
         L.new(ridge.outputs[0], ab.inputs[0])
         thin = N.new("ShaderNodeMapRange")
         thin.interpolation_type = "SMOOTHSTEP"
-        thin.inputs["From Min"].default_value = 0.0015
-        thin.inputs["From Max"].default_value = 0.0050
+        thin.inputs["From Min"].default_value = 0.003
+        thin.inputs["From Max"].default_value = 0.011
         thin.inputs["To Min"].default_value = 1.0
         thin.inputs["To Max"].default_value = 0.0
         L.new(ab.outputs[0], thin.inputs["Value"])
@@ -178,8 +178,8 @@ def grade_stone(obj, dark=(0.030, 0.036, 0.048), light=(0.40, 0.44, 0.50), lum_r
         patch.inputs["Scale"].default_value = 9.0
         L.new(coord.outputs["Object"], patch.inputs["Vector"])
         gate = N.new("ShaderNodeMapRange")
-        gate.inputs["From Min"].default_value = 0.56
-        gate.inputs["From Max"].default_value = 0.70
+        gate.inputs["From Min"].default_value = 0.44
+        gate.inputs["From Max"].default_value = 0.58
         L.new(patch.outputs["Fac"], gate.inputs["Value"])
         amt = N.new("ShaderNodeMath")
         amt.operation = "MULTIPLY"
@@ -203,8 +203,8 @@ def grade_stone(obj, dark=(0.030, 0.036, 0.048), light=(0.40, 0.44, 0.50), lum_r
         vr = N.new("ShaderNodeMapRange")
         vr.inputs["From Min"].default_value = 0.30
         vr.inputs["From Max"].default_value = 0.70
-        vr.inputs["To Min"].default_value = 0.72
-        vr.inputs["To Max"].default_value = 1.22
+        vr.inputs["To Min"].default_value = 0.50
+        vr.inputs["To Max"].default_value = 1.45
         L.new(vary.outputs["Fac"], vr.inputs["Value"])
         varied = N.new("ShaderNodeMix")
         varied.data_type = "RGBA"
@@ -212,6 +212,40 @@ def grade_stone(obj, dark=(0.030, 0.036, 0.048), light=(0.40, 0.44, 0.50), lum_r
         varied.inputs["Factor"].default_value = 1.0
         L.new(vein.outputs["Result"], varied.inputs["A"])
         L.new(vr.outputs["Result"], varied.inputs["B"])
+        # Strata: Seiryu is bedded limestone, so tone runs in bands across the
+        # stone, with rusty mineral staining in places.
+        bands = N.new("ShaderNodeTexWave")
+        bands.wave_type = "BANDS"
+        bands.inputs["Scale"].default_value = 55.0
+        bands.inputs["Distortion"].default_value = 6.0
+        bands.inputs["Detail"].default_value = 3.0
+        bands.inputs["Detail Scale"].default_value = 1.2
+        L.new(mapping.outputs["Vector"], bands.inputs["Vector"])
+        br = N.new("ShaderNodeMapRange")
+        br.inputs["To Min"].default_value = 0.70
+        br.inputs["To Max"].default_value = 1.20
+        L.new(bands.outputs["Fac"], br.inputs["Value"])
+        banded = N.new("ShaderNodeMix")
+        banded.data_type = "RGBA"
+        banded.blend_type = "MULTIPLY"
+        banded.inputs["Factor"].default_value = 1.0
+        L.new(varied.outputs["Result"], banded.inputs["A"])
+        L.new(br.outputs["Result"], banded.inputs["B"])
+        rust_n = N.new("ShaderNodeTexNoise")
+        rust_n.inputs["Scale"].default_value = 8.0
+        rust_n.inputs["Detail"].default_value = 5.0
+        L.new(coord.outputs["Object"], rust_n.inputs["Vector"])
+        rr = N.new("ShaderNodeMapRange")
+        rr.inputs["From Min"].default_value = 0.56
+        rr.inputs["From Max"].default_value = 0.74
+        rr.inputs["To Max"].default_value = rust
+        L.new(rust_n.outputs["Fac"], rr.inputs["Value"])
+        rusted = N.new("ShaderNodeMix")
+        rusted.data_type = "RGBA"
+        rusted.inputs["B"].default_value = (0.16, 0.115, 0.075, 1.0)
+        L.new(rr.outputs["Result"], rusted.inputs["Factor"])
+        L.new(banded.outputs["Result"], rusted.inputs["A"])
+        varied = rusted
         geo = N.new("ShaderNodeNewGeometry")
         nsep = N.new("ShaderNodeSeparateXYZ")
         L.new(geo.outputs["Normal"], nsep.inputs[0])

@@ -46,7 +46,9 @@ def wet_matte(level_mm=268.0, feather=1.2):
         cam = Camera()
         room = json.loads((paths.CONFIG / "room.json").read_text(encoding="utf-8"))
         z0 = room["floor_z"] + room["tray"]["height"] + 1.0
-        quad = cam.project([(0, 0, z0), (300, 0, z0), (300, 0, level_mm), (0, 0, level_mm)])
+        # The side panes seen edge-on (the outer 5 mm each side) stay as filmed:
+        # water behind them barely changes how the glass edge looks.
+        quad = cam.project([(5.5, 0, z0), (294.5, 0, z0), (294.5, 0, level_mm), (5.5, 0, level_mm)])
         S = 4
         m = np.zeros((H * S, W * S), np.uint8)
         cv2.fillConvexPoly(m, np.round(quad * S).astype(np.int32), 255)

@@ -64,7 +64,7 @@ def build_glass(collection=None):
     return obj
 
 
-def water_material(tint=(0.93, 0.985, 0.97), density=0.9, scatter=0.0, scatter_colour=(0.9, 0.95, 0.9)):
+def water_material(tint=(0.88, 0.975, 0.955), density=1.5, scatter=0.0, scatter_colour=(0.9, 0.95, 0.9)):
     """Clear water by default. `tint` is the colour left after about a metre;
     lower `tint` and raise `density` for blackwater. `scatter` adds haze."""
     mat, nt, out = new_material("Water")
@@ -91,7 +91,7 @@ def water_material(tint=(0.93, 0.985, 0.97), density=0.9, scatter=0.0, scatter_c
     return mat
 
 
-def build_water(level_mm=268.0, collection=None, ripple_mm=0.35, ripple_scale=0.085, grid=160, material=None):
+def build_water(level_mm=268.0, collection=None, ripple_mm=0.35, ripple_scale=0.085, fine_mm=0.22, fine_scale=0.020, grid=200, material=None):
     """Water body up to `level_mm` above the tank's outer base."""
     lo = GLASS - OVERLAP
     hi = TANK - GLASS + OVERLAP
@@ -148,6 +148,20 @@ def build_water(level_mm=268.0, collection=None, ripple_mm=0.35, ripple_scale=0.
     mod.mid_level = 0.5
     mod.strength = ripple_mm * MM * 2.0
     mod.vertex_group = "Surface"
+    # A second, finer set of ripples. The broad swell moves the reflection on
+    # the underside; these short ones are what focus the LEDs into caustic lines
+    # at the depth of the scape (focal length is about wavelength^2 / (13 x height)).
+    fine = bpy.data.textures.new("RippleFine", "CLOUDS")
+    fine.noise_scale = fine_scale
+    fine.noise_depth = 0
+    mod2 = obj.modifiers.new("RipplesFine", "DISPLACE")
+    mod2.texture = fine
+    mod2.texture_coords = "OBJECT"
+    mod2.texture_coords_object = drift
+    mod2.direction = "Z"
+    mod2.mid_level = 0.5
+    mod2.strength = fine_mm * MM * 2.0
+    mod2.vertex_group = "Surface"
     obj.cycles.is_caustics_caster = True
     obj.visible_shadow = True
     return obj, drift

@@ -71,7 +71,8 @@ def build_bed(height_fn, name="Substrate", res_mm=1.5, collection=None):
     for p in obj.data.polygons[: n * n]:
         p.use_smooth = True
     bed = Bed(obj, height_fn, [(v[0] / MM, v[1] / MM) for v in verts[:top]])
-    bed.set_weight("top", lambda x, y: 1.0)
+    from scatter import set_point_attribute
+    set_point_attribute(obj, "all", [1.0] * len(obj.data.vertices))
     return bed
 
 
@@ -156,5 +157,5 @@ def add_granules(bed, material, size_mm=2.4, seed=1, name="Granules"):
     """Cover the bed in real granules so its silhouette and shadows are grainy."""
     grains = [_granule(f"{name}_{k}", size_mm * MM / 2, seed * 10 + k, material) for k in range(4)]
     col = collection_of(f"{name}_src", grains)
-    return scatter(bed.obj, col, name=name, min_distance=size_mm * MM * 0.72, seed=seed, weight_attr="top",
+    return scatter(bed.obj, col, name=name, min_distance=size_mm * MM * 0.72, seed=seed, weight_attr="all",
                    scale=(0.7, 1.15), align="NORMAL", tilt=math.pi, sink=size_mm * MM * 0.15)

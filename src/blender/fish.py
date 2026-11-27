@@ -244,7 +244,7 @@ def tetra_materials():
     N[-1].inputs[2].default_value = 2.00
     dz = _math(nt, "SUBTRACT", z, zc)
     adz = _math(nt, "ABSOLUTE", dz)
-    band = _smooth(nt, adz, 0.50, 0.78, 1.0, 0.0)
+    band = _smooth(nt, adz, 0.62, 0.92, 1.0, 0.0)
     along = _math(nt, "MULTIPLY", _smooth(nt, s, 0.035, 0.07), _smooth(nt, s, 0.74, 0.80, 1.0, 0.0))
     blue_m = _math(nt, "MULTIPLY", band, along)
     red_m = _math(nt, "MULTIPLY", _smooth(nt, dz, -0.85, -0.50, 1.0, 0.0), _smooth(nt, s, 0.40, 0.52))
@@ -252,8 +252,8 @@ def tetra_materials():
 
     lw = N.new("ShaderNodeLayerWeight")
     lw.inputs["Blend"].default_value = 0.45
-    blue = _mix(nt, lw.outputs["Facing"], (0.00, 0.22, 0.95), (0.00, 0.80, 0.72))
-    col = _mix(nt, red_m, (0.30, 0.32, 0.31), (0.62, 0.008, 0.006))
+    blue = _mix(nt, lw.outputs["Facing"], (0.00, 0.30, 1.00), (0.00, 0.95, 0.85))
+    col = _mix(nt, red_m, (0.30, 0.32, 0.31), (0.50, 0.004, 0.004))
     col = _mix(nt, back_m, col, (0.085, 0.072, 0.030))
     col = _mix(nt, blue_m, col, blue)
 
@@ -264,7 +264,11 @@ def tetra_materials():
     L.new(metal, bsdf.inputs["Metallic"])
     bsdf.inputs["Roughness"].default_value = 0.28
     L.new(blue, bsdf.inputs["Emission Color"])
-    L.new(_math(nt, "MULTIPLY", blue_m, 0.45), bsdf.inputs["Emission Strength"])
+    L.new(_math(nt, "MULTIPLY", blue_m, 0.85), bsdf.inputs["Emission Strength"])
+    # A tetra is a small, thin, half-transparent animal: light gets into the body.
+    bsdf.inputs["Subsurface Weight"].default_value = 0.35
+    bsdf.inputs["Subsurface Radius"].default_value = (1.0, 0.6, 0.45)
+    bsdf.inputs["Subsurface Scale"].default_value = 0.002
     L.new(bsdf.outputs[0], out.inputs["Surface"])
 
     # fins ------------------------------------------------------------------
@@ -349,3 +353,39 @@ class Tetra:
         if roll:
             rot = rot @ Matrix.Rotation(roll, 4, "X")
         self.obj.matrix_world = Matrix.Translation(Vector(position)) @ rot @ Matrix.Scale(self.size, 4)
+
+def shoal(n, centre_mm, spread_mm, seed=0, heading_deg=180.0, name="Tetra", keep_out=(), floor=None, z_max=250.0):
+    """Place a loose shoal for a still: fish cluster round a centre, mostly
+    sharing a heading but each with its own turn, pitch and roll, so the group
+    shows every angle to the camera rather than a row of side views.
+
+    keep_out   (x, y, radius, top_z) cylinders in mm that fish must stay clear of
+    floor      function (x_mm, y_mm) -> ground height in mm, to stay above
+    Returns the Tetra objects.
+    """
+    import random
+    rng = random.Random(seed)
+    spots, tries = [], 0
+    while len(spots) < n and tries < 20000:
+        tries += 1
+        p = tuple(rng.gauss(c, s) for c, s in zip(centre_mm, spread_mm))
+        if not (20 < p[0] < 280 and 20 < p[1] < 280 and p[2] < z_max):
+            continue
+        if floor is not None and p[2] < floor(p[0], p[1]) + 22:
+            continue
+        if any(math.hypot(p[0] - kx, p[1] - ky) < kr + 14 and p[2] < kz + 12 for kx, ky, kr, kz in keep_out):
+            continue
+        if any(math.dist(p, q) < 24 for q in spots):
+            continue
+        spots.append(p)
+    out = []
+    for i, (x, y, z) in enumerate(spots):
+        stray = rng.random() < 0.2
+        yaw = math.radians(heading_deg + (rng.uniform(-180, 180) if stray else rng.gauss(0, 38)))
+        pitch = rng.gauss(0, 0.16)
+        fwd = (math.cos(yaw) * math.cos(pitch), math.sin(yaw) * math.cos(pitch), math.sin(pitch))
+        t = Tetra(f"{name}_{i:02d}", size=rng.uniform(0.84, 1.08))
+        t.pose((x * MM, y * MM, z * MM), fwd, phase=rng.uniform(0, 6.283), amp=rng.uniform(0.25, 0.7),
+               bend=rng.gauss(0, 0.3), roll=rng.gauss(0, 0.09))
+        out.append(t)
+    return out

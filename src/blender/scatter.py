@@ -52,9 +52,14 @@ def scatter(target, source_collection, name="Scatter", density=None, min_distanc
     gin = N.new("NodeGroupInput")
     gout = N.new("NodeGroupOutput")
 
+    # Scatter on the object's own mesh only. Geometry nodes also act on the
+    # geometry inside instances, so without this a second scatter stacked on the
+    # same object would sprout from every instance the first one made.
+    own = N.new("GeometryNodeSeparateComponents")
+    L.new(gin.outputs[0], own.inputs[0])
     dist = N.new("GeometryNodeDistributePointsOnFaces")
     dist.inputs["Seed"].default_value = seed
-    L.new(gin.outputs[0], dist.inputs["Mesh"])
+    L.new(own.outputs["Mesh"], dist.inputs["Mesh"])
     if min_distance:
         dist.distribute_method = "POISSON"
         dist.inputs["Distance Min"].default_value = min_distance

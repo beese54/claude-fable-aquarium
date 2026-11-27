@@ -68,7 +68,7 @@ def _rodrigues(rvec):
     return np.eye(3) + np.sin(th) * K + (1 - np.cos(th)) * (K @ K)
 
 
-def plate_material(name="RoomPlate", image_name="room_plate_linear.exr", strength=1.0):
+def plate_material(name="RoomPlate", image_name="room_plate_linear.exr", strength=1.0, reflection_gain=1.0):
     mat, nt, out = new_material(name)
     cam = cfg("camera.json")
     img = bpy.data.images.load(str(paths.PLATE / image_name), check_existing=True)
@@ -81,6 +81,17 @@ def plate_material(name="RoomPlate", image_name="room_plate_linear.exr", strengt
     em = nt.nodes.new("ShaderNodeEmission")
     em.inputs["Strength"].default_value = strength
     nt.links.new(tex.outputs["Color"], em.inputs["Color"])
+    if reflection_gain != 1.0:
+        # Mirror reflections of the room in the tank's glass reach beyond what was
+        # filmed (the floor behind the camera), where the plate can only repeat its
+        # bright bottom edge. That put a grey veil over the lower glass, so the room
+        # is dimmed for reflection rays only.
+        lp = nt.nodes.new("ShaderNodeLightPath")
+        gain = nt.nodes.new("ShaderNodeMapRange")
+        gain.inputs["To Min"].default_value = strength
+        gain.inputs["To Max"].default_value = strength * reflection_gain
+        nt.links.new(lp.outputs["Is Reflection Ray"], gain.inputs["Value"])
+        nt.links.new(gain.outputs["Result"], em.inputs["Strength"])
     nt.links.new(em.outputs[0], out.inputs["Surface"])
     return mat
 
@@ -88,7 +99,7 @@ def plate_material(name="RoomPlate", image_name="room_plate_linear.exr", strengt
 def build_room(collection=None):
     room = cfg("room.json")
     col = collection or bpy.context.scene.collection
-    plate = plate_material()
+    plate = plate_material(reflection_gain=0.25)
     fz = room["floor_z"] * MM
 
     # Wall line on the floor, from the two measured junction points.

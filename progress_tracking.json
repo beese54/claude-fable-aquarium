@@ -296,10 +296,10 @@
     {
       "id": "T6.1",
       "phase": 6,
-      "title": "Full-quality render of approved scapes (detached, resumable)",
+      "title": "Full-quality render at double size, scaled down (quality super), detached and resumable",
       "status": "todo",
       "commit": null,
-      "next_action": "Wait for the owner's OK on the second draft's fish motion, and their answer on sharpness. One final-quality frame (384 samples) of 06_mountain took 109 s; preview quality (128 samples) took 35 to 41 s and measured within 9% of final in detail, so about 200 samples is a sensible final setting. Estimate for 3260 frames: roughly 55 to 100 hours at 384 samples, 30 to 50 at about 200. Time one frame per scape, tell the owner the total, then ONE background job: python src/render_all.py --quality final. Nothing shared may change while it runs."
+      "next_action": "The owner chose double size if the tank stays the same size (it does) and accepts a render of several days (2026-11-28). Quality preset \"super\" (bl_common.QUALITY: 2160x3840, 112 samples; composite.py averages it down to 1080x1920). Measured on 06_mountain frame 1314: 125 s per frame, peak 1.5 GB, detail measure 56 to 66% above the normal final frame. Estimate for about 3260 frames: 80 to 115 hours. Start only after the owner has seen the second draft and is happy with the fish motion. Then ONE background job: python src/render_all.py --quality super (resumable; rerun to continue; if the low-memory guard stops it, report and wait). Nothing shared may change while it runs. Final frames are about 4x the size on disk: check free space first (each EXR about 8 to 12 MB, so about 30 to 40 GB)."
     },
     {
       "id": "T6.2",

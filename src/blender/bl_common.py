@@ -36,6 +36,11 @@ QUALITY = {
     "draft":   dict(samples=48,  threshold=0.08, pct=50),
     "preview": dict(samples=128, threshold=0.04, pct=100),
     "final":   dict(samples=384, threshold=0.015, pct=100),
+    # Twice the size in each direction, scaled back down by the compositor: every
+    # pixel of the film is the average of four rendered ones, so fine edges, leaf
+    # texture and grain-sized detail are resolved rather than guessed. A quarter
+    # of the samples per rendered pixel gives the same light per film pixel.
+    "super":   dict(samples=112, threshold=0.03, pct=200),
 }
 
 

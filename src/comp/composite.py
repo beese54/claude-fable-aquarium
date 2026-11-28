@@ -121,6 +121,9 @@ def unsharp(img, radius=1.1, amount=0.45):
 
 def composite(render_linear, level_mm=268.0, seed=0, use_plate=True, add_grain=True, plate_weight=1.0, frame=None):
     """render_linear: HxWx3 BGR scene-linear float. Returns HxWx3 BGR display float in 0..1."""
+    if render_linear.shape[:2] != (H, W):
+        # rendered larger than the film (quality "super"): average down in linear light
+        render_linear = cv2.resize(render_linear, (W, H), interpolation=cv2.INTER_AREA)
     disp = colour.linear_to_display(render_linear.astype(np.float64)).astype(np.float32)
     if disp.shape[:2] != (H, W):
         disp = cv2.resize(disp, (W, H), interpolation=cv2.INTER_CUBIC)

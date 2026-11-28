@@ -278,12 +278,20 @@
       "next_action": "Not yet judged by ear; the owner may want levels adjusted (see SCAPE_COLOURS and the mix levels in src/comp/audio.py)."
     },
     {
+      "id": "F10",
+      "phase": "5",
+      "title": "Owner feedback on the rough cut: fish only swim forward; caption typography; show final sharpness",
+      "status": "done",
+      "commit": "2d1873f",
+      "next_action": "Done: forward-only shoal model (db4d39c), two-voice captions with Jost (2d1873f), final-quality sample frame sent (review/05_quality_*). The owner liked the sound. Open question put to the owner: whether final quality at 1080x1920 is sharp enough or they want the tank rendered at twice the size and scaled down (about 4x the render time)."
+    },
+    {
       "id": "T5.6",
       "phase": 5,
       "title": "Low-quality full-length draft video of all ten designs (Gate 3)",
-      "status": "blocked",
+      "status": "in_progress",
       "commit": null,
-      "next_action": "HOLD: the low-memory guard stopped the draft render at 15:06 on 2026-11-28; do not restart until the owner says to. Nine scapes complete, 08_cove 127/156, 05_floating 0/190 in <work>/renders_draft (all valid). A partial rough cut (first 101.7 s, through Cove) was sent to the owner as review/04_draft_partial.mp4 (cbacf1d). To finish: set AQUARIUM_RENDER_SET=draft, python src/render_all.py --quality draft --step 2 (about 220 frames, 20 minutes); then assemble the whole film. The assembler takes about 0.9 s per frame, longer than one foreground call allows: assemble in parts with --range (about 510 frames each, three at a time, --half --crf 23 --preset fast --no-audio), join with ffmpeg concat, add <work>/audio/soundtrack.wav, write review/04_draft.mp4, send it to the owner, post Gate 3."
+      "next_action": "Second draft, to check the new fish motion and captions in motion. Started 2026-11-28 about 16:40 as ONE background job after the owner's feedback (6.1 GB free): AQUARIUM_RENDER_SET=draft, python src/render_all.py --quality draft --step 2 (about 1630 frames, about 2.3 h; log <work>/renders_draft/render_all.log). If the low-memory guard stops it, report and wait for the owner; otherwise rerun the same command to resume. When ALL DONE: assemble in parts (assemble.py takes about 0.9 s per frame: --range of about 510 frames each, three at a time in detached processes, --half --crf 20 --preset fast --no-audio, into <work>/qa_scratch/draft_parts), join with ffmpeg concat, add <work>/audio/soundtrack.wav, write review/04_draft.mp4, check a contact sheet and that fish never move backward on screen, send to the owner, post Gate 3."
     },
     {
       "id": "T6.1",
@@ -291,7 +299,7 @@
       "title": "Full-quality render of approved scapes (detached, resumable)",
       "status": "todo",
       "commit": null,
-      "next_action": "Unblocked by the owner's approval of the stills. Start after the draft has been assembled and looked at (a fault found in the draft is cheaper to fix before the final render). First time one final-quality frame per scape and tell the owner the total. Then ONE background job: python src/render_all.py --quality final (about 3260 frames; resumable). Nothing shared may change while it runs."
+      "next_action": "Wait for the owner's OK on the second draft's fish motion, and their answer on sharpness. One final-quality frame (384 samples) of 06_mountain took 109 s; preview quality (128 samples) took 35 to 41 s and measured within 9% of final in detail, so about 200 samples is a sensible final setting. Estimate for 3260 frames: roughly 55 to 100 hours at 384 samples, 30 to 50 at about 200. Time one frame per scape, tell the owner the total, then ONE background job: python src/render_all.py --quality final. Nothing shared may change while it runs."
     },
     {
       "id": "T6.2",
@@ -326,7 +334,14 @@
       "next_action": "blocked until G4"
     }
   ],
-  "render_jobs": [],
+  "render_jobs": [
+    {
+      "what": "second draft, all ten scapes, step 2",
+      "started": "2026-11-28 16:40",
+      "command": "AQUARIUM_RENDER_SET=draft python src/render_all.py --quality draft --step 2",
+      "log": "<work>/renders_draft/render_all.log"
+    }
+  ],
   "notes": [
     "Sleep was already disabled on this laptop (AC and DC), so no power setting was changed.",
     "Draft stills render in about 2 s, full-resolution preview (128 samples) in about 20 s on the RTX 4060; the first render after a cold start spends about 75 s loading kernels.",

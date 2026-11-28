@@ -36,7 +36,8 @@ The machine-readable ledger is `progress_tracking.json`. This file is the human 
 - [x] F5 Blackwater: brighter water, still tea-coloured
 - [x] F6 Floating Islands: fewer, smaller, spaced out
 - [x] F7 Five more designs: Mountain, Jungle, Cove, Riverbed, Lotus pond
-- [ ] F8 Ten stills reviewed and posted. **Gate 2 again (owner)**
+- [x] F8 Ten stills reviewed (round 3: 3.7/10, round 4: 4.4/10) and posted. **Gate 2 again (owner)**
+- [ ] F9 Realism round 2: water surface from below, visible caustics, wet highlights, fish, layered cut faces
 
 ## Phase 5: motion, sound, draft
 - [x] T5.1 Animal and plant animation (baked)

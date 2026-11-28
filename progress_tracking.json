@@ -225,9 +225,17 @@
       "id": "F8",
       "phase": "4b",
       "title": "Ten stills: own review, fresh-context review, post for Gate 2",
-      "status": "in_progress",
+      "status": "done",
+      "commit": "bf96a58",
+      "next_action": "Round 4 recorded in review/scores.md: mean 4.4 of 10 (round 3: 3.7). Stills sent to the owner; awaiting their view."
+    },
+    {
+      "id": "F9",
+      "phase": "4b",
+      "title": "Realism round 2: water surface seen from below, visible caustics, wet highlights, fish size spread and softness, layered cut faces",
+      "status": "todo",
       "commit": null,
-      "next_action": "Realism round committed: shoal formation d0e479c, light balance a287787, fish 5b0d61a, cut faces 9521f0e, stills 2e8c996 (sent to the owner 2026-11-28). A second fresh-context reviewer is scoring the new stills: record its table and dispositions in review/scores.md as Round 4, then mark this done. Per-scape composition points from round 3 (Mountain and Lotus symmetry, Jungle side curtains, Blackwater root mass, Forest crowns) wait for the owner's view."
+      "next_action": "Start only when the draft render (T5.6) has finished, because it changes shared scene code. Priorities from round 4, in order: (1) the underside of the water surface reads as a procedural grey ripple texture and mirror images in it and in the side panes smear: try anisotropic, multi-scale, lower ripples and check what the band reflects; (2) caustics are computed but too soft to read: look at LED size, ripple wavelength and sampling; (3) wet specular highlights on stone; (4) fish: wider size spread, slight softness to match the render, visible shadows; (5) layering and a dark base line in the cut faces. Test with .\render.ps1 stills on 06_mountain, 09_riverbed and 07_jungle, then re-render the ten stills and have them reviewed again."
     },
     {
       "id": "T5.1",

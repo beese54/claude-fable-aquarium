@@ -26,7 +26,7 @@
       }
     },
     "G3_draft_video": {
-      "status": "pending",
+      "status": "APPROVED by the owner on 2026-11-28: sound great; fish motion approved from review/07_motion_check.mp4 (\"i like the motion check, please continue\"); captions restyled at their request; double-size final render approved.",
       "blocks": []
     },
     "G4_final_video": {
@@ -299,7 +299,7 @@
       "title": "Full-quality render at double size, scaled down (quality super), detached and resumable",
       "status": "in_progress",
       "commit": null,
-      "next_action": "FINAL RENDER RUNNING since 2026-11-28 about 17:25 as ONE background job: python src/render_all.py --quality super (AQUARIUM_RENDER_SET unset; frames in <work>/renders/<scape>/NNNNN.exr at 2160x3840; log <work>/renders/render_all.log and <work>/renders/<scape>.log). About 3260 frames at about 125 s: 80 to 115 hours. Resumable: if it is not running and was not stopped by the low-memory guard, rerun the same command. If the guard stopped it, report and wait for the owner to say resume. DO NOT change src/sim, any scape module, fish.py, tank.py, build.py, substrate.py, scatter.py, bl_common.py or config/timeline.json while frames are being rendered: every frame must come from the code at commit 698ac44 (shoal) and 7b602cf (preset). The motion check clip (review/07_motion_check.mp4) was sent to the owner; if they object to the motion, stop the render (TaskStop, then taskkill blender), fix, delete <work>/renders/<scape> folders, and restart. Checkpoint: when 01_iwagumi and 02_dutch are complete, assemble frames 0-1160 at full size in parts (assemble.py --range, no --half, --crf 17, about 1 s per frame, parts of about 400 frames in detached processes), join, add the first 38.7 s of <work>/audio/soundtrack.wav, write review/08_early_excerpt.mp4, send to the owner."
+      "next_action": "FINAL RENDER RUNNING since 2026-11-28 16:28 as ONE background job: python src/render_all.py --quality super (AQUARIUM_RENDER_SET unset; frames in <work>/renders/<scape>/NNNNN.exr at 2160x3840; log <work>/renders/render_all.log and <work>/renders/<scape>.log). About 3260 frames at about 125 s: 80 to 115 hours. Resumable: if it is not running and was not stopped by the low-memory guard, rerun the same command. If the guard stopped it, report and wait for the owner to say resume. DO NOT change src/sim, any scape module, fish.py, tank.py, build.py, substrate.py, scatter.py, bl_common.py or config/timeline.json while frames are being rendered: every frame must come from the code at commit 698ac44 (shoal) and 7b602cf (preset). The owner approved the motion (2026-11-28) and is leaving the machine on. Checkpoint: when 01_iwagumi and 02_dutch are complete, assemble frames 0-1160 at full size in parts (assemble.py --range, no --half, --crf 17, about 1 s per frame, parts of about 400 frames in detached processes), join, add the first 38.7 s of <work>/audio/soundtrack.wav, write review/08_early_excerpt.mp4, send to the owner."
     },
     {
       "id": "T6.2",
@@ -337,7 +337,7 @@
   "render_jobs": [
     {
       "what": "FINAL, quality super, all ten scapes",
-      "started": "2026-11-28 17:25",
+      "started": "2026-11-28 16:28",
       "command": "python src/render_all.py --quality super",
       "log": "<work>/renders/render_all.log"
     }

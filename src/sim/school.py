@@ -45,13 +45,18 @@ if str(SRC) not in sys.path:
 
 FPS = 30
 SUBSTEPS = 4
-VERSION = 18     # bump whenever the model changes, so cached runs are not reused
+VERSION = 32     # bump whenever the model changes, so cached runs are not reused
 COUNT = 12       # fish in the film's shoal
 SEED = 4
 LEAD = 100       # frames before a scape appears that the shoal starts making room for it
 RAMP = 60        # frames a change of water takes
 DEFAULT_SWIM = {"box": (60, 240, 40, 170, 140, 225), "floor": (60, 110), "obstacles": []}
-SLANT = 1.0      # most a heading may turn from side-on, as |dy| / |dx| (1.0 = 45 degrees)
+STEER_T = 0.55   # seconds ahead a fish plans its course
+TURN_RATE = 1.7  # fastest a cruising fish turns its body, rad/s (quicker in a dart)
+PACE_MIN = 0.3   # a hovering fish barely creeps forward, mm/s; it never goes backward
+HOVER = 2.0      # typical creep of a fish that is where it wants to be, mm/s
+CONTENT = 8.5    # pull (mm/s) below which a fish leaves its heading alone
+HOLD = 5.0       # how firmly a fish keeps its course against a pull, as mm/s of pull
 PITCH = 0.21     # most a fish may nose up or down, as rise over run (about 12 degrees)
 MIN_SHARED = (90.0, 60.0, 40.0)     # least width (x, y, z) worth calling water common to two scapes
 
@@ -116,7 +121,7 @@ def environment(plan, frames):
 
 
 def simulate(plan, frame_start, frame_end, n=COUNT, seed=SEED,
-             spread=(72.0, 45.0, 30.0), cruise=22.0, tour=(17.0, 11.0, 13.0), warmup_s=12.0):
+             spread=(72.0, 45.0, 30.0), cruise=22.0, tour=(34.0, 22.0, 21.0), warmup_s=12.0):
     """Simulate `n` fish for frames [frame_start, frame_end) of the film.
 
     plan       film_plan(): scapes in order, each with first, last, box, floor, obstacles
@@ -175,8 +180,14 @@ def simulate(plan, frame_start, frame_end, n=COUNT, seed=SEED,
     mood_ph = rng.uniform(0, 2 * math.pi, (n, 3))
     mood_T = rng.uniform(2.5, 7.0, (n, 3))
     wander_ph = rng.uniform(0, 2 * math.pi, (n, 3, 2))
-    wander_T = rng.uniform(4.0, 11.0, (n, 3, 2))
+    wander_T = rng.uniform(11.0, 23.0, (n, 3, 2))
     burst = np.zeros(n)
+    pace = np.linalg.norm(V, axis=1)                      # speed along the heading, mm/s; never negative
+    turn_side = rng.choice([-1.0, 1.0], n)                # which way this fish turns about when it must reverse
+    calm = np.zeros((n, 3))                               # the pull on each fish, averaged over a moment
+    drift = np.zeros((n, 3))                              # the velocity of each fish's place in the shoal
+    goal_prev = None
+    V = H * pace[:, None]
     lo = np.array([22.0, 22.0, 0.0])
     hi = np.array([278.0, 278.0, 250.0])
     HARD_LO = np.array([24.0, 18.0, 30.0])      # a fish's middle never comes nearer the glass than this
@@ -195,7 +206,7 @@ def simulate(plan, frame_start, frame_end, n=COUNT, seed=SEED,
 
         # where the shoal as a whole wants to be
         T = centre + roam * np.sin(2 * math.pi * t / tour + tour_phase)
-        wander = np.mean(np.sin(2 * math.pi * t / wander_T + wander_ph), axis=2) * sp * 0.45
+        wander = np.mean(np.sin(2 * math.pi * t / wander_T + wander_ph), axis=2) * sp * 0.30
         knots = knot_c * (1.0 + 0.45 * np.sin(2 * math.pi * t / knot_T + knot_ph))
         unit = np.clip(knots[knot_of] + own, -1.6, 1.6)
         goal = T + unit * sp + wander
@@ -214,13 +225,22 @@ def simulate(plan, frame_start, frame_end, n=COUNT, seed=SEED,
             push = np.clip(o[None, :, 2] + 26.0 - d, 0, None) * inz * wa[None, :]
             goal[:, :2] += np.sum(r / d[..., None] * push[..., None], axis=1)
             goal = np.clip(goal, e[[0, 2, 4]], e[[1, 3, 5]])
-        A = (goal - P) * np.array([0.55, 1.0, 0.55])       # follow the group's front-to-back wander closely
+        # The place moves with the shoal. A fish that can only swim forward keeps
+        # its place by swimming along with it, not by chasing it: so it is given
+        # the velocity of its place (averaged over a moment) as well as the pull back to it.
+        if goal_prev is None:
+            goal_prev = goal.copy()
+        drift += ((goal - goal_prev) / dt - drift) * min(1.0, dt / 0.40)
+        goal_prev = goal.copy()
+        A = (goal - P) * np.array([0.40, 0.55, 0.40])
 
         # neighbours: keep apart, roughly agree on direction
         D = P[:, None, :] - P[None, :, :]
         dist = np.linalg.norm(D, axis=2) + np.eye(n) * 1e6
         near = dist < reach
         A += np.sum(np.where(near[..., None], D / dist[..., None] * (reach - dist)[..., None] * 12.0, 0.0), axis=1)
+        touching = dist < 20.0                     # bodies are 6 mm thick and 33 long: never through each other
+        A += np.sum(np.where(touching[..., None], D / dist[..., None] * (20.0 - dist)[..., None] * 60.0, 0.0), axis=1)
         nb = dist < 75.0
         cnt = np.maximum(nb.sum(axis=1, keepdims=True), 1)
         A += (np.sum(np.where(nb[..., None], V[None, :, :], 0.0), axis=1) / cnt - V) * 1.3 * (nb.any(axis=1, keepdims=True))
@@ -243,47 +263,68 @@ def simulate(plan, frame_start, frame_end, n=COUNT, seed=SEED,
             away = np.where(hanging[act][None, :] & (z < mid[act][None, :]), -1.0, 1.0)   # under a hanging piece: go down
             A[:, 2] += np.sum(pen * away, axis=1) * 3.0
 
-        # each fish's own pace: idle, cruise, and the odd dart
+        # --- a fish can only swim the way it points ------------------------------------
+        # Everything above is what the fish would like: A is the pull of its place
+        # in the group, its neighbours, the glass and the hardscape. It cannot
+        # simply drift that way. It turns its body toward where it wants to go, no
+        # faster than a tetra can, and moves along its own heading only: forward,
+        # slower through a hard turn, down to a hover when it is where it wants to
+        # be, and never backward or sideways.
         mood = 0.5 + 0.5 * np.mean(np.sin(2 * math.pi * t / mood_T + mood_ph), axis=1)
         darting = rng.random(n) < 0.07 * dt
-        burst = burst * math.exp(-dt / 0.45) + darting * rng.uniform(45, 85, n)
-        if darting.any():
-            kick = rng.normal(0, 1, (n, 3)) * np.array([1, 1, 0.25])
-            H = np.where(darting[:, None], H + kick * 0.6, H)
-            H /= np.linalg.norm(H, axis=1, keepdims=True)
-        want = cruise * (0.35 + 1.25 * mood) + burst
-        speed = np.linalg.norm(V, axis=1)
-        A += H * ((want - speed) * 3.0)[:, None]
-        # Water drag on anything faster than the fish means to go, in whatever
-        # direction: without it a fish shoved by a rock or a neighbour keeps the
-        # speed and ricochets around the tank.
-        A -= V / (speed[:, None] + 1e-6) * (np.clip(speed - (want * 1.4 + 12.0), 0, None) * 6.0)[:, None]
-
+        burst = burst * math.exp(-dt / 0.45) + darting * rng.uniform(40, 75, n)
         A[:, 2] *= 0.35
-        V = V + A * dt
-        V[:, 2] *= (1.0 - 1.2 * dt)
-        speed = np.linalg.norm(V, axis=1)
-        V *= np.minimum(1.0, 110.0 / (speed + 1e-6))[:, None]
-        P = P + V * dt
-        # the glass and the surface are hard limits whatever the forces say
-        Pc = np.clip(P, HARD_LO, HARD_HI)
-        V = np.where(Pc != P, 0.0, V)
-        P = Pc
-        speed = np.linalg.norm(V, axis=1)
-
-        # heading follows travel, but a hovering fish keeps facing where it was
-        Hn = H + (V / (speed[:, None] + 1e-6) - H) * (np.minimum(1.0, speed / 20.0) * dt / 0.45)[:, None]
-        # Tetras swim close to level: the pitch is capped (PITCH), measured against
-        # the horizontal part of the heading so a hovering fish cannot tip on end.
-        # Seen head-on or tail-on a tetra is just a dot, so headings never turn
-        # more than SLANT allows away from side-on; fish still travel in depth, at a slant.
-        Hn[:, 1] = np.clip(Hn[:, 1], -SLANT * np.abs(Hn[:, 0]) - 1e-3, SLANT * np.abs(Hn[:, 0]) + 1e-3)
-        hxy = np.linalg.norm(Hn[:, :2], axis=1)
+        # A fish holds its course against small or passing pulls: what it responds
+        # to is the pull averaged over a moment, set against the way it is facing.
+        calm += (A - calm) * min(1.0, dt / 0.30)
+        pull = drift + calm * STEER_T              # the velocity it would like: with its place, plus corrections
+        Dv = H * HOLD + pull                       # set against the way it is already facing
+        if darting.any():
+            Dv = np.where(darting[:, None], Dv + rng.normal(0, 1, (n, 3)) * np.array([30.0, 30.0, 6.0]), Dv)
+        Dv[:, 1] *= 0.62                           # a preference for moving across the tank rather than at the glass
+        demand = np.linalg.norm(pull, axis=1)
+        dvn = np.linalg.norm(Dv, axis=1)
+        Dd = np.where(dvn[:, None] > 0.5, Dv / (dvn[:, None] + 1e-9), H)
+        hxy = np.linalg.norm(Dd[:, :2], axis=1)
         flat = hxy < 0.2
-        Hn[flat, :2] = H[flat, :2]
+        Dd[flat, :2] = H[flat, :2]
+        hxy = np.maximum(np.linalg.norm(Dd[:, :2], axis=1), 1e-6)
+        Dd[:, 2] = np.clip(Dd[:, 2], -PITCH * hxy, PITCH * hxy)     # tetras swim close to level
+        Dd /= np.linalg.norm(Dd, axis=1, keepdims=True)
+
+        cosang = np.clip(np.sum(H * Dd, axis=1), -1.0, 1.0)
+        ang = np.arccos(cosang)
+        perp = Dd - cosang[:, None] * H
+        pn = np.linalg.norm(perp, axis=1)
+        about = pn < 1e-4                          # wants to go straight back: turn about, to its own side
+        if about.any():
+            side = np.column_stack([-H[:, 1], H[:, 0], np.zeros(n)]) * turn_side[:, None]
+            perp = np.where(about[:, None], side, perp)
+            pn = np.where(about, np.linalg.norm(side, axis=1) + 1e-9, pn)
+        # A fish that is near enough to where it wants to be does not fuss: it
+        # holds its heading and hovers. Only a real pull makes it turn, lazily at
+        # first and smartly when it is being left behind.
+        urgency = np.clip((demand - CONTENT) / 20.0, 0.0, 1.0)
+        turn = np.minimum(ang, TURN_RATE * urgency * (1.0 + burst / 35.0) * dt)
+        Hn = H * np.cos(turn)[:, None] + perp / pn[:, None] * np.sin(turn)[:, None]
         hxy = np.maximum(np.linalg.norm(Hn[:, :2], axis=1), 1e-6)
         Hn[:, 2] = np.clip(Hn[:, 2], -PITCH * hxy, PITCH * hxy)
         Hn /= np.linalg.norm(Hn, axis=1, keepdims=True)
+
+        # Pace: a content fish hovers, creeping forward; it swims when what it
+        # wants lies ahead of it, as fast as its mood allows; it eases off through
+        # a turn; a dart is a short burst on top.
+        ahead = np.clip(np.sum(pull * Hn, axis=1), 0.0, None)
+        want = np.minimum(HOVER * (0.4 + 1.2 * mood) + 1.15 * ahead, cruise * (1.2 + 1.3 * mood))
+        want = want * (0.35 + 0.65 * np.clip((cosang + 0.2) / 1.2, 0.0, 1.0))
+        want = want + burst
+        pace += (want - pace) * min(1.0, dt / 0.35)
+        pace = np.clip(pace, PACE_MIN, 110.0)
+        V = Hn * pace[:, None]
+        # the glass and the surface are hard limits whatever the fish intends
+        P = np.clip(P + V * dt, HARD_LO, HARD_HI)
+        speed = pace
+
         yaw_now = (H[:, 0] * Hn[:, 1] - H[:, 1] * Hn[:, 0]) / dt
         yaw_rate += (yaw_now - yaw_rate) * min(1.0, dt / 0.12)
         H = Hn

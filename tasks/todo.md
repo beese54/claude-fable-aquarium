@@ -32,10 +32,10 @@ The machine-readable ledger is `progress_tracking.json`. This file is the human 
 - [x] F1 One shoal for the whole film; fish hold their path through every transition
 - [x] F2 Iwagumi: stones a fifth smaller
 - [x] F3 Dutch: natural drifts instead of blocks
-- [ ] F4 Forest: every tree different, uneven placement
+- [x] F4 Forest: every tree different, uneven placement
 - [x] F5 Blackwater: brighter water, still tea-coloured
 - [x] F6 Floating Islands: fewer, smaller, spaced out
-- [ ] F7 Five more designs: Mountain, Jungle, Cove, Riverbed, Lotus pond
+- [x] F7 Five more designs: Mountain, Jungle, Cove, Riverbed, Lotus pond
 - [ ] F8 Ten stills reviewed and posted. **Gate 2 again (owner)**
 
 ## Phase 5: motion, sound, draft

@@ -8,21 +8,21 @@
       "blocks": []
     },
     "G2_design_stills": {
-      "status": "owner gave feedback on the first five on 2026-11-28 (see tasks/lessons.md) and asked for five more designs; ten revised stills to be posted again. Final render (T6.1) must not start for a scape until the owner approves its still",
+      "status": "ten stills posted again on 2026-11-28 after the owner's feedback (review/03_design_all.jpg); awaiting owner. Final render (T6.1) must not start for a scape until the owner approves its still",
       "blocks": [
         "T6.1"
       ],
       "per_scape": {
-        "01_iwagumi": "feedback applied, to be posted again",
-        "02_dutch": "feedback applied, to be posted again",
-        "06_mountain": "new, built, to be posted",
-        "03_forest": "feedback being applied",
-        "09_riverbed": "new, built, to be posted",
-        "07_jungle": "new, in work",
-        "04_blackwater": "feedback applied, to be posted again",
-        "10_lotus": "new, in work",
-        "08_cove": "new, in work",
-        "05_floating": "feedback applied, to be posted again"
+        "01_iwagumi": "still posted 2026-11-28, awaiting owner",
+        "02_dutch": "still posted 2026-11-28, awaiting owner",
+        "06_mountain": "still posted 2026-11-28, awaiting owner",
+        "03_forest": "still posted 2026-11-28, awaiting owner",
+        "09_riverbed": "still posted 2026-11-28, awaiting owner",
+        "07_jungle": "still posted 2026-11-28, awaiting owner",
+        "04_blackwater": "still posted 2026-11-28, awaiting owner",
+        "10_lotus": "still posted 2026-11-28, awaiting owner",
+        "08_cove": "still posted 2026-11-28, awaiting owner",
+        "05_floating": "still posted 2026-11-28, awaiting owner"
       }
     },
     "G3_draft_video": {
@@ -193,9 +193,9 @@
       "id": "F4",
       "phase": "4b",
       "title": "Forest: every tree different in branch and foliage, uneven placement",
-      "status": "in_progress",
-      "commit": null,
-      "next_action": "Subagent working on 03_forest.py; review its still, then commit."
+      "status": "done",
+      "commit": "b7f8ba7",
+      "next_action": ""
     },
     {
       "id": "F5",
@@ -217,17 +217,17 @@
       "id": "F7",
       "phase": "4b",
       "title": "Five more designs: 06_mountain, 07_jungle, 08_cove, 09_riverbed, 10_lotus",
-      "status": "in_progress",
-      "commit": null,
-      "next_action": "Committed: 09_riverbed (6972f55), 07_jungle (f081fd8, a polish pass on its surface fringe and clearing is with its subagent), 06_mountain (f8f207e). Still with subagents: 08_cove, 10_lotus. Review each gate2 still, then commit."
+      "status": "done",
+      "commit": "10aec52",
+      "next_action": "All five built: 06_mountain f8f207e, 07_jungle 3005843, 08_cove cef5b5c, 09_riverbed 6972f55, 10_lotus 10aec52."
     },
     {
       "id": "F8",
       "phase": "4b",
       "title": "Ten stills: own review, fresh-context review, post for Gate 2",
-      "status": "todo",
+      "status": "in_progress",
       "commit": null,
-      "next_action": "python src/comp/design_stills.py, score in review/scores.md, show the owner review/03_design_all.jpg."
+      "next_action": "Ten stills rendered from the settled shoal and committed (1c4c407). A fresh-context reviewer is scoring them; record scores and dispositions in review/scores.md, then show the owner review/03_design_all.jpg."
     },
     {
       "id": "T5.1",
@@ -273,9 +273,9 @@
       "id": "T5.6",
       "phase": 5,
       "title": "Low-quality full-length draft video of all ten designs (Gate 3)",
-      "status": "todo",
+      "status": "in_progress",
       "commit": null,
-      "next_action": "The owner lifted the hold on 2026-11-28 and gave design feedback. Wait until F3 to F8 are done (all ten scapes build and their SWIM is settled, because the shoal's path depends on every scape). Then, as ONE job: delete <work>/renders_draft (old designs, old frame numbers), set AQUARIUM_RENDER_SET=draft, run python src/render_all.py --quality draft --step 2, python src/comp/audio.py, python src/comp/assemble.py --out review/04_draft.mp4 --half --crf 23 --preset fast. Review frames, then post Gate 3."
+      "next_action": "Draft render started 2026-11-28 as one background job (AQUARIUM_RENDER_SET=draft, python src/render_all.py --quality draft --step 2; about 1630 frames; progress in <work>/renders_draft/render_all.log). It is resumable: rerun the same command if it stopped. Do not start any other render while it runs. When it says ALL DONE: python src/comp/audio.py, then with AQUARIUM_RENDER_SET=draft python src/comp/assemble.py --out review/04_draft.mp4 --half --crf 23 --preset fast; review frames at every transition; post Gate 3."
     },
     {
       "id": "T6.1",
@@ -318,7 +318,14 @@
       "next_action": "blocked until G4"
     }
   ],
-  "render_jobs": [],
+  "render_jobs": [
+    {
+      "what": "draft, all ten scapes, step 2",
+      "started": "2026-11-28",
+      "command": "AQUARIUM_RENDER_SET=draft python src/render_all.py --quality draft --step 2",
+      "log": "<work>/renders_draft/render_all.log"
+    }
+  ],
   "notes": [
     "Sleep was already disabled on this laptop (AC and DC), so no power setting was changed.",
     "Draft stills render in about 2 s, full-resolution preview (128 samples) in about 20 s on the RTX 4060; the first render after a cold start spends about 75 s loading kernels.",

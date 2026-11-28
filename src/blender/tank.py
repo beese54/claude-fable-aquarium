@@ -111,7 +111,7 @@ def water_material(tint=(0.88, 0.975, 0.955), density=1.5, scatter=0.0, scatter_
     return mat
 
 
-def build_water(level_mm=268.0, collection=None, ripple_mm=0.35, ripple_scale=0.085, fine_mm=0.15, fine_scale=0.020, grid=200, material=None):
+def build_water(level_mm=268.0, collection=None, ripple_mm=0.30, ripple_scale=0.085, fine_mm=0.04, fine_scale=0.020, grid=200, material=None):
     """Water body up to `level_mm` above the tank's outer base."""
     lo = GLASS - OVERLAP
     hi = TANK - GLASS + OVERLAP
@@ -201,6 +201,62 @@ def set_water_level(obj, level_mm, turbulence=1.0):
     base = obj["ripple_strengths"]
     obj.modifiers["Ripples"].strength = base[0] * turbulence
     obj.modifiers["RipplesFine"].strength = base[1] * (0.6 + 0.4 * turbulence)
+
+
+# --- wave trains --------------------------------------------------------------------
+# Seen from the camera, the underside of the surface is a perfect mirror (the
+# view is far beyond the critical angle), so the surface's shape is drawn in
+# plain sight as distortions of that mirror, and again on the bed as caustics.
+# Noise alone gave both a cellular, procedural look. Real ripples in a small
+# tank are wave trains spreading from where the filter returns its water and
+# from where they bounce off the glass, and their interference is what makes
+# the familiar net of light. So the surface is the sum of circular wave trains
+# from one corner and from that corner's mirror images in the nearest walls,
+# with only a little noise left on top (the Displace modifiers).
+#
+# Real capillary waves cross the tank in about a second and would strobe at 30
+# frames a second with no motion blur; what a camera sees is the slower drift
+# of the interference pattern, so the trains here travel at that apparent pace.
+
+WAVE_SOURCE = (266.0, 284.0)        # mm: back right, where an outflow would be
+WAVE_TRAINS = (                     # wavelength mm, height mm, apparent speed mm/s, phase
+    (37.0, 0.150, 74.0, 0.0),
+    (24.0, 0.095, 63.0, 1.3),
+    (15.5, 0.052, 55.0, 2.1),
+    (10.5, 0.026, 49.0, 4.0),
+)
+WAVE_IMAGES = ((1.0, 1.0, 1.0), (-1.0, 1.0, 0.55), (1.0, -1.0, 0.45))   # mirror in x, mirror in y, strength
+_wave_cache = {}
+
+
+def wave_surface(obj, frame, level_mm, gain=1.0, fps=30):
+    """Shape the water surface for this frame: `level_mm` plus the wave trains."""
+    import numpy as np
+    n = obj["top_count"]
+    me = obj.data
+    c = _wave_cache.get(obj.name)
+    if c is None or c["co"].shape[0] != len(me.vertices) * 3:
+        co = np.empty(len(me.vertices) * 3)
+        me.vertices.foreach_get("co", co)
+        xy = co.reshape(-1, 3)[:n, :2] / MM
+        lo, hi = (GLASS - OVERLAP) / MM, (TANK - GLASS + OVERLAP) / MM
+        edge = np.minimum.reduce([xy[:, 0] - lo, hi - xy[:, 0], xy[:, 1] - lo, hi - xy[:, 1]])
+        dists = []
+        for mx, my, strength in WAVE_IMAGES:
+            sx = WAVE_SOURCE[0] if mx > 0 else 2 * 5.0 - WAVE_SOURCE[0]      # image in the left glass
+            sy = WAVE_SOURCE[1] if my > 0 else 2 * 5.0 - WAVE_SOURCE[1]      # image in the front glass
+            r = np.hypot(xy[:, 0] - sx, xy[:, 1] - sy)
+            dists.append((r, strength * np.sqrt(60.0 / (r + 60.0))))
+        c = _wave_cache[obj.name] = {"co": co, "dists": dists, "w": np.clip(edge / 12.0, 0.0, 1.0)}
+    t = frame / fps
+    h = 0.0
+    for r, fall in c["dists"]:
+        for lam, height, speed, ph in WAVE_TRAINS:
+            h = h + fall * height * np.sin(2 * np.pi * (r - speed * t) / lam + ph)
+    co = c["co"].reshape(-1, 3)
+    co[:n, 2] = (level_mm + gain * c["w"] * h) * MM
+    me.vertices.foreach_set("co", c["co"])
+    me.update()
 
 
 # --- reveal: the scape exists only below the water --------------------------------

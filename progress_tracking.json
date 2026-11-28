@@ -233,9 +233,9 @@
       "id": "F9",
       "phase": "4b",
       "title": "Realism round 2: water surface seen from below, visible caustics, wet highlights, fish size spread and softness, layered cut faces",
-      "status": "todo",
+      "status": "in_progress",
       "commit": null,
-      "next_action": "Changes shared scene code, so it must not overlap a running draft render. While T5.6 is on hold, single test stills with .\render.ps1 in the foreground are still allowed (one at a time); if this round changes the look before the draft resumes, delete <work>/renders_draft first so the draft is all one look. Priorities from round 4, in order: (1) the underside of the water surface reads as a procedural grey ripple texture and mirror images in it and in the side panes smear: try anisotropic, multi-scale, lower ripples and check what the band reflects; (2) caustics are computed but too soft to read: look at LED size, ripple wavelength and sampling; (3) wet specular highlights on stone; (4) fish: wider size spread, slight softness to match the render, visible shadows; (5) layering and a dark base line in the cut faces. Test with .\render.ps1 stills on 06_mountain, 09_riverbed and 07_jungle, then re-render the ten stills and have them reviewed again."
+      "next_action": "Done so far: (1) water surface is now interfering wave trains (tank.wave_surface, called every frame from build.apply_frame; WATER wave_gain per scape); tested on 09_riverbed only: the band under the surface shows curved wavefronts instead of cells. Next: check the wave surface on 06_mountain, 07_jungle and 01_iwagumi during the fill (frames 600 to 680, turbulence multiplies the gain) with single foreground stills; then (2) caustics too soft to read (LED size, wavelengths, sampling), (3) wet highlights on stone, (4) fish size spread, slight softness, shadows, (5) layering and a dark base line in the cut faces. Then re-render the ten stills (one render command at a time), design_stills.py, fresh review, record as round 5. Memory is short on this machine (about 3 GB free): one foreground still at a time only."
     },
     {
       "id": "T5.1",
@@ -283,7 +283,7 @@
       "title": "Low-quality full-length draft video of all ten designs (Gate 3)",
       "status": "blocked",
       "commit": null,
-      "next_action": "HOLD: on 2026-11-28 about 12:45 Claude Code stopped the draft render because the machine was critically low on memory (it was the only render running; about 3 GB of 15.7 GB was free afterwards, the rest held by other applications). Do not restart it until the owner says to. State of <work>/renders_draft: 01_iwagumi 192/192, 02_dutch 95/156, the other eight 0. The frames are valid (nothing shared has changed since they were rendered) and the job resumes where it stopped: set AQUARIUM_RENDER_SET=draft, python src/render_all.py --quality draft --step 2. Then audio, assemble review/04_draft.mp4, send to the owner, Gate 3. The owner can stop these interruptions by starting Claude Code with CLAUDE_CODE_DISABLE_BG_SHELL_PRESSURE_REAP=1 in its environment, or by closing other applications while it renders."
+      "next_action": "HOLD: on 2026-11-28 about 12:45 Claude Code stopped the draft render because the machine was critically low on memory (it was the only render running). Do not restart it until the owner says to. The 287 frames in <work>/renders_draft are STALE (the water surface changed afterwards): delete that folder first. Then, as ONE job: set AQUARIUM_RENDER_SET=draft, python src/render_all.py --quality draft --step 2 (about 1630 frames, about 5 s each); python src/comp/audio.py; with AQUARIUM_RENDER_SET=draft python src/comp/assemble.py --out review/04_draft.mp4 --half --crf 23 --preset fast; check frames in every transition; send to the owner; Gate 3. The owner can stop the interruptions by starting Claude Code with CLAUDE_CODE_DISABLE_BG_SHELL_PRESSURE_REAP=1 in its environment, or by closing other applications while it renders."
     },
     {
       "id": "T6.1",

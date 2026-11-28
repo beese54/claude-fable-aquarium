@@ -65,6 +65,8 @@ def build(scape="empty", frame=1, quality="preview", out=None, lamp_watts=None, 
     for k, v in (tweak or {}).items():
         if v is not None:
             (light_cfg if k in ("fill", "bounce", "fill_glossy") else water_cfg)[k] = v
+    if scape == "empty":
+        water_cfg.pop("wave_gain", None)
 
     room = room_mod.build_room()
     lamp = room_mod.build_lamp()
@@ -86,6 +88,7 @@ def build(scape="empty", frame=1, quality="preview", out=None, lamp_watts=None, 
     if scape != "empty":
         level = water_cfg.pop("level_mm", 268.0)
         ripple = {k: water_cfg.pop(k) for k in ("ripple_mm", "ripple_scale", "fine_mm", "fine_scale") if k in water_cfg}
+        ctx["wave_gain"] = water_cfg.pop("wave_gain", 1.0)        # height of the wave trains (tank.wave_surface)
         material = tank_mod.water_material(**water_cfg) if water_cfg else None
         water, drift = tank_mod.build_water(level_mm=level, material=material, **ripple)
         tank_mod.animate_ripples(drift, 0, timeline._TL["total_frames"] + 90)
@@ -186,6 +189,9 @@ def apply_frame(ctx, frame):
         tank_mod.set_water_level(ctx["water"], level, timeline.turbulence(frame, scape))
         tank_mod.set_reveal_level(level - 0.6 if level < timeline.FULL_MM else 1.0e5)
         ctx["water_level_mm"] = level
+    if ctx.get("water") is not None:
+        turb = timeline.turbulence(frame, scape) if timeline.is_filling(scape) else 1.0
+        tank_mod.wave_surface(ctx["water"], frame, ctx["water_level_mm"], ctx.get("wave_gain", 1.0) * turb)
     mod = ctx.get("module")
     if mod is not None and hasattr(mod, "animate"):
         mod.animate(ctx, frame)
@@ -242,13 +248,14 @@ def main():
     ap.add_argument("--bounce", type=float, help="look development: override the scape's bounce fraction")
     ap.add_argument("--ripple-mm", type=float, help="look development: override the broad ripple height")
     ap.add_argument("--fine-mm", type=float, help="look development: override the fine ripple height")
+    ap.add_argument("--wave-gain", type=float, help="look development: override the height of the wave trains")
     ap.add_argument("--fill-glossy", action="store_true", help="look development: let the soft sources make highlights")
     a = ap.parse_args(bc.script_args())
 
     render_lock()
     t0 = time.time()
     tweak = dict(fill=a.fill, bounce=a.bounce, ripple_mm=a.ripple_mm, fine_mm=a.fine_mm,
-                 fill_glossy=True if a.fill_glossy else None)
+                 fill_glossy=True if a.fill_glossy else None, wave_gain=a.wave_gain)
     if a.frames:
         span, _, step = a.frames.partition(":")
         first, last = (int(v) for v in span.split("-"))

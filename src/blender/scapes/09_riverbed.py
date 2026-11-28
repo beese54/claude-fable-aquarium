@@ -39,7 +39,7 @@ LIGHT = dict(watts=42.0, fill=0.005, bounce=0.02)
 # The fine ripples are shorter than the kit's default, which brings their focus
 # (about wavelength^2 / (13 x height)) down toward the bed: the lamp's light
 # lands dappled, with caustic threads running over the sand and the stones.
-WATER = dict(tint=(0.86, 0.975, 0.985), density=1.3, ripple_mm=0.50, fine_mm=0.32, fine_scale=0.011)
+WATER = dict(tint=(0.86, 0.975, 0.985), density=1.3, ripple_mm=0.40, wave_gain=1.5)
 
 # Water the film's shoal may use while this scape is on screen (src/sim/school.py).
 # Nearly all of it is free; the cylinders are the two largest stones and the

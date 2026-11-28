@@ -39,15 +39,26 @@ SCAPE = "03_forest"
 # the trees are covered by the cylinders a build prints as [trees] (trunks
 # standing on the bed, crowns hanging in the water).
 SWIM = {
-    "box": (36, 264, 26, 168, 118, 206),
+    "box": (36, 264, 26, 136, 118, 206),
     "floor": (82, 114),
     "obstacles": [
-        (90, 157, 29, 119), (89, 155, 19, 138, 110), (101, 148, 30, 160, 132), (87, 156, 64, 195, 154), (73, 169, 61, 212, 176), (94, 147, 51, 225, 198), (100, 129, 4, 229, 220),     # Tree_old
-        (122, 217, 17, 120), (125, 221, 12, 142, 114), (128, 225, 11, 164, 136), (134, 238, 33, 186, 158), (140, 241, 37, 213, 180), (135, 237, 34, 235, 202), (125, 236, 15, 245, 224),     # Tree_tall
-        (259, 122, 13, 115), (252, 125, 24, 141, 109), (261, 114, 24, 170, 131), (257, 113, 20, 170, 153),     # Tree_young
-        (236, 181, 29, 127), (219, 179, 25, 145, 117), (199, 165, 48, 182, 139), (187, 175, 55, 209, 161), (182, 169, 50, 218, 183), (182, 158, 19, 218, 205),     # Tree_lean
-        (198, 263, 11, 128), (198, 264, 9, 150, 122), (189, 265, 18, 173, 144), (192, 264, 27, 194, 166), (197, 272, 16, 218, 188), (192, 270, 15, 227, 210),     # Tree_far_r
-        (59, 257, 24, 132), (52, 267, 20, 153, 126), (57, 267, 26, 181, 148), (61, 254, 33, 203, 170), (60, 243, 36, 218, 192),     # Tree_far_l
+        (93, 207, 20, 125), (77, 206, 16, 124), (93, 190, 22, 125), (78, 194, 14, 125), (89, 202, 19, 144, 116), (79, 201, 5, 143, 116),
+        (79, 196, 11, 144, 116), (91, 194, 18, 144, 116), (88, 200, 13, 147, 138), (102, 192, 27, 166, 138), (79, 196, 8, 166, 138), (122, 183, 6, 162, 138),
+        (72, 193, 23, 195, 160), (103, 186, 31, 194, 160), (72, 214, 32, 196, 160), (85, 213, 32, 200, 160), (68, 245, 16, 195, 160), (123, 178, 8, 180, 160),
+        (65, 193, 20, 210, 182), (68, 218, 28, 214, 182), (88, 215, 30, 213, 182), (98, 188, 25, 216, 182), (82, 241, 6, 192, 182), (71, 244, 15, 202, 182),
+        (71, 217, 22, 216, 204), (96, 201, 18, 215, 204), (98, 188, 21, 231, 204), (100, 180, 4, 235, 226), (118, 246, 13, 124), (117, 238, 9, 113),
+        (125, 246, 13, 124), (123, 239, 9, 123), (120, 245, 6, 127, 118), (125, 247, 12, 146, 118), (128, 250, 10, 168, 140), (134, 260, 30, 190, 162),
+        (161, 256, 6, 184, 162), (118, 264, 6, 184, 162), (141, 263, 30, 218, 184), (162, 264, 6, 212, 184), (116, 256, 14, 216, 184), (138, 260, 27, 240, 206),
+        (160, 262, 9, 223, 206), (117, 257, 15, 233, 206), (126, 258, 14, 250, 228), (118, 259, 11, 246, 228), (261, 177, 12, 123), (256, 179, 22, 146, 117),
+        (239, 185, 10, 136, 117), (262, 173, 20, 175, 139), (252, 172, 22, 181, 161), (247, 213, 20, 121), (245, 199, 7, 104), (239, 198, 4, 103),
+        (231, 213, 19, 129), (219, 211, 25, 147, 119), (205, 208, 30, 183, 141), (194, 210, 34, 184, 141), (195, 192, 29, 178, 141), (202, 194, 10, 175, 141),
+        (182, 217, 33, 211, 163), (192, 192, 36, 201, 163), (151, 214, 22, 206, 163), (154, 197, 11, 194, 163), (206, 219, 25, 197, 163), (193, 242, 21, 189, 163),
+        (201, 243, 7, 185, 163), (202, 192, 13, 185, 163), (183, 213, 36, 216, 185), (187, 197, 31, 219, 185), (204, 217, 21, 206, 185), (201, 197, 5, 206, 185),
+        (157, 197, 7, 205, 185), (153, 213, 23, 207, 185), (182, 193, 15, 219, 207), (174, 206, 11, 216, 207), (197, 271, 11, 128), (201, 270, 10, 128),
+        (198, 271, 8, 150, 122), (201, 271, 7, 149, 122), (189, 271, 18, 173, 144), (200, 272, 6, 164, 144), (191, 270, 20, 195, 166), (203, 267, 19, 194, 166),
+        (195, 274, 14, 217, 188), (202, 274, 10, 216, 188), (190, 274, 11, 227, 210), (202, 274, 5, 219, 210), (59, 268, 20, 133), (52, 272, 19, 155, 127),
+        (57, 272, 24, 183, 149), (65, 281, 11, 180, 149), (39, 273, 5, 157, 149), (61, 264, 28, 207, 171), (64, 281, 10, 201, 171), (64, 238, 8, 207, 171),
+        (59, 256, 30, 220, 193), (64, 281, 9, 214, 193), (68, 239, 14, 217, 193), (39, 267, 4, 205, 193),
     ],
 }
 
@@ -65,42 +76,44 @@ def _tree(name, x, y, h, r, lean, seed, **kw):
     crown          where on the tree (fraction of h) foliage starts
     clump          size of the gaps in the foliage: >1 finer, <1 bigger cushions
     foliage        (layer, share) of the crown
+    fwd            how far (mm) wood may reach toward the front glass from the foot, so crowns
+                   do not roof over the shoal's open water
     epi            spots of epiphytes: (fraction along the trunk, radius mm)"""
     d = dict(name=name, x=x, y=y, h=h, r=r, lean=lean, seed=seed,
              trunk=0.3, trunk_taper=0.7, trunk_wander=0.3, trunk_gravity=-0.04, up=0.0,
              leaders=[(0, 0, 0.7, 0.85)], depth=3, children=(2, 3), spread=(0.7, 1.1),
              child_length=0.64, child_radius=0.6, gravity=-0.07, wander=0.5, taper=0.32,
-             reach=0.42, crown=0.48, clump=1.0, gap=0.15, foliage=[("moss_mid", 1.0)], epi=[], epi_n=10, roots=(3, 5))
+             reach=0.42, crown=0.48, fwd=32, clump=1.0, gap=0.15, foliage=[("moss_mid", 1.0)], epi=[], epi_n=10, roots=(3, 5))
     d.update(kw)
     return d
 
 
 TREES = [
     # the old one: thick, short trunk forking low into two leaders, broad cushions of deep moss
-    _tree("Tree_old", 90, 158, 136, 11.5, (-0.06, 0.05), 3, trunk=0.27, trunk_taper=0.72, trunk_wander=0.45,
+    _tree("Tree_old", 90, 198, 136, 11.5, (-0.06, 0.05), 3, trunk=0.27, trunk_taper=0.72, trunk_wander=0.45,
           leaders=[(170, 34, 0.52, 0.74), (30, 14, 0.6, 0.68)], depth=3, children=(2, 3), spread=(0.6, 1.05),
-          reach=0.44, crown=0.5, clump=0.65, gap=0.08,
+          reach=0.44, crown=0.56, fwd=28, clump=0.65, gap=0.08,
           foliage=[("moss_deep", 0.7), ("moss_olive", 0.3)], epi=[(1.0, 13), (0.55, 7)], epi_n=12, roots=(4, 6)),
     # tall and sparse: a long bare stem, a few short branches and a small fine-leaved crown
-    _tree("Tree_tall", 120, 216, 146, 5.2, (0.05, -0.02), 15, trunk=0.56, trunk_taper=0.6, trunk_wander=0.25,
+    _tree("Tree_tall", 120, 244, 146, 5.2, (0.05, -0.02), 15, trunk=0.56, trunk_taper=0.6, trunk_wander=0.25,
           trunk_gravity=-0.02, leaders=[(20, 38, 0.3, 0.78), (200, 52, 0.27, 0.62), (115, 58, 0.2, 0.5)],
           depth=2, children=(2, 3), spread=(0.6, 1.2), child_length=0.6, gravity=-0.04, reach=0.36, crown=0.62,
           clump=1.4, gap=0.18, foliage=[("fine", 1.0)]),
     # the young one: a thin sapling at the front with round-leaved epiphytes for a crown
-    _tree("Tree_young", 262, 124, 70, 3.0, (-0.12, -0.04), 41, trunk=0.36, trunk_taper=0.8,
+    _tree("Tree_young", 264, 178, 70, 3.0, (-0.12, -0.04), 41, trunk=0.36, trunk_taper=0.8,
           leaders=[(-25, 18, 0.55, 0.85), (150, 42, 0.34, 0.62)], depth=2, children=(2, 3), spread=(0.6, 1.1),
-          gravity=-0.08, reach=0.5, crown=0.55, clump=1.3, gap=0.25, foliage=[("epi", 1.0)], epi_n=46, roots=(3, 4)),
+          gravity=-0.08, reach=0.5, crown=0.55, fwd=14, clump=1.3, gap=0.25, foliage=[("epi", 1.0)], epi_n=46, roots=(3, 4)),
     # the loner: leans out from the right over the path, curving up into flat tiers of fern-like moss
-    _tree("Tree_lean", 248, 180, 110, 7.6, (-0.78, 0.12), 12, trunk=0.78, trunk_taper=0.6, trunk_wander=0.3,
+    _tree("Tree_lean", 248, 212, 110, 7.6, (-0.78, 0.12), 12, trunk=0.78, trunk_taper=0.6, trunk_wander=0.3,
           trunk_gravity=-0.11, up=0.9, leaders=[(180, 24, 0.42, 0.72), (95, 48, 0.3, 0.55), (-70, 40, 0.26, 0.5)],
           depth=2, children=(2, 3), spread=(0.85, 1.35), child_length=0.62, gravity=0.0, reach=0.9, crown=0.55,
           clump=0.9, gap=0.12, foliage=[("fern", 1.0)], epi=[(0.42, 8)], epi_n=6),
     # far right: small, upright, olive moss
-    _tree("Tree_far_r", 198, 262, 124, 3.9, (0.06, 0.03), 33, trunk=0.55,
+    _tree("Tree_far_r", 198, 270, 124, 3.9, (0.06, 0.03), 33, trunk=0.55,
           leaders=[(90, 15, 0.5, 0.8), (250, 40, 0.34, 0.6)], depth=3, children=(2, 3), spread=(0.7, 1.15),
           reach=0.4, crown=0.5, clump=1.1, foliage=[("moss_olive", 1.0)]),
     # far back behind the cluster: mid green moss mixed with fine growth
-    _tree("Tree_far_l", 58, 256, 104, 4.2, (0.1, 0.04), 27, trunk=0.18,
+    _tree("Tree_far_l", 58, 268, 104, 4.2, (0.1, 0.04), 27, trunk=0.18,
           leaders=[(0, 0, 0.76, 0.9)], depth=3, children=(2, 3), spread=(0.75, 1.15),
           reach=0.38, crown=0.46, clump=1.2, foliage=[("moss_mid", 0.6), ("fine", 0.4)]),
 ]
@@ -119,10 +132,10 @@ FROND_MM = {"moss_deep": 14, "moss_olive": 10, "moss_mid": 11, "fine": 11, "fern
 STONES = [
     ("moon_rock_03", 136, 40,  28, (0, 0, 0),  (0, -6, 30),   0.35),
     ("moon_rock_07", 232, 66,  20, (0, 0, 0),  (4, 0, 120),   0.40),
-    ("moon_rock_04", 108, 150, 22, (0, 0, 0),  (0, 5, 250),   0.38),
+    ("moon_rock_04", 112, 188, 22, (0, 0, 0),  (0, 5, 250),   0.38),
     ("moon_rock_03", 62,  114, 15, (90, 0, 0), (0, 0, 80),    0.40),
-    ("moon_rock_07", 240, 108, 22, (0, 90, 0), (-5, 0, 200),  0.42),
-    ("moon_rock_04", 226, 172, 17, (0, 0, 0),  (0, 0, 10),    0.45),
+    ("moon_rock_07", 246, 158, 22, (0, 90, 0), (-5, 0, 200),  0.42),
+    ("moon_rock_04", 226, 204, 17, (0, 0, 0),  (0, 0, 10),    0.45),
     ("moon_rock_04", 168, 116, 11, (0, 0, 0),  (0, 0, 300),   0.40),
 ]
 
@@ -598,10 +611,11 @@ def _grow_tree(t):
     wood_v = [v for v, m in zip(skin.verts, skin.meta) if m is None or m[4] != "root"]
     reach = max(math.hypot(v.x - start.x, v.y - start.y) for v in wood_v)
     c = min(1.0, t["reach"] * H * MM / reach)
-    lo, hi = 24 * MM, 276 * MM
+    lims = [(24 * MM, 276 * MM), (max(24.0, t["y"] - t["fwd"]) * MM, 276 * MM)]
     s = [[c, c], [c, c]]
     for v in skin.verts:
         for a in (0, 1):
+            lo, hi = lims[a]
             off = v[a] - start[a]
             if start[a] + off * c > hi and off > 0:
                 s[a][1] = min(s[a][1], (hi - start[a]) / off)
@@ -734,7 +748,7 @@ def _weighted_area(skin, w):
     return total
 
 
-def _obstacles(t, skin, layers, zb, band=22.0, margin=4.0):
+def _obstacles(t, skin, layers, zb, band=22.0, margin=4.0, cell=40.0):
     """Cylinders covering this tree for SWIM: the lowest band stands on the
     bed, the rest hang in the water; foliage counts with its frond length."""
     pts = []
@@ -751,14 +765,21 @@ def _obstacles(t, skin, layers, zb, band=22.0, margin=4.0):
         z1 = z0 + band
         sel = [p for p in pts if p[3] < z1 and p[2] > z0]
         if sel:
-            cx = sum(p[0] for p in sel) / len(sel)
-            cy = sum(p[1] for p in sel) / len(sel)
-            r = max(math.hypot(p[0] - cx, p[1] - cy) for p in sel) + margin
-            zt = min(top, max(p[2] for p in sel)) + 3
-            if not out:
-                out.append((round(cx), round(cy), round(r), round(zt)))
-            else:
-                out.append((round(cx), round(cy), round(r), round(zt), round(z0 - 3)))
+            # a crown is covered by several small cylinders on a grid, so no round
+            # one reaches forward over the open water further than the leaves do
+            standing = not out
+            cells = {}
+            for p in sel:
+                cells.setdefault((int(p[0] // cell), int(p[1] // cell)), []).append(p)
+            for part in cells.values():
+                cx = sum(p[0] for p in part) / len(part)
+                cy = sum(p[1] for p in part) / len(part)
+                r = max(math.hypot(p[0] - cx, p[1] - cy) for p in part) + margin
+                zt = min(top, max(p[2] for p in part)) + 3
+                if standing:
+                    out.append((round(cx), round(cy), round(r), round(zt)))
+                else:
+                    out.append((round(cx), round(cy), round(r), round(zt), round(z0 - 3)))
         z0 = z1
     return out
 
@@ -859,6 +880,11 @@ def build(ctx):
         obstacles += _obstacles(t, skin, layers, zb)
         made.append(obj)
     print("[trees] obstacles: " + repr(obstacles))
+    bx = SWIM["box"]
+    near = [(o[1] - o[2], o) for o in obstacles if o[3] > bx[4] and (len(o) < 5 or o[4] < bx[5])
+            and bx[0] < o[0] + o[2] and o[0] - o[2] < bx[1]]
+    y_front, o_front = min(near)
+    print(f"[trees] at the box's heights the trees start at y = {y_front:.0f} mm ({o_front})")
 
     # shrimp perches are found on the bare wood before the foliage goes on
     perches = []
@@ -892,7 +918,9 @@ def build(ctx):
     for k, (model, x, y, size, pre, rot, buried) in enumerate(STONES):
         obj = assets.import_model(model)[0]
         obj.name = f"Stone_{k}"
-        assets.place(obj, bed.at(x, y), longest_mm=size, pre_rot_deg=pre, rot_deg=rot)
+        # NOTE the lean and heading in the table are not applied: assets.place() used to
+        # ignore rot_deg for scans, and the look the owner reviewed is the unrotated one.
+        assets.place(obj, bed.at(x, y), longest_mm=size, pre_rot_deg=pre)
         lo, hi = assets.world_bounds(obj)
         obj.location.z -= (hi.z - lo.z) * buried
         assets.grade_stone(obj, dark=(0.035, 0.034, 0.032), light=(0.36, 0.35, 0.32), vein_amount=0.15,

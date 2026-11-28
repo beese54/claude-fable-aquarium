@@ -58,7 +58,7 @@ SCAPES = ["01_iwagumi", "02_dutch", "06_mountain", "03_forest", "09_riverbed",
           "07_jungle", "04_blackwater", "10_lotus", "08_cove", "05_floating"]
 SCAPE_MIN_FRAMES = 210
 CAPTIONS_MIN = 7
-CAPTION_BAND = (1540, 1610)        # rows; assemble.py draws captions on a baseline at 1585
+CAPTION_BAND = (1490, 1650)        # rows; assemble.py sets the lead on a baseline at 1566 and the capitals at 1634
 CAPTION_DARK = 0.6                 # a pixel is ink if darker than 0.6 x the clean band's median
 CAPTION_MIN_GAIN = 0.01            # ink must cover 1% more of the band than at a clean frame...
 CAPTION_MIN_RATIO = 2.0            # ...and at least twice as much

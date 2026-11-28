@@ -217,40 +217,98 @@ def _font(italic, size, weight):
 
 _caption_cache = {}
 
+# Caption typography. Each caption is set in two voices: a lead in a large, light
+# italic serif (the dreaming: "Imagine"), and beneath it the thing imagined in
+# small, widely spaced capitals of a geometric sans (the building: calm, exact).
+# The capitals arrive spread wide and draw together as they appear, like a
+# thought coming into focus. The split is given per caption in the timeline as
+# "lead" (the opening words of "text"); a caption without one is set in the
+# small capitals alone.
+LEAD_SIZE, LEAD_Y = 98, 1566
+REST_SIZE, REST_Y, REST_TRACK = 31, 1634, 0.36          # tracking in ems
+CREDIT_SIZE, CREDIT_Y, CREDIT_TRACK = 25, 1604, 0.42
+TRACK_IN = 0.26                                          # extra tracking at the first frame
+REVEAL = 26                                              # frames the capitals take to draw together
 
-def caption_layer(text):
-    """Alpha mask (float HxW) for a caption, drawn once."""
-    if text not in _caption_cache:
-        credit = text.lower().startswith("created with")
-        font = _font(italic=not credit, size=50 if credit else 66, weight=500)
-        img = Image.new("L", (W, H), 0)
-        d = ImageDraw.Draw(img)
-        spacing = 3.0 if credit else 0.6
-        widths = [d.textlength(ch, font=font) for ch in text]
-        total = sum(widths) + spacing * (len(text) - 1)
-        if total > W - 120:                                   # never run off the frame
-            font = _font(italic=not credit, size=int(font.size * (W - 120) / total), weight=500)
-            widths = [d.textlength(ch, font=font) for ch in text]
-            total = sum(widths) + spacing * (len(text) - 1)
-        x = (W - total) / 2
-        for ch, w in zip(text, widths):
-            d.text((x, CAPTION_Y), ch, font=font, fill=255, anchor="ls")
-            x += w + spacing
-        _caption_cache[text] = np.asarray(img, np.float32) / 255.0
-    return _caption_cache[text]
+
+def _jost(size, weight=300):
+    key = ("jost", size, weight)
+    if key not in _fonts:
+        f = ImageFont.truetype(str(FONTS / "Jost-VF.ttf"), size)
+        try:
+            f.set_variation_by_axes([weight])
+        except Exception:
+            pass
+        _fonts[key] = f
+    return _fonts[key]
+
+
+def _tracked(draw, text, font, y, track_em):
+    """Draw centred text with letter-spacing given in ems."""
+    gap = track_em * font.size
+    widths = [draw.textlength(ch, font=font) for ch in text]
+    total = sum(widths) + gap * (len(text) - 1)
+    x = (W - total) / 2
+    for ch, w in zip(text, widths):
+        draw.text((x, y), ch, font=font, fill=255, anchor="ls")
+        x += w + gap
+    return total
+
+
+def caption_parts(c):
+    """(lead, rest) for a caption: rest is what follows the lead, in capitals, without its punctuation."""
+    text, lead = c["text"], c.get("lead")
+    if not lead or not text.startswith(lead):
+        return None, text.upper().rstrip(".")
+    return lead, text[len(lead):].strip(" ,.").upper()
+
+
+def caption_layer(c, k):
+    """Two alpha masks (float HxW), lead and rest, for a caption k frames after it starts."""
+    lead, rest = caption_parts(c)
+    spread = TRACK_IN * (1.0 - _smooth(0, REVEAL, k))
+    key = (c["text"], round(spread, 3))
+    if key not in _caption_cache:
+        if len(_caption_cache) > 80:
+            _caption_cache.clear()
+        a = Image.new("L", (W, H), 0)
+        b = Image.new("L", (W, H), 0)
+        if lead:
+            font = _font(italic=True, size=LEAD_SIZE, weight=400)
+            d = ImageDraw.Draw(a)
+            w = d.textlength(lead, font=font)
+            if w > W - 140:                                   # never run off the frame
+                font = _font(italic=True, size=int(LEAD_SIZE * (W - 140) / w), weight=400)
+            d.text((W / 2, LEAD_Y), lead, font=font, fill=255, anchor="ms")
+            size, y, track = REST_SIZE, REST_Y, REST_TRACK
+        else:
+            size, y, track = CREDIT_SIZE, CREDIT_Y, CREDIT_TRACK
+        font = _jost(size)
+        d = ImageDraw.Draw(b)
+        probe = sum(d.textlength(ch, font=font) for ch in rest) + (track + TRACK_IN) * size * (len(rest) - 1)
+        if probe > W - 110:
+            font = _jost(int(size * (W - 110) / probe))
+        _tracked(d, rest, font, y, track + spread)
+        _caption_cache[key] = (np.asarray(a, np.float32) / 255.0, np.asarray(b, np.float32) / 255.0)
+    return _caption_cache[key]
 
 
 def add_captions(img, n, timeline):
+    ink = np.array(CAPTION_INK, np.float32) / 255.0
     for c in timeline["captions"]:
         if not (c["start"] <= n < c["end"]):
             continue
-        a = min(_smooth(0, CAPTION_FADE, n - c["start"]), _smooth(0, CAPTION_FADE, c["end"] - n))
-        rise = int(round(6 * (1 - _smooth(0, CAPTION_FADE * 1.5, n - c["start"]))))
-        lay = caption_layer(c["text"])
+        k = n - c["start"]
+        out = _smooth(0, CAPTION_FADE, c["end"] - n)
+        lead, rest = caption_layer(c, k)
+        # the lead rises into place as it appears; the capitals follow a beat later
+        a_lead = _smooth(0, CAPTION_FADE * 1.3, k) * out
+        a_rest = _smooth(8, 8 + REVEAL * 0.8, k) * out if lead.any() else _smooth(0, REVEAL * 0.8, k) * out
+        rise = int(round(9 * (1 - _smooth(0, CAPTION_FADE * 1.6, k))))
         if rise:
-            lay = np.roll(lay, rise, axis=0)
-        alpha = (lay * a * 0.90)[..., None]
-        img = img * (1 - alpha) + (np.array(CAPTION_INK, np.float32) / 255.0) * alpha
+            lead = np.roll(lead, rise, axis=0)
+        alpha = np.clip(lead * a_lead * 0.88 + rest * a_rest * 0.80, 0, 1)[..., None]
+        img = img * (1 - alpha) + ink * alpha
     return img
 
 

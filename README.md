@@ -73,5 +73,5 @@ Not yet indistinguishable from footage. Independent reviewers, told only what is
 ## Credits and licences
 
 - Scanned stones, wood, plants and textures: [Poly Haven](https://polyhaven.com) and [ambientCG](https://ambientcg.com), all CC0. Each asset is listed in `assets/MANIFEST.md`.
-- Caption typeface: Cormorant Garamond, SIL Open Font License (`assets/fonts/OFL.txt`).
+- Caption typefaces: Cormorant Garamond (the italic lead) and Jost (the small capitals), both under the SIL Open Font License (`assets/fonts/OFL.txt`, `assets/fonts/OFL-Jost.txt`).
 - Rendered with [Blender](https://www.blender.org) Cycles.

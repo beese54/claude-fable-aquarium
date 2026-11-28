@@ -45,12 +45,14 @@ if str(SRC) not in sys.path:
 
 FPS = 30
 SUBSTEPS = 4
-VERSION = 13     # bump whenever the model changes, so cached runs are not reused
+VERSION = 18     # bump whenever the model changes, so cached runs are not reused
 COUNT = 12       # fish in the film's shoal
 SEED = 4
 LEAD = 100       # frames before a scape appears that the shoal starts making room for it
 RAMP = 60        # frames a change of water takes
 DEFAULT_SWIM = {"box": (60, 240, 40, 170, 140, 225), "floor": (60, 110), "obstacles": []}
+SLANT = 1.0      # most a heading may turn from side-on, as |dy| / |dx| (1.0 = 45 degrees)
+PITCH = 0.21     # most a fish may nose up or down, as rise over run (about 12 degrees)
 MIN_SHARED = (90.0, 60.0, 40.0)     # least width (x, y, z) worth calling water common to two scapes
 
 
@@ -114,7 +116,7 @@ def environment(plan, frames):
 
 
 def simulate(plan, frame_start, frame_end, n=COUNT, seed=SEED,
-             spread=(45.0, 45.0, 20.0), cruise=22.0, tour=(17.0, 10.0, 9.0), warmup_s=12.0):
+             spread=(72.0, 45.0, 30.0), cruise=22.0, tour=(17.0, 11.0, 13.0), warmup_s=12.0):
     """Simulate `n` fish for frames [frame_start, frame_end) of the film.
 
     plan       film_plan(): scapes in order, each with first, last, box, floor, obstacles
@@ -149,11 +151,23 @@ def simulate(plan, frame_start, frame_end, n=COUNT, seed=SEED,
         half = np.array([(e[1] - e[0]) / 2, (e[3] - e[2]) / 2, (e[5] - e[4]) / 2])
         # In a shallow box the group tightens so that it still has room to travel:
         # depth is what shows the tank is three-dimensional.
-        sp = np.minimum(spread0, half * np.array([0.8, 0.5, 0.8]))
+        sp = np.minimum(spread0, half * np.array([0.8, 0.36, 0.8]))
         return centre, np.maximum(half - sp * 0.9, 0.0), sp
 
     centre, roam, sp = water(ENV[0])
-    unit = np.clip(rng.normal(0, 1, (n, 3)), -1.6, 1.6) * 0.75     # each fish's place in the group; no stragglers far outside
+    # Each fish's place in the group. Real neons do not space themselves evenly:
+    # they hang about in twos, threes and fours with gaps between, and the knots
+    # slowly shift. So the fish belong to a few sub-groups, each with its own
+    # centre that breathes in and out, and each fish keeps its own distance.
+    n_knots = max(2, n // 4)
+    knot_c = np.clip(rng.normal(0, 0.85, (n_knots, 3)), -1.25, 1.25)
+    knot_of = rng.choice(n_knots, n, p=np.arange(n_knots, 0, -1) / np.arange(n_knots, 0, -1).sum())
+    own = rng.normal(0, 0.22, (n, 3))
+    knot_T = rng.uniform(19.0, 37.0, (n_knots, 3))
+    knot_ph = rng.uniform(0, 2 * math.pi, (n_knots, 3))
+    personal = rng.uniform(15.0, 46.0, n)                 # how near this fish lets a neighbour come, mm
+    reach = (personal[:, None] + personal[None, :]) / 2
+    unit = np.clip(knot_c[knot_of] + own, -1.6, 1.6)
     P = centre + unit * sp + rng.normal(0, 4, (n, 3))
     V = rng.normal(0, 6, (n, 3)) * np.array([1, 1, 0.3])
     H = V / (np.linalg.norm(V, axis=1, keepdims=True) + 1e-6)
@@ -182,6 +196,8 @@ def simulate(plan, frame_start, frame_end, n=COUNT, seed=SEED,
         # where the shoal as a whole wants to be
         T = centre + roam * np.sin(2 * math.pi * t / tour + tour_phase)
         wander = np.mean(np.sin(2 * math.pi * t / wander_T + wander_ph), axis=2) * sp * 0.45
+        knots = knot_c * (1.0 + 0.45 * np.sin(2 * math.pi * t / knot_T + knot_ph))
+        unit = np.clip(knots[knot_of] + own, -1.6, 1.6)
         goal = T + unit * sp + wander
         # A fish's own spot never lies outside the scape's open water or inside
         # its hardscape; otherwise it would spend the shot pressed against a wall
@@ -203,8 +219,8 @@ def simulate(plan, frame_start, frame_end, n=COUNT, seed=SEED,
         # neighbours: keep apart, roughly agree on direction
         D = P[:, None, :] - P[None, :, :]
         dist = np.linalg.norm(D, axis=2) + np.eye(n) * 1e6
-        near = dist < 36.0
-        A += np.sum(np.where(near[..., None], D / dist[..., None] * (36.0 - dist[..., None]) * 14.0, 0.0), axis=1)
+        near = dist < reach
+        A += np.sum(np.where(near[..., None], D / dist[..., None] * (reach - dist)[..., None] * 12.0, 0.0), axis=1)
         nb = dist < 75.0
         cnt = np.maximum(nb.sum(axis=1, keepdims=True), 1)
         A += (np.sum(np.where(nb[..., None], V[None, :, :], 0.0), axis=1) / cnt - V) * 1.3 * (nb.any(axis=1, keepdims=True))
@@ -212,7 +228,7 @@ def simulate(plan, frame_start, frame_end, n=COUNT, seed=SEED,
         # soft walls, surface and floor
         floor = e[6] + (e[7] - e[6]) * np.clip(P[:, 1], 0.0, 300.0) / 300.0
         lo_i = np.column_stack([np.full(n, lo[0]), np.full(n, lo[1]), floor + 18.0])
-        m = 32.0
+        m = np.array([32.0, 22.0, 32.0])           # fish come nearer the front and back glass than the sides
         A += np.clip(lo_i + m - P, 0, None) * 9.0
         A -= np.clip(P - (hi - m), 0, None) * 9.0
 
@@ -257,16 +273,16 @@ def simulate(plan, frame_start, frame_end, n=COUNT, seed=SEED,
 
         # heading follows travel, but a hovering fish keeps facing where it was
         Hn = H + (V / (speed[:, None] + 1e-6) - H) * (np.minimum(1.0, speed / 20.0) * dt / 0.45)[:, None]
-        # Tetras swim close to level: cap the pitch at about 20 degrees, measured
-        # against the horizontal part of the heading so a hovering fish cannot tip on end.
-        # Seen dead head-on or tail-on a tetra is just a dot, so headings stay at
-        # least a third of the way toward side-on; fish still travel in depth, at a slant.
-        Hn[:, 1] = np.clip(Hn[:, 1], -1.6 * np.abs(Hn[:, 0]) - 1e-3, 1.6 * np.abs(Hn[:, 0]) + 1e-3)
+        # Tetras swim close to level: the pitch is capped (PITCH), measured against
+        # the horizontal part of the heading so a hovering fish cannot tip on end.
+        # Seen head-on or tail-on a tetra is just a dot, so headings never turn
+        # more than SLANT allows away from side-on; fish still travel in depth, at a slant.
+        Hn[:, 1] = np.clip(Hn[:, 1], -SLANT * np.abs(Hn[:, 0]) - 1e-3, SLANT * np.abs(Hn[:, 0]) + 1e-3)
         hxy = np.linalg.norm(Hn[:, :2], axis=1)
         flat = hxy < 0.2
         Hn[flat, :2] = H[flat, :2]
         hxy = np.maximum(np.linalg.norm(Hn[:, :2], axis=1), 1e-6)
-        Hn[:, 2] = np.clip(Hn[:, 2], -0.36 * hxy, 0.36 * hxy)
+        Hn[:, 2] = np.clip(Hn[:, 2], -PITCH * hxy, PITCH * hxy)
         Hn /= np.linalg.norm(Hn, axis=1, keepdims=True)
         yaw_now = (H[:, 0] * Hn[:, 1] - H[:, 1] * Hn[:, 0]) / dt
         yaw_rate += (yaw_now - yaw_rate) * min(1.0, dt / 0.12)

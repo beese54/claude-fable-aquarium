@@ -227,7 +227,7 @@
       "title": "Ten stills: own review, fresh-context review, post for Gate 2",
       "status": "in_progress",
       "commit": null,
-      "next_action": "Ten stills rendered from the settled shoal and committed (1c4c407). A fresh-context reviewer is scoring them; record scores and dispositions in review/scores.md, then show the owner review/03_design_all.jpg."
+      "next_action": "Round 3 independent review scored the ten stills 2 to 5 out of 10 (review/scores.md). Realism round in work: shoal formation done (d0e479c), light balance done (a287787; five scapes' LIGHT watts retuned in the working tree, not yet committed because a subagent is editing the scape files), fish look (subagent, src/blender/fish.py) and substrate cut faces (subagent, substrate.py, scatter.py and bed calls in the scapes) running. When both report: check every scape builds, commit, re-render all ten gate2 stills at preview (frames from timeline.still_frame), python src/comp/design_stills.py, have a fresh-context reviewer score them again, record in review/scores.md, post to the owner."
     },
     {
       "id": "T5.1",
@@ -273,9 +273,9 @@
       "id": "T5.6",
       "phase": 5,
       "title": "Low-quality full-length draft video of all ten designs (Gate 3)",
-      "status": "in_progress",
+      "status": "todo",
       "commit": null,
-      "next_action": "Draft render started 2026-11-28 as one background job (AQUARIUM_RENDER_SET=draft, python src/render_all.py --quality draft --step 2; about 1630 frames; progress in <work>/renders_draft/render_all.log). It is resumable: rerun the same command if it stopped. Do not start any other render while it runs. When it says ALL DONE: python src/comp/audio.py, then with AQUARIUM_RENDER_SET=draft python src/comp/assemble.py --out review/04_draft.mp4 --half --crf 23 --preset fast; review frames at every transition; post Gate 3."
+      "next_action": "Draft render was stopped on purpose on 2026-11-28 after 27 frames: the review led to changes in the shoal's path and the fish's look, and a draft must show the final motion. Start it only after F8's realism round is committed and no subagent is rendering: delete <work>/renders_draft, set AQUARIUM_RENDER_SET=draft, python src/render_all.py --quality draft --step 2 (one background job), then python src/comp/audio.py and, with AQUARIUM_RENDER_SET=draft, python src/comp/assemble.py --out review/04_draft.mp4 --half --crf 23 --preset fast. Review frames at every transition; post Gate 3."
     },
     {
       "id": "T6.1",
@@ -318,14 +318,7 @@
       "next_action": "blocked until G4"
     }
   ],
-  "render_jobs": [
-    {
-      "what": "draft, all ten scapes, step 2",
-      "started": "2026-11-28",
-      "command": "AQUARIUM_RENDER_SET=draft python src/render_all.py --quality draft --step 2",
-      "log": "<work>/renders_draft/render_all.log"
-    }
-  ],
+  "render_jobs": [],
   "notes": [
     "Sleep was already disabled on this laptop (AC and DC), so no power setting was changed.",
     "Draft stills render in about 2 s, full-resolution preview (128 samples) in about 20 s on the RTX 4060; the first render after a cold start spends about 75 s loading kernels.",

@@ -227,7 +227,7 @@
       "title": "Ten stills: own review, fresh-context review, post for Gate 2",
       "status": "in_progress",
       "commit": null,
-      "next_action": "Round 3 independent review scored the ten stills 2 to 5 out of 10 (review/scores.md). Realism round in work: shoal formation done (d0e479c), light balance done (a287787; five scapes' LIGHT watts retuned in the working tree, not yet committed because a subagent is editing the scape files), fish look (subagent, src/blender/fish.py) and substrate cut faces (subagent, substrate.py, scatter.py and bed calls in the scapes) running. When both report: check every scape builds, commit, re-render all ten gate2 stills at preview (frames from timeline.still_frame), python src/comp/design_stills.py, have a fresh-context reviewer score them again, record in review/scores.md, post to the owner."
+      "next_action": "Realism round committed: shoal formation d0e479c, light balance a287787, fish 5b0d61a, cut faces 9521f0e, stills 2e8c996 (sent to the owner 2026-11-28). A second fresh-context reviewer is scoring the new stills: record its table and dispositions in review/scores.md as Round 4, then mark this done. Per-scape composition points from round 3 (Mountain and Lotus symmetry, Jungle side curtains, Blackwater root mass, Forest crowns) wait for the owner's view."
     },
     {
       "id": "T5.1",
@@ -273,9 +273,9 @@
       "id": "T5.6",
       "phase": 5,
       "title": "Low-quality full-length draft video of all ten designs (Gate 3)",
-      "status": "todo",
+      "status": "in_progress",
       "commit": null,
-      "next_action": "Draft render was stopped on purpose on 2026-11-28 after 27 frames: the review led to changes in the shoal's path and the fish's look, and a draft must show the final motion. Start it only after F8's realism round is committed and no subagent is rendering: delete <work>/renders_draft, set AQUARIUM_RENDER_SET=draft, python src/render_all.py --quality draft --step 2 (one background job), then python src/comp/audio.py and, with AQUARIUM_RENDER_SET=draft, python src/comp/assemble.py --out review/04_draft.mp4 --half --crf 23 --preset fast. Review frames at every transition; post Gate 3."
+      "next_action": "Draft render restarted 2026-11-28 about 12:20 as ONE background job after the realism round (AQUARIUM_RENDER_SET=draft, python src/render_all.py --quality draft --step 2; about 1630 frames; log <work>/renders_draft/render_all.log). Resumable: rerun the same command if it stopped. Do not start any other render, and do not change src/sim/school.py, any SWIM literal or config/timeline.json while it runs (the shoal's path would change between scapes). When it says ALL DONE: python src/comp/audio.py, then with AQUARIUM_RENDER_SET=draft python src/comp/assemble.py --out review/04_draft.mp4 --half --crf 23 --preset fast; look at frames in every transition; send the file to the owner; post Gate 3."
     },
     {
       "id": "T6.1",
@@ -318,7 +318,14 @@
       "next_action": "blocked until G4"
     }
   ],
-  "render_jobs": [],
+  "render_jobs": [
+    {
+      "what": "draft, all ten scapes, step 2",
+      "started": "2026-11-28 12:20",
+      "command": "AQUARIUM_RENDER_SET=draft python src/render_all.py --quality draft --step 2",
+      "log": "<work>/renders_draft/render_all.log"
+    }
+  ],
   "notes": [
     "Sleep was already disabled on this laptop (AC and DC), so no power setting was changed.",
     "Draft stills render in about 2 s, full-resolution preview (128 samples) in about 20 s on the RTX 4060; the first render after a cold start spends about 75 s loading kernels.",
@@ -333,6 +340,7 @@
     "Heartbeat: session cron job 9650455f, every 30 minutes (13,43 * * * *). Session-only; recreate it if the session restarts. Slow it to every 3 hours whenever everything is waiting on the owner.",
     "Renders take a machine-wide lock (build.render_lock), so renders started side by side queue instead of overlapping. Still never start a long sequence render while subagents are iterating on stills: it would hold the lock for its whole run.",
     "The shoal is one simulation for the whole film. Any change to any scape's SWIM, or to the timeline, changes the fish's path from that point on. Settle all SWIMs before the final render and never mix frames rendered before and after such a change.",
-    "Film is now ten scapes, 3450 frames (115 s), about 3260 frames to render. At final quality that is roughly double the earlier estimate; time one final frame per scape before starting and tell the owner the total."
+    "Film is now ten scapes, 3450 frames (115 s), about 3260 frames to render. At final quality that is roughly double the earlier estimate; time one final frame per scape before starting and tell the owner the total.",
+    "Never send two render commands in the same message: they interleave under the render lock and each call can outlast its timeout. One render command at a time, in sequence."
   ]
 }

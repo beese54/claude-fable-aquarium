@@ -37,18 +37,20 @@ LIGHT = dict(watts=56.0, colour=(1.0, 0.97, 0.90), fill=0.010, bounce=0.04)
 WATER = dict(tint=(0.90, 0.975, 0.90), density=1.9, scatter=0.0)
 
 # Water the film's shoal may use while this scape is on screen (src/sim/school.py).
-# The cylinders are, in order: the wood (merged from the cells build() prints
-# as "[jungle] wood"; those with a fifth value overhang the water and can be
-# swum under), the sword plant, and the tall growth along both sides and the back.
+# Nothing taller than the low crypts grows under it: a body of open water about
+# 160 mm wide, 130 deep and 85 tall, in front of the back planting. The cylinders
+# are, in order: the wood (merged from the cells build() prints as "[jungle]
+# wood"; those with a fifth value overhang the water and can be swum under), the
+# fern and the sword plant, and the tall growth along both sides and the back.
 SWIM = {
-    "box": (62, 242, 30, 142, 122, 212),
-    "floor": (62, 96),
-    "obstacles": [(88, 176, 24, 214), (121, 176, 24, 240, 169), (148, 192, 16, 250, 188), (165, 176, 24, 207, 165),
-                  (198, 165, 16, 213, 165), (198, 143, 16, 230, 201), (242, 178, 24, 182),
-                  (46, 152, 36, 140),
+    "box": (84, 246, 34, 166, 118, 204),
+    "floor": (62, 92),
+    "obstacles": [(66, 198, 24, 165), (104, 196, 24, 260), (112, 158, 22, 260, 200), (154, 198, 24, 190),
+                  (222, 198, 30, 232, 160), (248, 222, 26, 215),
+                  (150, 198, 28, 206), (46, 152, 36, 140),
                   (26, 85, 16, 200), (22, 125, 16, 225), (20, 165, 18, 240),
-                  (278, 70, 14, 175), (281, 108, 16, 240), (282, 148, 16, 240),
-                  (30, 215, 34, 245), (100, 238, 34, 250), (160, 240, 30, 245), (215, 232, 30, 245), (268, 218, 30, 245)],
+                  (278, 70, 14, 175), (282, 110, 16, 240), (284, 146, 18, 250),
+                  (30, 215, 34, 245), (100, 240, 34, 250), (160, 242, 30, 245), (215, 240, 30, 245), (268, 226, 30, 245)],
 }
 
 LEVEL = 268.0                 # water surface
@@ -59,17 +61,19 @@ Z = Vector((0.0, 0.0, 1.0))
 # Driftwood: name, foot (x, y), direction, top (mm), trunk radius, seed, branching
 # depth, wander, children per branch, widest reach from the foot (mm).
 WOOD = [
-    ("Wood_main",  (70, 168),  (0.62, 0.10, 0.78),   259, 12.0, 11, 3, 0.30, (2, 3), 130),
-    ("Wood_right", (250, 168), (-0.50, 0.05, 0.86),  228, 8.6, 23, 3, 0.35, (2, 2), 85),
+    ("Wood_main",  (58, 192),  (0.55, 0.10, 0.83),   259, 12.0, 11, 3, 0.30, (2, 3), 130),
+    ("Wood_right", (262, 220), (-0.42, 0.10, 0.90),  228, 8.6, 23, 3, 0.35, (2, 2), 70),
     ("Wood_back",  (150, 262), (0.12, -0.04, 1.00),  249, 4.6, 5,  2, 0.60, (2, 3), 40),
 ]
 
-# Vallisneria, planted one by one: x, y, leaves. Uneven clusters along the back
-# and a few up the right-hand glass.
-VALLIS = [(36, 283, 8), (47, 274, 9), (58, 286, 10), (72, 279, 7), (88, 285, 9), (101, 274, 6),
-          (128, 285, 7), (143, 278, 6), (166, 287, 8),
-          (188, 286, 7), (201, 279, 10), (214, 287, 8), (226, 276, 9), (241, 283, 6), (262, 262, 7),
-          (284, 150, 8), (286, 128, 7), (281, 104, 6), (15, 176, 7), (13, 154, 5)]
+# Vallisneria, planted one by one: x, y, leaves, share of its ribbons long enough
+# to turn over and trail under the surface. Two uneven stands at the back (the
+# left one the larger) and a few plants up the right-hand glass trail; between
+# them the surface is open, and the plants there stop well short of it.
+VALLIS = [(34, 284, 8, 0.70), (46, 275, 9, 0.65), (60, 286, 7, 0.75), (77, 279, 7, 0.50), (93, 286, 6, 0.35),
+          (118, 284, 6, 0.0), (136, 286, 6, 0.0), (160, 280, 5, 0.15), (181, 286, 6, 0.10), (199, 279, 5, 0.0),
+          (222, 286, 7, 0.65), (236, 277, 8, 0.55), (251, 285, 6, 0.40),
+          (285, 146, 6, 0.50), (286, 124, 5, 0.30), (14, 172, 5, 0.20)]
 
 # Rooted and epiphytic specimens, each built as its own plant: kind, where, size.
 # where is (x, y) on the soil, or (piece of wood, height along it 0..1) for a
@@ -403,7 +407,7 @@ def _stems(key, H, variants, seed):
     return out
 
 
-def _vallis(name, mat, x, y, n, seed):
+def _vallis(name, mat, x, y, n, trail, seed):
     """One Vallisneria plant standing in the scene. Each ribbon climbs with a
     slow spiral; the long ones turn over a few millimetres under the surface
     and trail along it with the drift. Kept inside the glass point by point.
@@ -412,13 +416,16 @@ def _vallis(name, mat, x, y, n, seed):
     base = Vector((x, y, float(ground(x, y)) - 1.5))
     column = LEVEL - base.z
     parts, arcs = [], []
+    # each plant's trailing leaves go their own way; the left stand's swing out
+    # toward the front instead of straight into the near glass
+    heading = CURRENT + rng.gauss(0.25, 0.45) + (0.75 if x < 110 else 0.0)
     for i in range(n):
-        length = column * (rng.uniform(0.5, 0.95) if rng.random() < 0.35 else rng.uniform(1.05, 1.85))
+        length = column * (rng.uniform(1.03, 1.75) if rng.random() < trail else rng.uniform(0.35, 0.92))
         width = rng.uniform(2.6, 6.0)
         under = rng.uniform(2.5, 9.0)
         az = rng.uniform(0, 6.283)
         lean = rng.uniform(0.06, 0.40)
-        taz = CURRENT + rng.gauss(0, 0.28)
+        taz = heading + rng.gauss(0, 0.3)
         drift = Vector((math.cos(taz), math.sin(taz), 0.0))
         across = Vector((-drift.y, drift.x, 0.0))
         d = Vector((math.cos(az) * lean, math.sin(az) * lean, 1.0)).normalized()
@@ -650,8 +657,8 @@ def _raft(x, y):
     """Where the floating plants have gathered: the right rear, out of the
     drift, with a ragged edge and gaps that let light through."""
     edge = 176 + 16 * np.sin(y * 0.045 + 0.4) + 8 * np.sin(y * 0.13)
-    c = _smooth(edge - 8, edge + 14, x) * _smooth(128, 156, y + 12 * np.sin(x * 0.05))
-    c = np.maximum(c, _smooth(246, 262, x) * _smooth(84, 104, y))
+    c = _smooth(edge - 8, edge + 14, x) * _smooth(176, 200, y + 10 * np.sin(x * 0.05))
+    c = np.maximum(c, _smooth(250, 264, x) * _smooth(128, 150, y))
     return c * _smooth(0.22, 0.34, _noise(x, y, 2.3, 1.2))
 
 
@@ -691,10 +698,11 @@ def build(ctx):
     # The lie of the land for planting.
     d = _clear_d(x, y)                                           # > 0 in the clearing
     wall = np.minimum.reduce([x - 5, 295 - x, y - 5, 295 - y])  # distance from the nearest glass
-    box = np.minimum.reduce([x - 44, 258 - x, 166 - y])          # > 0 under the open water
+    back_edge = 166 + 36 * _smooth(86, 124, x)                   # the open water runs further back right of the main wood
+    box = np.minimum.reduce([x - 44, 258 - x, back_edge - y])    # > 0 under the open water
     tall_ok = _smooth(0.0, 22.0, -box)
     cap = (108 - gz) + ((TOP - gz) / 1.2 - (108 - gz)) * tall_ok  # tallest a plant may stand here (mm above the soil)
-    back = _smooth(160, 190, y)
+    back = _smooth(back_edge - 6, back_edge + 24, y)
     lstrip = _smooth(44, 30, x)
     rstrip = _smooth(256, 270, x)
 
@@ -784,8 +792,8 @@ def build(ctx):
     val_mat = _leaf_mat("JVallis", (0.22, 0.42, 0.08), (0.045, 0.16, 0.03), rib=1.0, veins=0.0, stripes=0.16, spots=0.4,
                         translucency=0.45, rough=0.38, mottle=160.0, variation=0.15)
     ribbons = []
-    for k, (vx, vy, n) in enumerate(VALLIS):
-        obj, info = _vallis(f"Vallis_{k}", val_mat, vx, vy, n, 900 + k)
+    for k, (vx, vy, n, trail) in enumerate(VALLIS):
+        obj, info = _vallis(f"Vallis_{k}", val_mat, vx, vy, n, trail, 900 + k)
         ribbons.append(info)
         made.append(obj)
 
@@ -807,7 +815,7 @@ def build(ctx):
     for k, (key, zone, a, f, thr, gap, margin, lo) in enumerate((
             ("rotala", everywhere, 0.3, 1.9, (0.42, 0.58), 5.6, 19, 0.50),
             ("hygro", everywhere * (1 - 0.6 * lstrip), 2.1, 1.6, (0.46, 0.62), 11.0, 27, 0.55),
-            ("ludwigia", np.exp(-(((x - 196) / 40) ** 2 + ((y - 218) / 30) ** 2)) * 1.3, 4.0, 1.6, (0.40, 0.58), 7.5, 16, 0.50))):
+            ("ludwigia", np.exp(-(((x - 200) / 40) ** 2 + ((y - 244) / 24) ** 2)) * 1.3, 4.0, 1.6, (0.40, 0.58), 7.5, 16, 0.50))):
         patch = np.maximum(_smooth(thr[0], thr[1], _noise(x, y, a, f)), far * (k < 2))
         w = np.clip(zone, 0, 1) * patch * grows * _smooth(margin - 3, margin + 2, wall) * shows
         paint(f"w_{key}", w)

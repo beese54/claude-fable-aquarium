@@ -46,10 +46,11 @@ The machine-readable ledger is `progress_tracking.json`. This file is the human 
 - [x] T5.3 Transitions
 - [x] T5.4 Compositor, captions, encode
 - [x] T5.5 Sound design
-- [ ] T5.6 Draft video of all ten designs. **Gate 3 (owner)**
+- [x] F10 Owner feedback on the rough cut: fish only swim forward and favour side-on; caption typography; double-size final render
+- [x] T5.6 Rough cut reviewed by the owner (partial cut; feedback applied). **Gate 3 (owner)**
 
 ## Phase 6: final render
-- [ ] T6.1 Full-quality render of approved scapes
+- [ ] T6.1 Full-quality render at double size, scaled down (about 80 to 115 hours)
 - [ ] T6.2 Final composite and automated QA
 
 ## Phase 7: delivery

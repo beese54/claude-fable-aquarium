@@ -289,17 +289,17 @@
       "id": "T5.6",
       "phase": 5,
       "title": "Low-quality full-length draft video of all ten designs (Gate 3)",
-      "status": "in_progress",
-      "commit": null,
-      "next_action": "Second draft, to check the new fish motion and captions in motion. Started 2026-11-28 about 16:40 as ONE background job after the owner's feedback (6.1 GB free): AQUARIUM_RENDER_SET=draft, python src/render_all.py --quality draft --step 2 (about 1630 frames, about 2.3 h; log <work>/renders_draft/render_all.log). If the low-memory guard stops it, report and wait for the owner; otherwise rerun the same command to resume. When ALL DONE: assemble in parts (assemble.py takes about 0.9 s per frame: --range of about 510 frames each, three at a time in detached processes, --half --crf 20 --preset fast --no-audio, into <work>/qa_scratch/draft_parts), join with ffmpeg concat, add <work>/audio/soundtrack.wav, write review/04_draft.mp4, check a contact sheet and that fish never move backward on screen, send to the owner, post Gate 3."
+      "status": "done",
+      "commit": "698ac44",
+      "next_action": "Closed. A partial rough cut (cbacf1d) got the owner's feedback (F10); the second full draft was dropped when the owner asked for stronger side-on swimming and told me to start the final render (2026-11-28). Motion is checked instead with a six-second draft clip of 06_mountain (frames 1240-1420), and with an early full-quality excerpt once the first scape of the final render is done."
     },
     {
       "id": "T6.1",
       "phase": 6,
       "title": "Full-quality render at double size, scaled down (quality super), detached and resumable",
-      "status": "todo",
+      "status": "in_progress",
       "commit": null,
-      "next_action": "The owner chose double size if the tank stays the same size (it does) and accepts a render of several days (2026-11-28). Quality preset \"super\" (bl_common.QUALITY: 2160x3840, 112 samples; composite.py averages it down to 1080x1920). Measured on 06_mountain frame 1314: 125 s per frame, peak 1.5 GB, detail measure 56 to 66% above the normal final frame. Estimate for about 3260 frames: 80 to 115 hours. Start only after the owner has seen the second draft and is happy with the fish motion. Then ONE background job: python src/render_all.py --quality super (resumable; rerun to continue; if the low-memory guard stops it, report and wait). Nothing shared may change while it runs. Final frames are about 4x the size on disk: check free space first (each EXR about 8 to 12 MB, so about 30 to 40 GB)."
+      "next_action": "The owner said on 2026-11-28: double size approved, start the render, favour side-on swimming more strongly (done, 698ac44), keep committing and pushing. Steps: (1) the six-second draft motion clip of 06_mountain is rendering (<work>/renders_draft/06_mountain, log <work>/renders_draft/motion_test.log); when done, assemble frames 1240-1420 at half size (AQUARIUM_RENDER_SET=draft python src/comp/assemble.py --out review/07_motion_check.mp4 --range 1240-1420 --half --crf 18 --preset fast --no-audio), look at it, send it to the owner. (2) Unless the clip shows a fault, start the final render at once as ONE background job: python src/render_all.py --quality super (about 3260 frames at about 125 s: 80 to 115 hours; frames in <work>/renders/<scape>; log <work>/renders/render_all.log; resumable by rerunning the same command). If the low-memory guard stops it, report and wait for the owner to say resume. Do not change src/sim, any scape, fish.py, tank.py, build.py, substrate.py, scatter.py or config/timeline.json while it runs. (3) When 01_iwagumi and 02_dutch are done (about 12 to 20 hours in), assemble frames 0-1160 at full size as an early excerpt and send it to the owner."
     },
     {
       "id": "T6.2",
@@ -336,10 +336,8 @@
   ],
   "render_jobs": [
     {
-      "what": "second draft, all ten scapes, step 2",
-      "started": "2026-11-28 16:40",
-      "command": "AQUARIUM_RENDER_SET=draft python src/render_all.py --quality draft --step 2",
-      "log": "<work>/renders_draft/render_all.log"
+      "what": "motion check, 06_mountain 1240-1420, draft",
+      "started": "2026-11-28"
     }
   ],
   "notes": [

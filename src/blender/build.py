@@ -35,6 +35,7 @@ import timeline  # noqa: E402
 # reviewer called every still flat. The lamp now carries the picture: its
 # output is raised and the soft sources lowered, for every scape alike, so the
 # scapes' own LIGHT dicts keep their meaning relative to each other.
+FILL_GLOSSY = False      # whether the soft sources may show as highlights on wet surfaces
 KEY_GAIN = 2.3
 AMBIENT_GAIN = 0.6
 
@@ -63,7 +64,7 @@ def build(scape="empty", frame=1, quality="preview", out=None, lamp_watts=None, 
     # look-development overrides from the command line (--fill, --bounce, --ripple-mm, --fine-mm)
     for k, v in (tweak or {}).items():
         if v is not None:
-            (light_cfg if k in ("fill", "bounce") else water_cfg)[k] = v
+            (light_cfg if k in ("fill", "bounce", "fill_glossy") else water_cfg)[k] = v
 
     room = room_mod.build_room()
     lamp = room_mod.build_lamp()
@@ -80,6 +81,7 @@ def build(scape="empty", frame=1, quality="preview", out=None, lamp_watts=None, 
     scene.collection.children.link(underwater)
     ctx = {"scene": scene, "room": room, "lamp": lamp, "glass": glass, "frame": frame, "water": None,
            "underwater": underwater, "fill": light_cfg["fill"], "bounce": light_cfg["bounce"],
+           "fill_glossy": light_cfg.get("fill_glossy", FILL_GLOSSY),
            "water_level_mm": water_cfg.get("level_mm", 268.0)}
     if scape != "empty":
         level = water_cfg.pop("level_mm", 268.0)
@@ -218,7 +220,7 @@ def add_fill(ctx, key_watts):
         aim = Vector(aim_at) - ob.location
         ob.rotation_euler = aim.to_track_quat("-Z", "Y").to_euler()
         ob.visible_camera = False
-        ob.visible_glossy = False
+        ob.visible_glossy = bool(ctx.get("fill_glossy", FILL_GLOSSY))
         ob.visible_transmission = False
         ob.light_linking.receiver_collection = ctx["underwater"]
         ob.light_linking.blocker_collection = ctx["underwater"]
@@ -240,11 +242,13 @@ def main():
     ap.add_argument("--bounce", type=float, help="look development: override the scape's bounce fraction")
     ap.add_argument("--ripple-mm", type=float, help="look development: override the broad ripple height")
     ap.add_argument("--fine-mm", type=float, help="look development: override the fine ripple height")
+    ap.add_argument("--fill-glossy", action="store_true", help="look development: let the soft sources make highlights")
     a = ap.parse_args(bc.script_args())
 
     render_lock()
     t0 = time.time()
-    tweak = dict(fill=a.fill, bounce=a.bounce, ripple_mm=a.ripple_mm, fine_mm=a.fine_mm)
+    tweak = dict(fill=a.fill, bounce=a.bounce, ripple_mm=a.ripple_mm, fine_mm=a.fine_mm,
+                 fill_glossy=True if a.fill_glossy else None)
     if a.frames:
         span, _, step = a.frames.partition(":")
         first, last = (int(v) for v in span.split("-"))

@@ -1,16 +1,15 @@
 """Scape 5: Floating Islands.
 
-Rocks hang in mid-water like the floating mountains of a fantasy landscape,
-each a small world: moss and a few tiny plants on top, roots trailing beneath.
-They rise in an uneven diagonal from low on the left to high on the right, the
-largest about two fifths of the way across, with two small ones breaking the
-line. One island pours a thin fall of sand onto the bed, the aquascaper's
+A few rocks hang in mid-water, each a small world: moss and a few tiny plants
+on top, roots trailing beneath. They are small for the tank and far apart, at
+clearly different heights and depths: the largest high at the back left, a
+lower one at the right, a small one high at the back and a tiny one low at the
+front left, leaving a wide lane of open water through the middle for the fish.
+The small back island pours a thin fall of sand onto the bed, the aquascaper's
 "underwater waterfall". The bed is pale sand, nearly bare, so it throws light
-back up onto the shaded undersides; the picture is in mid-water.
+back up onto the shaded undersides and takes the islands' shadows.
 Coordinates are millimetres: X left to right, Y front to back.
 """
-import hashlib
-import json
 import math
 import os
 import random
@@ -27,9 +26,8 @@ import plants
 import shrimp
 import snail
 import substrate
-import timeline
 import wood
-from bl_common import MM, new_material, new_mesh_object, shot_frames
+from bl_common import MM, new_material, new_mesh_object
 from scatter import collection_of, scatter, set_point_attribute
 
 SCAPE = "05_floating"
@@ -38,30 +36,42 @@ SCAPE = "05_floating"
 # what make them read as really hanging there, and fill washes them out.
 LIGHT = dict(fill=0.006, bounce=0.018)
 
+# Water the film's shoal may use while this scape is on screen (src/sim/school.py).
+# Each island with its root curtain is a hanging cylinder (x, y, radius, top, bottom);
+# the last is the sand-fall. The build prints the measured ones as [isles].
+SWIM = {
+    "box": (40, 262, 28, 184, 122, 238),
+    "floor": (60, 80),
+    "obstacles": [(86, 198, 56, 230, 112), (236, 160, 42, 152, 84), (214, 248, 32, 238, 146),
+                  (44, 94, 24, 146, 102), (200, 239, 14, 210, 74)],
+}
+
 # name, model, piece, longest side, (x, y, underside z), how the scan is stood up,
 # (lean, lean, heading), hanging roots (count, shortest, longest, base radius),
-# what grows on top. Each scan is stood so it is broad on top and narrows
-# underneath, like an upturned mountain. Pieces of rock_moss_set_02 are its
-# separate scans: 1 rock08, 2 rock09, 3 rock10, 4 rock11, 5 rock12, 6 rock13.
+# what grows on top. The scans are flat slabs of weathered rock: each is turned
+# over, so its flat bed face becomes the mossy top and its rough, knuckled upper
+# face hangs underneath as broken rock (stood on end they narrowed to a point
+# and read as turned cones). Pieces of rock_moss_set_02 are its separate scans:
+# 0 rock07, 1 rock08, 2 rock09, 3 rock10, 4 rock11, 5 rock12, 6 rock13.
+# Sized for a 30 cm tank: the largest is under a third of its width.
 ISLANDS = [
-    ("Isle_main",  "rock_moss_set_02", 4, 118, (132, 148, 118), (90, 0, 0),  (4, -3, 15),   (7, 45, 100, 2.6), "full"),
-    ("Isle_high",  "rock_moss_set_02", 1, 86,  (230, 220, 202), (180, 0, 0), (-4, 6, 160),  (6, 50, 110, 2.2), "carpet"),
-    ("Isle_low",   "rock_moss_set_02", 6, 72,  (60, 80, 100),   (-90, 0, 0), (4, 3, 0),   (4, 12, 20, 1.3),  "grass"),
-    ("Isle_right", "rock_moss_set_02", 2, 56,  (234, 92, 114),  (-90, 0, 0), (0, -6, 160),  (4, 20, 34, 1.4),  "moss"),
-    ("Isle_back",  "rock_moss_set_02", 5, 50,  (66, 228, 198),  (90, 0, 0),  (6, 0, 210),   (4, 40, 70, 1.4),  "moss"),
+    ("Isle_main",  "rock_moss_set_02", 4, 88, (86, 198, 160),  (180, 0, 0), (8, -6, 18),   (9, 16, 40, 1.7), "full"),
+    ("Isle_mid",   "rock_moss_set_02", 5, 60, (236, 160, 104), (180, 0, 0), (-6, 4, 130),  (5, 10, 24, 1.4), "grass"),
+    ("Isle_small", "rock_moss_set_02", 1, 42, (214, 248, 202), (180, 0, 0), (4, 7, 250),   (5, 16, 36, 1.1), "carpet"),
+    ("Isle_tiny",  "rock_moss_set_02", 3, 26, (44, 94, 120),   (180, 0, 0), (8, 0, 60),    (3, 8, 16, 0.9),  "moss"),
 ]
-LONG_ROOTS = {"Isle_high": (0.15, 0.30), "Isle_back": (0.10, 0.30)}   # which islands drop a root to the sand, from where (fraction of radius)
-FALL_FROM = ("Isle_high", (-0.6, -0.8))         # the sand-fall pours from this island's edge, on this side
+LONG_ROOTS = {"Isle_main": (0.25, 0.20)}         # which islands drop a root to the sand, from where (fraction of radius)
+FALL_FROM = ("Isle_small", (-0.35, -0.95))       # the sand-fall pours from this island's edge, on this side
 
 # fallen pieces on the bed: model, piece, longest side, x, y, how stood up, heading, fraction buried
 FALLEN = [
     ("rock_09",          0, 30, 150, 50,  (0, 0, 0),  35,  0.35),
-    ("rock_moss_set_02", 4, 32, 232, 136, (0, 0, 0),  200, 0.42),
+    ("rock_moss_set_02", 6, 28, 172, 136, (0, 0, 0),  200, 0.42),
     ("boulder_01",       0, 26, 86,  52,  (0, 0, 0),  120, 0.35),
 ]
 
 MOSS_POINTS = 52000           # fronds across all island tops and rims; the scene's heaviest item
-ROOT_MOSS_POINTS = 4000
+ROOT_MOSS_POINTS = 2600
 GROUND_CLEAR = 5.0            # mm a hanging root stops above the sand
 
 
@@ -75,7 +85,7 @@ def _fall_xy():
     return _FALL["xy"]
 
 
-_FALL = {"xy": (190.0, 176.0)}
+_FALL = {"xy": (200.0, 232.0)}
 
 
 def ground(x, y):
@@ -116,11 +126,70 @@ def _import_piece(model, piece):
     return keep
 
 
-def _grade(obj, seed):
+def _grade(obj, seed, bump=0.5):
     """One rock type for every piece: dark weathered brown, scarcely veined,
     with rust and an algae film on faces that look up at the lamp."""
     assets.grade_stone(obj, dark=(0.036, 0.027, 0.019), light=(0.40, 0.31, 0.22), lum_range=(0.10, 0.62),
-                       vein_amount=0.08, rust=0.40, algae=0.75, bump=0.5, normal_strength=2.4, seed=seed)
+                       vein_amount=0.08, rust=0.40, algae=0.75, bump=bump, normal_strength=2.4, seed=seed)
+
+
+def _break_underside(obj, seed, cuts, keel):
+    """Make the hanging underside read as rock broken out of a bank, not a turned
+    bowl: several tilted fracture planes shear facets off it, each a different
+    depth and slant, and the lowest point is pushed off-centre so no two sides
+    match. Only the lower part moves; the mossy top keeps the scan's shape."""
+    me = obj.data
+    n = len(me.vertices)
+    loc = np.empty(n * 3)
+    me.vertices.foreach_get("co", loc)
+    mw = np.array(obj.matrix_world)
+    co = (loc.reshape(n, 3) @ mw[:3, :3].T + mw[:3, 3]) / MM
+    lo, hi = co.min(0), co.max(0)
+    H = hi[2] - lo[2]
+    c = np.array([(lo[0] + hi[0]) / 2, (lo[1] + hi[1]) / 2, lo[2] + 0.55 * H])
+    rel = (co[:, 2] - lo[2]) / H
+    rng = random.Random(seed)
+    # lopsided keel: the deepest part of the underside sits toward one side
+    a = rng.uniform(0, 2 * math.pi)
+    drop = 1.0 - _smooth_np(0.0, 0.6, rel)
+    co[:, 0] += math.cos(a) * keel * H * drop ** 1.5
+    co[:, 1] += math.sin(a) * keel * H * drop ** 1.5
+    az0 = rng.uniform(0, 2 * math.pi)
+    keep = 1.0 - _smooth_np(0.55, 0.85, rel)
+    ripple = np.array([_n3(p, 0.22, seed) for p in co])
+    # Steps: on one side of a ragged line the rock has broken away up to a
+    # nearly level face, so the underside drops in ledges of different heights
+    # instead of curving smoothly to a point.
+    for k in range(cuts // 2 + 1):
+        az = az0 + 2.4 * k + rng.uniform(-0.4, 0.4)
+        side = np.array([math.cos(az), math.sin(az), 0.0])
+        edge = (co - c) @ side - rng.uniform(-0.15, 0.35) * (hi[0] - lo[0]) / 2
+        edge += 2.5 * np.array([_n3(p, 0.09, seed + 20 + k) for p in co])
+        mask = _smooth_np(-1.2, 1.2, edge)
+        tilt = math.radians(rng.uniform(4, 22))
+        nv = np.array([math.sin(tilt) * math.cos(az), math.sin(tilt) * math.sin(az), -math.cos(tilt)])
+        proj = (co - c) @ nv
+        lim = proj.max() - rng.uniform(0.10, 0.26) * H + 0.35 * ripple * (0.04 * H + 0.6)
+        co -= (np.clip(proj - lim, 0.0, None) * mask * keep)[:, None] * nv[None, :]
+    # chamfers: steeper fracture faces round the sides
+    for k in range(cuts):
+        az = az0 + 2 * math.pi * k / cuts + rng.uniform(-0.5, 0.5)
+        tilt = math.radians(rng.uniform(40, 70))
+        nv = np.array([math.sin(tilt) * math.cos(az), math.sin(tilt) * math.sin(az), -math.cos(tilt)])
+        proj = (co - c) @ nv
+        lim = proj.max() - rng.uniform(0.06, 0.18) * H
+        # a fracture face is flat but never polished: a little ripple on the plane
+        lim = lim + 0.35 * ripple * (0.04 * H + 0.6)
+        co -= (np.clip(proj - lim, 0.0, None) * keep)[:, None] * nv[None, :]
+    inv = np.linalg.inv(mw)
+    loc = (co * MM) @ inv[:3, :3].T + inv[:3, 3]
+    me.vertices.foreach_set("co", loc.astype(np.float32).ravel())
+    me.update()
+
+
+def _smooth_np(e0, e1, v):
+    t = np.clip((v - e0) / (e1 - e0), 0.0, 1.0)
+    return t * t * (3 - 2 * t)
 
 
 def _moss_floor(obj):
@@ -266,7 +335,7 @@ def _grow_roots(spec, bvh, lo, hi, rng):
     while len(starts) < count and tries < 200:
         tries += 1
         a = rng.uniform(0, 2 * math.pi)
-        d = R * 0.62 * math.sqrt(rng.uniform(0.05, 1.0))
+        d = R * 0.80 * math.sqrt(rng.uniform(0.05, 1.0))       # from all over the broken underside
         hit, n = _underside(bvh, cx + d * math.cos(a), cy + d * math.sin(a), lo[2] - 5)
         if hit is None or n.z > -0.25 or any((hit - s).length < 9 * MM for s in starts):
             continue
@@ -300,7 +369,7 @@ def _long_root(bvh, lo, hi, frac, seed):
     L = (start.z / MM - target) * 1.05
     best = None
     for _ in range(10):
-        s = _root(start, Vector((0.08, -0.05, -1.0)).normalized(), L, 2.4, seed, gravity=0.9, depth=2,
+        s = _root(start, Vector((0.08, -0.05, -1.0)).normalized(), L, 1.7, seed, gravity=0.9, depth=2,
                   children=(1, 1), wander=0.35)
         tips_z = min(v[2] for v in s.verts) / MM
         if _fits(s, GROUND_CLEAR):
@@ -319,7 +388,7 @@ def _root_moss_weights(skin, starts):
     for v in skin.verts:
         p = Vector(v)
         d = min(((p - s).length for s in starts), default=1.0) / MM
-        w.append((1.0 - _smooth(3.0, 13.0, d)) * (0.5 + 0.5 * _smooth(-0.3, 0.3, _n3([c / MM for c in v], 0.2, 4.0))))
+        w.append((1.0 - _smooth(2.0, 8.0, d)) *(0.5 + 0.5 * _smooth(-0.3, 0.3, _n3([c / MM for c in v], 0.2, 4.0))))
     return w
 
 
@@ -500,147 +569,6 @@ def _sandfall_material():
     return mat, (mp, mp2)
 
 
-# --- the shoal -----------------------------------------------------------------
-# fish.School's simulation treats obstacles as cylinders from the floor up, so
-# fish could never pass under an island. This is src/sim/school.py's model with
-# one change: obstacles (x, y, z, horizontal radius, vertical half-height) hang
-# in the water, so the shoal can swim between and beneath them.
-
-FPS = 30
-SUBSTEPS = 4
-
-
-def _simulate(n, frame_start, frame_end, box, seed=0, obstacles=(), ground=None,
-              spread=(45.0, 45.0, 20.0), cruise=22.0, tour=(17.0, 12.0, 9.0), warmup_s=12.0):
-    rng = np.random.default_rng(seed)
-    xmin, xmax, ymin, ymax, zmin, zmax = box
-    centre = np.array([(xmin + xmax) / 2, (ymin + ymax) / 2, (zmin + zmax) / 2])
-    half = np.array([(xmax - xmin) / 2, (ymax - ymin) / 2, (zmax - zmin) / 2])
-    spread = np.minimum(np.array(spread), half * 0.8)
-    roam = np.maximum(half - spread * 0.9, 0.0)
-    tour = np.array(tour)
-    tour_phase = rng.uniform(0, 2 * math.pi, 3)
-    offset = rng.normal(0, 1, (n, 3)) * spread * 0.75
-    P = centre + offset + rng.normal(0, 4, (n, 3))
-    V = rng.normal(0, 6, (n, 3)) * np.array([1, 1, 0.3])
-    H = V / (np.linalg.norm(V, axis=1, keepdims=True) + 1e-6)
-    phase = rng.uniform(0, 2 * math.pi, n)
-    mood_ph = rng.uniform(0, 2 * math.pi, (n, 3))
-    mood_T = rng.uniform(2.5, 7.0, (n, 3))
-    wander_ph = rng.uniform(0, 2 * math.pi, (n, 3, 2))
-    wander_T = rng.uniform(4.0, 11.0, (n, 3, 2))
-    burst = np.zeros(n)
-    obs = np.array(obstacles, dtype=np.float64).reshape(-1, 5)
-    lo = np.array([22.0, 22.0, 0.0])
-    hi = np.array([278.0, 278.0, 250.0])
-    dt = 1.0 / (FPS * SUBSTEPS)
-    F = frame_end - frame_start
-    out = {k: np.zeros((F, n) + s, dtype=np.float32) for k, s in
-           (("pos", (3,)), ("fwd", (3,)), ("speed", ()), ("phase", ()), ("amp", ()), ("bend", ()), ("roll", ()))}
-    yaw_rate = np.zeros(n)
-    t = frame_start / FPS - warmup_s
-    total_steps = int(round((warmup_s + F / FPS) / dt))
-    first_out = int(round(warmup_s / dt))
-    for step in range(total_steps):
-        T = centre + roam * np.sin(2 * math.pi * t / tour + tour_phase)
-        wander = np.mean(np.sin(2 * math.pi * t / wander_T + wander_ph), axis=2) * spread * 0.45
-        goal = T + offset + wander
-        A = (goal - P) * 0.55
-        D = P[:, None, :] - P[None, :, :]
-        dist = np.linalg.norm(D, axis=2) + np.eye(n) * 1e6
-        near = dist < 36.0
-        A += np.sum(np.where(near[..., None], D / dist[..., None] * (36.0 - dist[..., None]) * 14.0, 0.0), axis=1)
-        nb = dist < 75.0
-        cnt = np.maximum(nb.sum(axis=1, keepdims=True), 1)
-        A += (np.sum(np.where(nb[..., None], V[None, :, :], 0.0), axis=1) / cnt - V) * 1.3 * (nb.any(axis=1, keepdims=True))
-        floor = np.full(n, 30.0) if ground is None else np.array([ground(x, y) for x, y in P[:, :2]])
-        lo_i = np.column_stack([np.full(n, lo[0]), np.full(n, lo[1]), floor + 18.0])
-        m = 32.0
-        A += np.clip(lo_i + m - P, 0, None) * 9.0
-        A -= np.clip(P - (hi - m), 0, None) * 9.0
-        # hanging hardscape: push out along the gradient of a flat-ended
-        # ellipsoid (nearly a cylinder, so hanging roots near its bottom are
-        # covered), harder the deeper in
-        for ox, oy, oz, rr, rz in obs:
-            d = P - np.array([ox, oy, oz])
-            v = np.abs(d[:, 2]) / rz
-            q = np.sqrt((d[:, 0] ** 2 + d[:, 1] ** 2) / rr ** 2 + v ** 6) + 1e-6
-            pen = np.clip(1.0 + 24.0 / min(rr, rz) - q, 0, None) * min(rr, rz)
-            g = np.column_stack([d[:, 0] / rr ** 2, d[:, 1] / rr ** 2, 3.0 * v ** 5 * np.sign(d[:, 2]) / rz])
-            g /= np.linalg.norm(g, axis=1, keepdims=True) + 1e-9
-            A += g * pen[:, None] * np.array([30.0, 30.0, 45.0])
-        mood = 0.5 + 0.5 * np.mean(np.sin(2 * math.pi * t / mood_T + mood_ph), axis=1)
-        darting = rng.random(n) < 0.07 * dt
-        burst = burst * math.exp(-dt / 0.45) + darting * rng.uniform(45, 85, n)
-        if darting.any():
-            kick = rng.normal(0, 1, (n, 3)) * np.array([1, 1, 0.25])
-            H = np.where(darting[:, None], H + kick * 0.6, H)
-            H /= np.linalg.norm(H, axis=1, keepdims=True)
-        want = cruise * (0.35 + 1.25 * mood) + burst
-        speed = np.linalg.norm(V, axis=1)
-        A += H * ((want - speed) * 3.0)[:, None]
-        A[:, 2] *= 0.35
-        V = V + A * dt
-        V[:, 2] *= (1.0 - 1.2 * dt)
-        speed = np.linalg.norm(V, axis=1)
-        V *= np.minimum(1.0, 110.0 / (speed + 1e-6))[:, None]
-        P = P + V * dt
-        speed = np.linalg.norm(V, axis=1)
-        Hn = H + (V / (speed[:, None] + 1e-6) - H) * (np.minimum(1.0, speed / 20.0) * dt / 0.45)[:, None]
-        hxy = np.linalg.norm(Hn[:, :2], axis=1)
-        flat = hxy < 0.2
-        Hn[flat, :2] = H[flat, :2]
-        hxy = np.maximum(np.linalg.norm(Hn[:, :2], axis=1), 1e-6)
-        Hn[:, 2] = np.clip(Hn[:, 2], -0.36 * hxy, 0.36 * hxy)
-        Hn /= np.linalg.norm(Hn, axis=1, keepdims=True)
-        yaw_now = (H[:, 0] * Hn[:, 1] - H[:, 1] * Hn[:, 0]) / dt
-        yaw_rate += (yaw_now - yaw_rate) * min(1.0, dt / 0.12)
-        H = Hn
-        phase += 2 * math.pi * (2.2 + 0.085 * speed) * dt
-        t += dt
-        k = step - first_out
-        if k >= 0 and k % SUBSTEPS == 0 and k // SUBSTEPS < F:
-            f = k // SUBSTEPS
-            out["pos"][f] = P
-            out["fwd"][f] = H
-            out["speed"][f] = speed
-            out["phase"][f] = phase
-            out["amp"][f] = np.clip(0.18 + speed / 75.0, 0.15, 1.0)
-            out["bend"][f] = np.clip(yaw_rate / 2.6, -1.0, 1.0)
-            out["roll"][f] = np.clip(yaw_rate * 0.07, -0.25, 0.25)
-    out["frame_start"] = np.array(frame_start)
-    return out
-
-
-def _cached(key, **kw):
-    import paths
-    sig = {k: (list(v) if isinstance(v, (tuple, list)) else v) for k, v in kw.items() if k != "ground"}
-    sig["obstacles"] = [[round(float(c), 2) for c in o] for o in kw.get("obstacles", ())]
-    # the model's own source is part of the key, so editing it never reuses a stale run
-    import inspect
-    src = inspect.getsource(_simulate)
-    h = hashlib.sha1((key + src + json.dumps(sig, sort_keys=True, default=str)).encode()).hexdigest()[:12]
-    path = paths.CACHE / f"school_{key}_{h}.npz"
-    if path.is_file():
-        return dict(np.load(path))
-    data = _simulate(**kw)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    np.savez_compressed(path, **data)
-    return data
-
-
-class _School(fish.School):
-    """fish.School, posed the same way, driven by the hanging-obstacle simulation."""
-
-    def __init__(self, key, n, frame_start, frame_end, box, seed=0, obstacles=(), ground=None, name="Tetra", **sim_kw):
-        self.data = _cached(key, n=n, frame_start=frame_start, frame_end=frame_end, box=box, seed=seed,
-                            obstacles=obstacles, ground=ground, **sim_kw)
-        self.frame_start = int(self.data["frame_start"])
-        self.frames = self.data["pos"].shape[0]
-        rng = random.Random(seed)
-        self.fish = [fish.Tetra(f"{name}_{i:02d}", size=rng.uniform(0.84, 1.08)) for i in range(n)]
-
-
 # --- build ---------------------------------------------------------------------
 
 def _sand_material():
@@ -698,10 +626,12 @@ def build(ctx):
         obj = _import_piece(model, piece)
         obj.name = name
         assets.place(obj, (x * MM, y * MM, zb * MM), longest_mm=longest, pre_rot_deg=pre, rot_deg=rot)
+        bpy.context.view_layer.update()
+        _break_underside(obj, seed=7 + 13 * k, cuts=7 if longest > 70 else 5 if longest > 35 else 4, keel=0.35)
         lo, hi = assets.world_bounds(obj)
         obj.location += Vector((x * MM - (lo.x + hi.x) / 2, y * MM - (lo.y + hi.y) / 2, zb * MM - lo.z))
         bpy.context.view_layer.update()
-        _grade(obj, seed=k * 1.7 + 0.4)
+        _grade(obj, seed=k * 1.7 + 0.4, bump=0.85)       # the cut faces need grit the scan's map spreads thin
         _moss_floor(obj)
         me = _carrier_mesh(obj, f"{name}_carrier")
         lo, hi = (np.array(v) / MM for v in assets.world_bounds(obj))
@@ -734,8 +664,9 @@ def build(ctx):
     main = isles[0]
     co, nr = _mesh_arrays(main["me"])
     rel = (co[:, 2] - main["lo"][2]) / (main["hi"][2] - main["lo"][2])
+    mx = (main["lo"][0] + main["hi"][0]) / 2 + 12            # a little right of centre, toward the open lane
     cand = [i for i in range(len(co)) if 0.5 < nr[i][2] < 0.92 and nr[i][1] < -0.2 and 0.5 < rel[i] < 0.8
-            and abs(co[i][0] - 128) < 30]
+            and abs(co[i][0] - mx) < 24]
     perch_i = min(cand, key=lambda i: co[i][1] - 0.5 * co[i][2] - 8.0 * nr[i][2])
     perch = (Vector(co[perch_i]) * MM, Vector(nr[perch_i]).normalized())
 
@@ -783,7 +714,7 @@ def build(ctx):
         me = isle["me"]
         _set_mesh_attribute(me, "moss", moss)
         _set_mesh_attribute(me, "rim", rim)
-        f = 0.8 if isle["spec"][3] < 70 else 1.0          # finer moss on the small islands keeps them in scale
+        f = 0.65 if isle["spec"][3] < 35 else 0.8 if isle["spec"][3] < 70 else 1.0   # finer moss on the small islands keeps them in scale
         scatter(_carrier(me, f"{name}_moss", made), moss_src, name=f"Moss_{name}", density=dens, weight_attr="moss",
                 seed=40 + k, scale=(0.7 * f, 1.6 * f), align="NORMAL", tilt=0.55, keep_surface=False,
                 sway=(0.04, 30.0, 0.3))
@@ -856,28 +787,15 @@ def build(ctx):
     scatter(bed.obj, bed_sprigs, name="BedCarpet", min_distance=4.0 * MM, weight_attr="carpet", seed=31,
             scale=(0.45, 0.8), align="UP", tilt=0.3, sway=(0.06, 12.0, 0.35))
 
-    # The shoal: the open water around, between and under the islands. Each
-    # island is a hanging ellipsoid covering rock, moss and its short roots;
-    # the long roots and the sand-fall are thin columns down to the bed.
-    obstacles = []
-    for isle in isles:
-        lo, hi = isle["lo"], isle["hi"]
-        z0 = min(lo[2] - 12, isle.get("root_lo", lo[2]) - 4)      # fish pass below the roots, not through them
-        z1 = hi[2] + 16 if hi[2] < 215 else 300.0     # no squeezing between a high island and the surface
-        rr = max(hi[0] - lo[0], hi[1] - lo[1]) / 2 + 8
-        obstacles.append(((lo[0] + hi[0]) / 2, (lo[1] + hi[1]) / 2, (z0 + z1) / 2, rr, (z1 - z0) / 2))
-    columns = [(_FALL["xy"][0], _FALL["xy"][1], 11.0, fall_isle["lo"][2])]
-    for isle in isles:
-        if "long" in isle:
-            xy = np.array([(v[0], v[1]) for v in isle["long"].verts]) / MM
-            c = xy.mean(0)
-            columns.append((c[0], c[1], float(np.linalg.norm(xy - c, axis=1).max()) + 6.0, isle["lo"][2]))
-    for cx, cy, r, ztop in columns:
-        zb = ground(cx, cy)
-        obstacles.append((cx, cy, (zb + ztop) / 2, r, (ztop - zb) / 2 + 6))
-    f0, f1 = shot_frames(SCAPE)
-    school = _School(SCAPE, 12, f0, f1, box=(34, 266, 28, 200, 95, 236), seed=4, obstacles=obstacles, ground=ground,
-                     spread=(50.0, 40.0, 22.0))
+    # The film's one shoal; SWIM above says where it may go in this scape. These
+    # are the measured islands as hanging cylinders (rock, moss and plants on top,
+    # short roots below; the long root to the sand is left out), printed so SWIM's
+    # cylinders can be kept true to them.
+    print("[isles] " + ", ".join(
+        f"{i['spec'][0]} ({(i['lo'][0] + i['hi'][0]) / 2:.0f}, {(i['lo'][1] + i['hi'][1]) / 2:.0f}, "
+        f"{max(i['hi'][0] - i['lo'][0], i['hi'][1] - i['lo'][1]) / 2:.0f}, {i['hi'][2]:.0f}, {i['root_lo']:.0f})"
+        for i in isles) + f"; fall at ({_FALL['xy'][0]:.0f}, {_FALL['xy'][1]:.0f}) from z {lip.z / MM:.0f}")
+    school = fish.School()
     made += school.objects
 
     # livestock on the rock, the sand and the glass
@@ -892,7 +810,6 @@ def build(ctx):
     ctx["fall_maps"] = fall_maps
     ctx["fall_grains"] = grains
     ctx["critters"] = dict(top=(top_shrimp, perch), sand=sand_shrimp, snail=nerite)
-    ctx["obstacles"] = obstacles
 
     if os.environ.get("FLOAT_CHECK"):
         _check(ctx, isles, root_objs, fall)
@@ -916,8 +833,7 @@ def _carrier(me, name, made):
 
 def animate(ctx, frame):
     """Everything that moves by code rather than by keyframes."""
-    n = len(ctx["school"].fish)
-    ctx["school"].pose(frame, grow=lambda i: timeline.arrival(frame, SCAPE, i, n))
+    ctx["school"].pose(frame)
     t = frame / 30.0
 
     # sand streams down the fall: its texture slides down at about 60 mm/s

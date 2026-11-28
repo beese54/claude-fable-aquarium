@@ -35,7 +35,10 @@ STONES = [
 SWIM = {
     "box": (40, 264, 28, 250, 112, 236),
     "floor": (62, 122),
-    "obstacles": [(108, 176, 72, 234), (204, 132, 38, 162), (52, 120, 23, 138), (252, 205, 40, 128)],
+    # the stones, then the dead pockets between the main stone and the glass,
+    # which are too narrow for a fish to turn in
+    "obstacles": [(108, 176, 72, 234), (204, 132, 38, 162), (52, 120, 23, 138), (252, 205, 40, 128),
+                  (40, 258, 45, 240), (24, 180, 24, 240), (125, 272, 40, 240)],
 }
 
 

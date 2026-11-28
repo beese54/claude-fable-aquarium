@@ -45,7 +45,7 @@ if str(SRC) not in sys.path:
 
 FPS = 30
 SUBSTEPS = 4
-VERSION = 11     # bump whenever the model changes, so cached runs are not reused
+VERSION = 12     # bump whenever the model changes, so cached runs are not reused
 COUNT = 12       # fish in the film's shoal
 SEED = 4
 LEAD = 100       # frames before a scape appears that the shoal starts making room for it
@@ -59,7 +59,7 @@ def swim_spec(scape_id):
     path = SRC / "blender" / "scapes" / f"{scape_id}.py"
     spec = dict(DEFAULT_SWIM)
     if path.is_file():
-        for node in ast.parse(path.read_text(encoding="utf-8")).body:
+        for node in ast.parse(path.read_text(encoding="utf-8-sig")).body:
             if isinstance(node, ast.Assign) and any(getattr(t, "id", None) == "SWIM" for t in node.targets):
                 spec.update(ast.literal_eval(node.value))
                 break
@@ -195,6 +195,7 @@ def simulate(plan, frame_start, frame_end, n=COUNT, seed=SEED,
             inz = (gz < o[None, :, 3] + 10.0) & (gz > o[None, :, 4] - 10.0)
             push = np.clip(o[None, :, 2] + 26.0 - d, 0, None) * inz * wa[None, :]
             goal[:, :2] += np.sum(r / d[..., None] * push[..., None], axis=1)
+            goal = np.clip(goal, e[[0, 2, 4]], e[[1, 3, 5]])
         A = (goal - P) * np.array([0.55, 1.0, 0.55])       # follow the group's front-to-back wander closely
 
         # neighbours: keep apart, roughly agree on direction

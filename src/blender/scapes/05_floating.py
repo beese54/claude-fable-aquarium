@@ -625,7 +625,9 @@ def build(ctx):
         name, model, piece, longest, (x, y, zb), pre, rot, _, _ = spec
         obj = _import_piece(model, piece)
         obj.name = name
-        assets.place(obj, (x * MM, y * MM, zb * MM), longest_mm=longest, pre_rot_deg=pre, rot_deg=rot)
+        # NOTE the lean and heading in the table are not applied: assets.place() used to
+        # ignore rot_deg for scans, and the look the owner reviewed is the unrotated one.
+        assets.place(obj, (x * MM, y * MM, zb * MM), longest_mm=longest, pre_rot_deg=pre)
         bpy.context.view_layer.update()
         _break_underside(obj, seed=7 + 13 * k, cuts=7 if longest > 70 else 5 if longest > 35 else 4, keel=0.35)
         lo, hi = assets.world_bounds(obj)
@@ -768,7 +770,8 @@ def build(ctx):
     for k, (model, piece, size, x, y, pre, heading, buried) in enumerate(FALLEN):
         obj = _import_piece(model, piece)
         obj.name = f"Fallen_{k}"
-        assets.place(obj, bed.at(x, y), longest_mm=size, pre_rot_deg=pre, rot_deg=(0, 0, heading))
+        # (heading is not applied either, for the same reason as the islands above)
+        assets.place(obj, bed.at(x, y), longest_mm=size, pre_rot_deg=pre)
         lo, hi = assets.world_bounds(obj)
         obj.location.z -= (hi.z - lo.z) * buried
         _grade(obj, seed=10 + k * 1.3)

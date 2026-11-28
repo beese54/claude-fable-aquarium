@@ -38,7 +38,8 @@ SWIM = {
     # the stones, then the dead pockets between the main stone and the glass,
     # which are too narrow for a fish to turn in
     "obstacles": [(108, 176, 72, 234), (204, 132, 38, 162), (52, 120, 23, 138), (252, 205, 40, 128),
-                  (40, 258, 45, 240), (24, 180, 24, 240), (125, 272, 40, 240)],
+                  (40, 258, 45, 240), (24, 180, 24, 240), (125, 272, 40, 240),
+                  (148, 112, 30, 205)],          # the main stone's front-right lobe
 }
 
 
@@ -74,7 +75,9 @@ def build(ctx):
         obj = assets.import_model(model)[0]
         obj.name = name
         full = h / (1 - buried)
-        assets.place(obj, bed.at(x, y), height_mm=full, pre_rot_deg=pre, rot_deg=rot, sink_mm=full * buried)
+        # NOTE the lean and heading in the table are not applied: assets.place() used to
+        # ignore rot_deg for scans, and the look the owner reviewed is the unrotated one.
+        assets.place(obj, bed.at(x, y), height_mm=full, pre_rot_deg=pre, sink_mm=full * buried)
         assets.grade_stone(obj, vein_amount=0.42, seed=k * 1.7)
         stones.append((obj, x, y, assets.footprint_radius_mm(obj), ground(x, y) + h))
         made.append(obj)

@@ -524,8 +524,11 @@ def _rubble_sources(seed0):
         obj.name = f"Rubble_{k}"
         assets.place(obj, (0.0, 0.0, 0.0), longest_mm=10.0, pre_rot_deg=pre)
         _bake(obj)
-        lo, hi = Vector(obj.bound_box[0]), Vector(obj.bound_box[6])
-        obj.data.transform(Matrix.Translation(-(lo + hi) / 2))          # origin at the middle, so any face can be down
+        # measured from the vertices: the object's bound_box is not refreshed yet after the bake
+        xs, ys, zs = zip(*(v.co for v in obj.data.vertices))
+        mid = Vector(((min(xs) + max(xs)) / 2, (min(ys) + max(ys)) / 2, (min(zs) + max(zs)) / 2))
+        obj.data.transform(Matrix.Translation(-mid))                    # origin at the middle, so any face can be down
+        obj.data.update()
         _grade(obj, model, seed=seed0 + k * 2.3, tone=rng.uniform(0.85, 1.1))
         out.append(obj)
     return out
@@ -567,7 +570,9 @@ def build(ctx):
         obj = _stone(model, h)
         obj.name = name
         full = h / (1 - buried)
-        assets.place(obj, bed.at(x, y), height_mm=full, pre_rot_deg=pre, rot_deg=rot, sink_mm=full * buried)
+        # NOTE the lean and heading in the table are not applied: assets.place() used to
+        # ignore rot_deg for scans, and the look the owner reviewed is the unrotated one.
+        assets.place(obj, bed.at(x, y), height_mm=full, pre_rot_deg=pre, sink_mm=full * buried)
         lo, hi = assets.world_bounds(obj)
         # keep clear of the glass
         dx = max(0.0, 9 * MM - lo.x) - max(0.0, hi.x - 291 * MM)

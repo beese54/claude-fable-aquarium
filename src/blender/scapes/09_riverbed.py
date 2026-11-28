@@ -45,7 +45,7 @@ WATER = dict(tint=(0.86, 0.975, 0.985), density=1.3, ripple_mm=0.50, fine_mm=0.3
 # Nearly all of it is free; the cylinders are the two largest stones and the
 # ribbon-grass plants (the build prints the measured ones as [stones] and [vallis]).
 SWIM = {
-    "box": (40, 262, 28, 180, 124, 236),
+    "box": (40, 262, 28, 232, 116, 236),
     "floor": (62, 108),
     "obstacles": [(110, 160, 40, 128), (216, 208, 34, 130), (52, 236, 30, 262), (96, 258, 26, 262),
                   (150, 242, 24, 250), (38, 124, 26, 150)],

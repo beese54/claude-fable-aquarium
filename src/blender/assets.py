@@ -87,6 +87,9 @@ def place(obj, at, height_mm=None, longest_mm=None, rot_deg=(0, 0, 0), sink_mm=0
     else:
         k = 1.0
     obj.scale = (k, k, k)
+    # glTF imports arrive in quaternion rotation mode, where rotation_euler is
+    # silently ignored; until 2026-11-28 that made rot_deg a no-op for scans.
+    obj.rotation_mode = "XYZ"
     obj.rotation_euler = tuple(math.radians(a) for a in rot_deg)
     obj.location = (at[0], at[1], at[2] - sink_mm * MM)
     return obj

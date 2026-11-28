@@ -45,7 +45,7 @@ if str(SRC) not in sys.path:
 
 FPS = 30
 SUBSTEPS = 4
-VERSION = 12     # bump whenever the model changes, so cached runs are not reused
+VERSION = 13     # bump whenever the model changes, so cached runs are not reused
 COUNT = 12       # fish in the film's shoal
 SEED = 4
 LEAD = 100       # frames before a scape appears that the shoal starts making room for it
@@ -147,7 +147,9 @@ def simulate(plan, frame_start, frame_end, n=COUNT, seed=SEED,
     def water(e):
         centre = np.array([(e[0] + e[1]) / 2, (e[2] + e[3]) / 2, (e[4] + e[5]) / 2])
         half = np.array([(e[1] - e[0]) / 2, (e[3] - e[2]) / 2, (e[5] - e[4]) / 2])
-        sp = np.minimum(spread0, half * 0.8)
+        # In a shallow box the group tightens so that it still has room to travel:
+        # depth is what shows the tank is three-dimensional.
+        sp = np.minimum(spread0, half * np.array([0.8, 0.5, 0.8]))
         return centre, np.maximum(half - sp * 0.9, 0.0), sp
 
     centre, roam, sp = water(ENV[0])

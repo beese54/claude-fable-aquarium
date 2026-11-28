@@ -1,14 +1,14 @@
 # Aquarium Dream
 
-A short film that starts with real phone footage of an empty 30 cm glass cube and a light being switched on, then lets the same tank come to life as five different aquascapes. Everything after the light comes on is a 3D scene built by code and path-traced in Blender through a camera solved from the real footage.
+A short film that starts with real phone footage of an empty 30 cm glass cube and a light being switched on, then lets the same tank come to life as ten different aquascapes, while one shoal of neon tetras swims a single unbroken path through all of them. Everything after the light comes on is a 3D scene built by code and path-traced in Blender through a camera solved from the real footage.
 
 Built with Claude Fable 5.2 as a demonstration that whatever you can imagine, you can build.
 
 **Status:** in progress. `tasks/todo.md` shows where things stand; `review/` holds the stills posted for feedback so far.
 
-![The five designs: Iwagumi, Dutch garden, Forest, Blackwater Amazon, Floating Islands](review/03_design_all_five.jpg)
+![The ten designs in film order: Iwagumi, Dutch garden, Mountain, Forest, Riverbed, Jungle, Blackwater, Lotus pond, Cove, Floating Islands](review/03_design_all.jpg)
 
-Each of these is the same filmed tank. Below the waterline everything is rendered; `review/scores.md` records two independent realism reviews of these stills and what was done about each finding.
+Each of these is the same filmed tank. Below the waterline everything is rendered; `review/scores.md` records the independent realism reviews of the stills, the owner's feedback, and what was done about each point.
 
 ## How it works
 
@@ -16,8 +16,8 @@ Each of these is the same filmed tank. Below the waterline everything is rendere
 2. **Camera.** The tank is a 30 cm cube with 5 mm glass, so its edges in the picture pin down the camera exactly: position, aim and focal length are solved to about 1.4 px (`src/plate/solve_camera.py`).
 3. **Room.** Rays cast from that camera onto known planes give the floor, the wall 1.5 m behind, the card tray and the lamp. The filmed frame, with tank and lamp painted out, is projected back onto that geometry, so the room looks exactly as filmed and shows true parallax when the camera moves (`src/plate/measure_room.py`, `clean_plate.py`, `src/blender/room.py`).
 4. **Tank.** A glass shell with real absorption (clear face-on, green edge-on), a water body with a rippling surface, and ten small LED sources where the real lamp's chips are, so shadows are hard and caustics are crisp (`src/blender/tank.py`).
-5. **Scapes.** Each of the five is one Python module that lays out substrate, scanned stone, generated driftwood and plants, and animals (`src/blender/scapes/`). The kit they share is described in `src/blender/README.md`.
-6. **Life.** Neon tetras follow a seeded shoaling simulation (`src/sim/school.py`); the fish, a red cherry shrimp and a nerite snail are meshes built and posed by code (`src/blender/fish.py`, `shrimp.py`, `snail.py`).
+5. **Scapes.** Each of the ten is one Python module that lays out substrate, scanned stone, generated driftwood and plants, and animals (`src/blender/scapes/`). The kit they share is described in `src/blender/README.md`.
+6. **Life.** One shoal of twelve neon tetras is simulated once for the whole film (`src/sim/school.py`) and posed identically in every scape, so the fish hold their course while one scape dissolves into the next. Each scape declares the open water the shoal may use, and every build reports any fish that comes within 11 mm of scenery; the fish, a red cherry shrimp and a nerite snail are meshes built and posed by code (`src/blender/fish.py`, `shrimp.py`, `snail.py`).
 7. **The awakening.** The water level is animated in the scene; scape materials are invisible above a height that follows the surface, so the first scape appears beneath the rising water (`src/timeline.py`).
 8. **Camera move.** Once the first scape is established the camera eases into a slow push-in and drift, and returns to the filmed position before the end (`src/camera_move.py`).
 9. **Composite.** While the camera is parked, everything the water does not touch comes straight from the filmed frame; only the wet part of the tank is rendered. Renders go through one invertible display transform shared with the plate, then get the phone's sharpening and grain measured from the footage (`src/colour.py`, `src/comp/composite.py`).

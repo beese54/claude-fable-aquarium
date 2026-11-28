@@ -4,25 +4,156 @@
   "deliverable": {
     "path": "output/aquarium_dream.mp4",
     "container": "mp4 (faststart)",
-    "video": { "codec": "h264 high", "pix_fmt": "yuv420p", "width": 1080, "height": 1920, "fps": 30, "colour": "bt709 SDR [ASSUMED: SDR, not HDR]" },
-    "audio": { "codec": "aac", "rate": 48000, "channels": 2, "content": "ambient sound design only, CC0 or synthesised" },
-    "duration_s": { "target": 77, "min": 70, "max": 80 },
+    "video": {
+      "codec": "h264 high",
+      "pix_fmt": "yuv420p",
+      "width": 1080,
+      "height": 1920,
+      "fps": 30,
+      "colour": "bt709 SDR [ASSUMED: SDR, not HDR]"
+    },
+    "audio": {
+      "codec": "aac",
+      "rate": 48000,
+      "channels": 2,
+      "content": "ambient sound design only, CC0 or synthesised"
+    },
+    "duration_s": {
+      "target": 115,
+      "min": 105,
+      "max": 125
+    },
     "max_size_mb": 95
   },
   "source_clip": {
     "path": "Aquarium_Blank.mp4 (local only); footage/aquarium_blank_noaudio.mp4 (committed, audio stripped)",
-    "facts": { "stored": "1920x1080 hevc 10-bit HLG bt2020, rotation -90", "display": "1080x1920", "fps": 30, "frames": 499, "duration_s": 16.63, "light_on_s": 14.0, "exposure_settled_s": 16.0 },
-    "allowed_changes": ["rotate to display orientation", "tonemap HLG to bt709 SDR", "strip audio"]
+    "facts": {
+      "stored": "1920x1080 hevc 10-bit HLG bt2020, rotation -90",
+      "display": "1080x1920",
+      "fps": 30,
+      "frames": 499,
+      "duration_s": 16.63,
+      "light_on_s": 14.0,
+      "exposure_settled_s": 16.0
+    },
+    "allowed_changes": [
+      "rotate to display orientation",
+      "tonemap HLG to bt709 SDR",
+      "strip audio"
+    ]
   },
-  "tank": { "outer_cm": [30, 30, 30], "glass_mm": "[ASSUMED: 5] measure from plate if visible", "water_level": "about 3 cm below the rim, below the light clamp" },
+  "tank": {
+    "outer_cm": [
+      30,
+      30,
+      30
+    ],
+    "glass_mm": "[ASSUMED: 5] measure from plate if visible",
+    "water_level": "about 3 cm below the rim, below the light clamp"
+  },
   "render_method": "Blender 4.5 LTS, Cycles on GPU (OptiX), headless Python scripts",
   "timeline": "config/timeline.json",
   "scapes": [
-    { "id": "01_iwagumi", "title": "Iwagumi", "summary": "Odd group of grey Seiryu-style stones, main stone off-centre, hairgrass carpet, open water", "livestock": { "neon_tetra": 12, "red_shrimp": 0, "snail": 0 } },
-    { "id": "02_dutch", "title": "Dutch garden", "summary": "Terraced rows of stem plants in greens, reds and pinks, no hardscape showing", "livestock": { "neon_tetra": 10, "red_shrimp": 4, "snail": 0 } },
-    { "id": "03_forest", "title": "Forest", "summary": "Driftwood trees with moss canopies, white sand path, light shafts", "livestock": { "neon_tetra": 10, "red_shrimp": 3, "snail": 1 } },
-    { "id": "04_blackwater", "title": "Blackwater Amazon", "summary": "Tea-coloured water, roots, leaf litter, floating plants, dim amber light", "livestock": { "neon_tetra": 14, "red_shrimp": 0, "snail": 0 } },
-    { "id": "05_floating", "title": "Floating Islands", "summary": "Moss-covered rocks suspended mid-water with hanging roots, white sand, a thin sand-fall", "livestock": { "neon_tetra": 12, "red_shrimp": 2, "snail": 1 } }
+    {
+      "id": "01_iwagumi",
+      "title": "Iwagumi",
+      "summary": "Odd group of grey Seiryu-style stones sized to the tank (main stone about two fifths of the water depth), hairgrass carpet, open water",
+      "livestock": {
+        "neon_tetra": "the film's one shoal of 12",
+        "red_shrimp": 0,
+        "snail": 0
+      }
+    },
+    {
+      "id": "02_dutch",
+      "title": "Dutch garden",
+      "summary": "Stem plants in greens, reds and pinks in irregular interlocking drifts of mixed height around an open bay of water",
+      "livestock": {
+        "neon_tetra": "the film's one shoal of 12",
+        "red_shrimp": 4,
+        "snail": 0
+      }
+    },
+    {
+      "id": "06_mountain",
+      "title": "Mountain",
+      "summary": "Ridges of warm jagged stone, a pale sand valley receding between them, moss and fine carpet on the lower slopes",
+      "livestock": {
+        "neon_tetra": "the film's one shoal of 12",
+        "red_shrimp": 1,
+        "snail": 0
+      }
+    },
+    {
+      "id": "03_forest",
+      "title": "Forest",
+      "summary": "Driftwood trees, each one different in trunk, branching and foliage, unevenly placed along a winding sand path",
+      "livestock": {
+        "neon_tetra": "the film's one shoal of 12",
+        "red_shrimp": 3,
+        "snail": 1
+      }
+    },
+    {
+      "id": "09_riverbed",
+      "title": "Riverbed",
+      "summary": "Rounded river stones graded from boulders to gravel as a current would leave them, ribbon grass bent in the flow, very open water",
+      "livestock": {
+        "neon_tetra": "the film's one shoal of 12",
+        "red_shrimp": 0,
+        "snail": 1
+      }
+    },
+    {
+      "id": "07_jungle",
+      "title": "Jungle",
+      "summary": "Overgrown nano jungle: mixed leaf shapes and sizes, wood reaching to the surface, floating plants, a clearing of open water",
+      "livestock": {
+        "neon_tetra": "the film's one shoal of 12",
+        "red_shrimp": 3,
+        "snail": 1
+      }
+    },
+    {
+      "id": "04_blackwater",
+      "title": "Blackwater Amazon",
+      "summary": "Weak-tea water, roots, leaf litter, floating plants, warm light",
+      "livestock": {
+        "neon_tetra": "the film's one shoal of 12",
+        "red_shrimp": 0,
+        "snail": 0
+      }
+    },
+    {
+      "id": "10_lotus",
+      "title": "Lotus pond",
+      "summary": "Red tiger lotus: thin stalks rising to lily pads on the surface, dappled shade on a dark bed",
+      "livestock": {
+        "neon_tetra": "the film's one shoal of 12",
+        "red_shrimp": 0,
+        "snail": 1
+      }
+    },
+    {
+      "id": "08_cove",
+      "title": "Cove",
+      "summary": "Golden rock walls meeting in a natural arch over a pale sand beach, moss and small epiphytes in the cracks",
+      "livestock": {
+        "neon_tetra": "the film's one shoal of 12",
+        "red_shrimp": 2,
+        "snail": 0
+      }
+    },
+    {
+      "id": "05_floating",
+      "title": "Floating Islands",
+      "summary": "A few small moss-covered rocks hanging well apart in mid water with roots, white sand, a thin sand-fall",
+      "livestock": {
+        "neon_tetra": "the film's one shoal of 12",
+        "red_shrimp": 2,
+        "snail": 1
+      }
+    }
   ],
   "captions": {
     "placement": "[ASSUMED: clean floor area below the tank, soft fades, open-licence font]",
@@ -33,10 +164,26 @@
     "moves": "small real dolly or arc per scape over a projection-mapped rebuild of the room, limited so the projection does not tear"
   },
   "pipeline": [
-    { "stage": "plate", "dir": "src/plate", "does": "tonemap, clean lit plate, grain profile, camera solve, masks" },
-    { "stage": "scene", "dir": "src/blender", "does": "room proxy, tank, water, light, assets, scapes, animation, render" },
-    { "stage": "comp", "dir": "src/comp", "does": "merge over plate, grain match, captions, audio, encode" },
-    { "stage": "qa", "dir": "src/qa", "does": "automated checks and contact sheets" }
+    {
+      "stage": "plate",
+      "dir": "src/plate",
+      "does": "tonemap, clean lit plate, grain profile, camera solve, masks"
+    },
+    {
+      "stage": "scene",
+      "dir": "src/blender",
+      "does": "room proxy, tank, water, light, assets, scapes, animation, render"
+    },
+    {
+      "stage": "comp",
+      "dir": "src/comp",
+      "does": "merge over plate, grain match, captions, audio, encode"
+    },
+    {
+      "stage": "qa",
+      "dir": "src/qa",
+      "does": "automated checks and contact sheets"
+    }
   ],
   "storage": {
     "repo": "code, config, review stills, committed clip without audio, final video",
@@ -46,7 +193,18 @@
   "orchestration": {
     "coordinator": "Claude Fable 5.2",
     "subagents": "Opus 5.5 for bounded tasks, one task each, verified by the coordinator before commit",
-    "owner_gates": ["G1 look test still", "G2 five design stills (blocks final render per scape)", "G3 draft video", "G4 final video"],
+    "owner_gates": [
+      "G1 look test still",
+      "G2 ten design stills (blocks final render per scape)",
+      "G3 draft video",
+      "G4 final video"
+    ],
     "resume": "progress_tracking.json ledger plus a 30 minute heartbeat scheduled in the session"
+  },
+  "shoal": {
+    "count": 12,
+    "simulation": "src/sim/school.py, one run for the whole film",
+    "per_scape_water": "SWIM literal in each scape module",
+    "continuity": "the same fish on the same path in every scape, so a dissolve between scapes leaves the fish where they are"
   }
 }

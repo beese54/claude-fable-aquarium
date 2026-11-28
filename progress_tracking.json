@@ -1,272 +1,338 @@
 ﻿{
-    "project":  "Aquarium Dream",
-    "how_to_resume":  "Read PROMPT.md, then this file. Find the first task whose status is not done, read its next_action, do it, verify, set status and commit hash, commit and push. Gates marked owner need the owner\u0027s reply before the tasks listed in blocks may start; everything else continues.",
-    "updated":  "2026-11-28",
-    "gates":  {
-                  "G1_look_test":  {
-                                       "status":  "posted (reworked version), awaiting owner; not blocking",
-                                       "blocks":  [
-
-                                                  ]
-                                   },
-                  "G2_design_stills":  {
-                                           "status":  "posted, awaiting owner; final render (T6.1) must not start for a scape until the owner approves its still",
-                                           "blocks":  [
-                                                          "T6.1"
-                                                      ],
-                                           "per_scape":  {
-                                                             "01_iwagumi":  "pending",
-                                                             "02_dutch":  "pending",
-                                                             "03_forest":  "pending",
-                                                             "04_blackwater":  "pending",
-                                                             "05_floating":  "pending"
-                                                         }
-                                       },
-                  "G3_draft_video":  {
-                                         "status":  "pending",
-                                         "blocks":  [
-
-                                                    ]
-                                     },
-                  "G4_final_video":  {
-                                         "status":  "pending",
-                                         "blocks":  [
-                                                        "T7.3"
-                                                    ]
-                                     }
-              },
-    "tasks":  [
-                  {
-                      "id":  "T0.1",
-                      "phase":  0,
-                      "title":  "Blueprint files, repo skeleton, public GitHub repo",
-                      "status":  "done",
-                      "commit":  "b2a381a",
-                      "next_action":  ""
-                  },
-                  {
-                      "id":  "T0.2",
-                      "phase":  0,
-                      "title":  "Install Blender 4.5 LTS, init.sh proves the toolchain",
-                      "status":  "done",
-                      "commit":  "b2a381a",
-                      "next_action":  ""
-                  },
-                  {
-                      "id":  "T1.1",
-                      "phase":  1,
-                      "title":  "Plate prep: tonemapped intro frames, committed clip without audio, clean lit plate, grain profile",
-                      "status":  "done",
-                      "commit":  "9519bdb",
-                      "next_action":  ""
-                  },
-                  {
-                      "id":  "T1.2",
-                      "phase":  1,
-                      "title":  "Camera solve from tank corners, wireframe overlay still",
-                      "status":  "done",
-                      "commit":  "553e445",
-                      "next_action":  ""
-                  },
-                  {
-                      "id":  "T1.3",
-                      "phase":  1,
-                      "title":  "Room rebuild in Blender with plate projection; empty-tank render matches plate",
-                      "status":  "done",
-                      "commit":  "8f096fe",
-                      "next_action":  ""
-                  },
-                  {
-                      "id":  "T2.1",
-                      "phase":  2,
-                      "title":  "Base tank scene: glass, water, light, caustics, particles",
-                      "status":  "done",
-                      "commit":  "8f096fe",
-                      "next_action":  ""
-                  },
-                  {
-                      "id":  "T2.2",
-                      "phase":  2,
-                      "title":  "Iwagumi look test still composited into the room (Gate 1)",
-                      "status":  "in_progress",
-                      "commit":  "b826044",
-                      "next_action":  "Gate 1 stills are in review/02_look_test_*.jpg (reworked after an independent review scored the first one 3/10). Awaiting owner feedback; not blocking."
-                  },
-                  {
-                      "id":  "T3.1",
-                      "phase":  3,
-                      "title":  "Neon tetra model, shading and swim rig",
-                      "status":  "done",
-                      "commit":  "3e6a1af",
-                      "next_action":  ""
-                  },
-                  {
-                      "id":  "T3.2",
-                      "phase":  3,
-                      "title":  "Red shrimp and snail",
-                      "status":  "done",
-                      "commit":  "4219751",
-                      "next_action":  ""
-                  },
-                  {
-                      "id":  "T3.3",
-                      "phase":  3,
-                      "title":  "Plant library: carpet, stem, moss, epiphyte, floating",
-                      "status":  "done",
-                      "commit":  "b826044",
-                      "next_action":  ""
-                  },
-                  {
-                      "id":  "T3.4",
-                      "phase":  3,
-                      "title":  "CC0 asset sourcing and assets/MANIFEST.md",
-                      "status":  "done",
-                      "commit":  "321633d",
-                      "next_action":  ""
-                  },
-                  {
-                      "id":  "T4.1",
-                      "phase":  4,
-                      "title":  "Scape 02 Dutch garden still",
-                      "status":  "done",
-                      "commit":  "f3b453e",
-                      "next_action":  "Still for Gate 2 to be rendered with the others (frame about 1100). Known weak spots: groups a little hedge-like; open foreground smaller than a fifth."
-                  },
-                  {
-                      "id":  "T4.2",
-                      "phase":  4,
-                      "title":  "Scape 03 Forest still",
-                      "status":  "done",
-                      "commit":  "6b3c1d0",
-                      "next_action":  "Still for Gate 2 at about frame 1400. Known weak spots: crowns a little topiary-like; back of the forest thin."
-                  },
-                  {
-                      "id":  "T4.3",
-                      "phase":  4,
-                      "title":  "Scape 04 Blackwater Amazon still",
-                      "status":  "done",
-                      "commit":  "bc2e826",
-                      "next_action":  "Still for Gate 2 at about frame 1700. Known weak spots: plain amber background low down; little dappled light."
-                  },
-                  {
-                      "id":  "T4.4",
-                      "phase":  4,
-                      "title":  "Scape 05 Floating Islands still",
-                      "status":  "done",
-                      "commit":  "3912eb5",
-                      "next_action":  "Known weak spots: the sand-fall can read as a pole in a still; snail shows only its sole on the front glass."
-                  },
-                  {
-                      "id":  "T4.5",
-                      "phase":  4,
-                      "title":  "Self-review and fresh-context review of all five stills; post Gate 2",
-                      "status":  "done",
-                      "commit":  "3e6a1af",
-                      "next_action":  "Gate 2 stills posted (review/03_design_*.jpg, scores in review/scores.md). Open items listed there. Awaiting owner approval per scape before T6.1."
-                  },
-                  {
-                      "id":  "T5.1",
-                      "phase":  5,
-                      "title":  "Schooling simulation, shrimp and snail motion, plant sway (baked)",
-                      "status":  "done",
-                      "commit":  "cf9c3a7",
-                      "next_action":  ""
-                  },
-                  {
-                      "id":  "T5.2",
-                      "phase":  5,
-                      "title":  "Camera moves per scape",
-                      "status":  "done",
-                      "commit":  "9de4270",
-                      "next_action":  "src/camera_move.py; tune amounts in config/timeline.json under camera_move if wanted"
-                  },
-                  {
-                      "id":  "T5.3",
-                      "phase":  5,
-                      "title":  "Transitions: awakening and four bubble and bloom reveals",
-                      "status":  "done",
-                      "commit":  "35e9333",
-                      "next_action":  ""
-                  },
-                  {
-                      "id":  "T5.4",
-                      "phase":  5,
-                      "title":  "Compositor: plate merge, grain, captions, encode",
-                      "status":  "done",
-                      "commit":  "7325599",
-                      "next_action":  ""
-                  },
-                  {
-                      "id":  "T5.5",
-                      "phase":  5,
-                      "title":  "Sound design",
-                      "status":  "done",
-                      "commit":  "4f6d8c6",
-                      "next_action":  "Not yet judged by ear; the owner may want levels adjusted (see SCAPE_COLOURS and the mix levels in src/comp/audio.py)."
-                  },
-                  {
-                      "id":  "T5.6",
-                      "phase":  5,
-                      "title":  "Low-quality full-length draft video (Gate 3)",
-                      "status":  "blocked",
-                      "commit":  null,
-                      "next_action":  "HOLD: on 2026-11-28 about 02:55 Claude Code stopped both background draft renders because the machine was critically low on memory (two Blender renders were running at once on 16 GB). Do not restart rendering until the owner says to. State of \u003cwork\u003e/renders_draft: 03_forest 166/166, 04_blackwater 166/166, 05_floating 79/207, 01_iwagumi 0/200 and 02_dutch 0/166 (deleted for re-render after the lighting fix). To resume when told: run ONE render at a time: $env:AQUARIUM_RENDER_SET=\u0027draft\u0027; python src/render_all.py --quality draft --step 2 (resumable, about 45 min left). Then assemble review/04_draft.mp4 as described before."
-                  },
-                  {
-                      "id":  "T6.1",
-                      "phase":  6,
-                      "title":  "Full-quality render of approved scapes (detached, resumable)",
-                      "status":  "todo",
-                      "commit":  null,
-                      "next_action":  "blocked until G2 per scape"
-                  },
-                  {
-                      "id":  "T6.2",
-                      "phase":  6,
-                      "title":  "Final composite and automated QA (src/qa/checks.py all green)",
-                      "status":  "todo",
-                      "commit":  null,
-                      "next_action":  ""
-                  },
-                  {
-                      "id":  "T7.1",
-                      "phase":  7,
-                      "title":  "README with reproduction steps and stills",
-                      "status":  "todo",
-                      "commit":  null,
-                      "next_action":  ""
-                  },
-                  {
-                      "id":  "T7.2",
-                      "phase":  7,
-                      "title":  "Final video posted for Gate 4",
-                      "status":  "todo",
-                      "commit":  null,
-                      "next_action":  ""
-                  },
-                  {
-                      "id":  "T7.3",
-                      "phase":  7,
-                      "title":  "GitHub Release, lessons, Pattern AM playbook entry, remove heartbeat",
-                      "status":  "todo",
-                      "commit":  null,
-                      "next_action":  "blocked until G4"
-                  }
-              ],
-    "render_jobs":  [
-
-                    ],
-    "notes":  [
-                  "Sleep was already disabled on this laptop (AC and DC), so no power setting was changed.",
-                  "Draft stills render in about 2 s, full-resolution preview (128 samples) in about 20 s on the RTX 4060; the first render after a cold start spends about 75 s loading kernels.",
-                  "While the camera is parked, src/comp/composite.py takes everything outside the wet part of the tank from the filmed plate.",
-                  "Renders needed per scape (python src/comp/assemble.py --needs): 01 606-967, 02 952-1282, 03 1267-1597, 04 1582-1912, 05 1897-2309. Sequence render: blender -b --python src/blender/build.py -- --scape ID --frames A-B --outdir \u003cwork\u003e/renders/ID --quality final.",
-                  "When several Blender renders share the GPU, set AQUARIUM_CPU_DENOISE=1 to avoid OIDN out-of-memory errors.",
-                  "Lamp is ten spot LEDs totalling 50 W by default; scapes override via LIGHT/WATER dicts (see src/blender/README.md).",
-                  "Scapes 02 and 03 were briefed before fish.School existed: convert them from fish.shoal to SCAPE + fish.School + animate(ctx, frame) like scape 01, and add shrimp/snail where their briefs left TODOs.",
-                  "Polish to do before final render: match the rendered glass edge colour to the filmed pale cyan (EDGE_GLOW and absorption in src/blender/tank.py) so the hand-over at frame 700 does not shift the edge strips; verify caustics are visible on sand and stone in motion.",
-                  "Root cause worth remembering: any object a scape creates must be a Cycles caustics receiver or it gets no lamp light through the water. build.py now marks every object created after the base scene, including scatter sources.",
-                  "Never run two Blender renders at once on this machine (16 GB RAM): it triggered a low-memory stop of all background jobs. Subagents rendering in parallel count too.",
-                  "Heartbeat: while everything is on hold for the owner, the session heartbeat runs every 3 hours (cron job 42be3d16) to save usage. When work resumes, replace it with a 30 minute one (CronCreate \"13,43 * * * *\", then CronDelete the old id). It is session-only."
-              ]
+  "project": "Aquarium Dream",
+  "how_to_resume": "Read PROMPT.md, then this file. Find the first task whose status is not done, read its next_action, do it, verify, set status and commit hash, commit and push. Gates marked owner need the owner's reply before the tasks listed in blocks may start; everything else continues.",
+  "updated": "2026-11-28",
+  "gates": {
+    "G1_look_test": {
+      "status": "superseded by the owner's feedback on the design stills (2026-11-28)",
+      "blocks": []
+    },
+    "G2_design_stills": {
+      "status": "owner gave feedback on the first five on 2026-11-28 (see tasks/lessons.md) and asked for five more designs; ten revised stills to be posted again. Final render (T6.1) must not start for a scape until the owner approves its still",
+      "blocks": [
+        "T6.1"
+      ],
+      "per_scape": {
+        "01_iwagumi": "feedback being applied",
+        "02_dutch": "feedback being applied",
+        "06_mountain": "new, in work",
+        "03_forest": "feedback being applied",
+        "09_riverbed": "new, in work",
+        "07_jungle": "new, in work",
+        "04_blackwater": "feedback being applied",
+        "10_lotus": "new, in work",
+        "08_cove": "new, in work",
+        "05_floating": "feedback being applied"
+      }
+    },
+    "G3_draft_video": {
+      "status": "pending",
+      "blocks": []
+    },
+    "G4_final_video": {
+      "status": "pending",
+      "blocks": [
+        "T7.3"
+      ]
+    }
+  },
+  "tasks": [
+    {
+      "id": "T0.1",
+      "phase": 0,
+      "title": "Blueprint files, repo skeleton, public GitHub repo",
+      "status": "done",
+      "commit": "b2a381a",
+      "next_action": ""
+    },
+    {
+      "id": "T0.2",
+      "phase": 0,
+      "title": "Install Blender 4.5 LTS, init.sh proves the toolchain",
+      "status": "done",
+      "commit": "b2a381a",
+      "next_action": ""
+    },
+    {
+      "id": "T1.1",
+      "phase": 1,
+      "title": "Plate prep: tonemapped intro frames, committed clip without audio, clean lit plate, grain profile",
+      "status": "done",
+      "commit": "9519bdb",
+      "next_action": ""
+    },
+    {
+      "id": "T1.2",
+      "phase": 1,
+      "title": "Camera solve from tank corners, wireframe overlay still",
+      "status": "done",
+      "commit": "553e445",
+      "next_action": ""
+    },
+    {
+      "id": "T1.3",
+      "phase": 1,
+      "title": "Room rebuild in Blender with plate projection; empty-tank render matches plate",
+      "status": "done",
+      "commit": "8f096fe",
+      "next_action": ""
+    },
+    {
+      "id": "T2.1",
+      "phase": 2,
+      "title": "Base tank scene: glass, water, light, caustics, particles",
+      "status": "done",
+      "commit": "8f096fe",
+      "next_action": ""
+    },
+    {
+      "id": "T2.2",
+      "phase": 2,
+      "title": "Iwagumi look test still composited into the room (Gate 1)",
+      "status": "done",
+      "commit": "ec62124",
+      "next_action": "Gate 1 was overtaken by the owner's feedback on the five design stills."
+    },
+    {
+      "id": "T3.1",
+      "phase": 3,
+      "title": "Neon tetra model, shading and swim rig",
+      "status": "done",
+      "commit": "3e6a1af",
+      "next_action": ""
+    },
+    {
+      "id": "T3.2",
+      "phase": 3,
+      "title": "Red shrimp and snail",
+      "status": "done",
+      "commit": "4219751",
+      "next_action": ""
+    },
+    {
+      "id": "T3.3",
+      "phase": 3,
+      "title": "Plant library: carpet, stem, moss, epiphyte, floating",
+      "status": "done",
+      "commit": "b826044",
+      "next_action": ""
+    },
+    {
+      "id": "T3.4",
+      "phase": 3,
+      "title": "CC0 asset sourcing and assets/MANIFEST.md",
+      "status": "done",
+      "commit": "321633d",
+      "next_action": ""
+    },
+    {
+      "id": "T4.1",
+      "phase": 4,
+      "title": "Scape 02 Dutch garden still",
+      "status": "done",
+      "commit": "f3b453e",
+      "next_action": "Still for Gate 2 to be rendered with the others (frame about 1100). Known weak spots: groups a little hedge-like; open foreground smaller than a fifth."
+    },
+    {
+      "id": "T4.2",
+      "phase": 4,
+      "title": "Scape 03 Forest still",
+      "status": "done",
+      "commit": "6b3c1d0",
+      "next_action": "Still for Gate 2 at about frame 1400. Known weak spots: crowns a little topiary-like; back of the forest thin."
+    },
+    {
+      "id": "T4.3",
+      "phase": 4,
+      "title": "Scape 04 Blackwater Amazon still",
+      "status": "done",
+      "commit": "bc2e826",
+      "next_action": "Still for Gate 2 at about frame 1700. Known weak spots: plain amber background low down; little dappled light."
+    },
+    {
+      "id": "T4.4",
+      "phase": 4,
+      "title": "Scape 05 Floating Islands still",
+      "status": "done",
+      "commit": "3912eb5",
+      "next_action": "Known weak spots: the sand-fall can read as a pole in a still; snail shows only its sole on the front glass."
+    },
+    {
+      "id": "T4.5",
+      "phase": 4,
+      "title": "Self-review and fresh-context review of all five stills; post Gate 2",
+      "status": "done",
+      "commit": "3e6a1af",
+      "next_action": "Gate 2 stills posted (review/03_design_*.jpg, scores in review/scores.md). Open items listed there. Awaiting owner approval per scape before T6.1."
+    },
+    {
+      "id": "F1",
+      "phase": "4b",
+      "title": "One shoal for the whole film (src/sim/school.py); long dissolves that keep the fish visible",
+      "status": "done",
+      "commit": "ec62124",
+      "next_action": ""
+    },
+    {
+      "id": "F2",
+      "phase": "4b",
+      "title": "Iwagumi: stones a fifth smaller",
+      "status": "done",
+      "commit": "ec62124",
+      "next_action": ""
+    },
+    {
+      "id": "F3",
+      "phase": "4b",
+      "title": "Dutch: natural drifts instead of blocks, open bay for the fish",
+      "status": "in_progress",
+      "commit": null,
+      "next_action": "Subagent working on src/blender/scapes/02_dutch.py; review its gate2_02_dutch still, then commit."
+    },
+    {
+      "id": "F4",
+      "phase": "4b",
+      "title": "Forest: every tree different in branch and foliage, uneven placement",
+      "status": "in_progress",
+      "commit": null,
+      "next_action": "Subagent working on 03_forest.py; review its still, then commit."
+    },
+    {
+      "id": "F5",
+      "phase": "4b",
+      "title": "Blackwater: brighter water, still tea-coloured",
+      "status": "in_progress",
+      "commit": null,
+      "next_action": "Tint and lamp changed; render the gate2 still at preview quality and compare with the old one."
+    },
+    {
+      "id": "F6",
+      "phase": "4b",
+      "title": "Floating Islands: fewer, smaller, spaced out",
+      "status": "in_progress",
+      "commit": null,
+      "next_action": "Subagent working on 05_floating.py; review its still, then commit."
+    },
+    {
+      "id": "F7",
+      "phase": "4b",
+      "title": "Five more designs: 06_mountain, 07_jungle, 08_cove, 09_riverbed, 10_lotus",
+      "status": "in_progress",
+      "commit": null,
+      "next_action": "06 and 07 with subagents; start 08, 09, 10 when those finish (keep the render queue short). Briefs: concept, owner's standing feedback, SWIM contract, edit only your own module."
+    },
+    {
+      "id": "F8",
+      "phase": "4b",
+      "title": "Ten stills: own review, fresh-context review, post for Gate 2",
+      "status": "todo",
+      "commit": null,
+      "next_action": "python src/comp/design_stills.py, score in review/scores.md, show the owner review/03_design_all.jpg."
+    },
+    {
+      "id": "T5.1",
+      "phase": 5,
+      "title": "Schooling simulation, shrimp and snail motion, plant sway (baked)",
+      "status": "done",
+      "commit": "cf9c3a7",
+      "next_action": ""
+    },
+    {
+      "id": "T5.2",
+      "phase": 5,
+      "title": "Camera moves per scape",
+      "status": "done",
+      "commit": "9de4270",
+      "next_action": "src/camera_move.py; tune amounts in config/timeline.json under camera_move if wanted"
+    },
+    {
+      "id": "T5.3",
+      "phase": 5,
+      "title": "Transitions: awakening and four bubble and bloom reveals",
+      "status": "done",
+      "commit": "35e9333",
+      "next_action": ""
+    },
+    {
+      "id": "T5.4",
+      "phase": 5,
+      "title": "Compositor: plate merge, grain, captions, encode",
+      "status": "done",
+      "commit": "7325599",
+      "next_action": ""
+    },
+    {
+      "id": "T5.5",
+      "phase": 5,
+      "title": "Sound design",
+      "status": "done",
+      "commit": "4f6d8c6",
+      "next_action": "Not yet judged by ear; the owner may want levels adjusted (see SCAPE_COLOURS and the mix levels in src/comp/audio.py)."
+    },
+    {
+      "id": "T5.6",
+      "phase": 5,
+      "title": "Low-quality full-length draft video of all ten designs (Gate 3)",
+      "status": "todo",
+      "commit": null,
+      "next_action": "The owner lifted the hold on 2026-11-28 and gave design feedback. Wait until F3 to F8 are done (all ten scapes build and their SWIM is settled, because the shoal's path depends on every scape). Then, as ONE job: delete <work>/renders_draft (old designs, old frame numbers), set AQUARIUM_RENDER_SET=draft, run python src/render_all.py --quality draft --step 2, python src/comp/audio.py, python src/comp/assemble.py --out review/04_draft.mp4 --half --crf 23 --preset fast. Review frames, then post Gate 3."
+    },
+    {
+      "id": "T6.1",
+      "phase": 6,
+      "title": "Full-quality render of approved scapes (detached, resumable)",
+      "status": "todo",
+      "commit": null,
+      "next_action": "blocked until G2 per scape"
+    },
+    {
+      "id": "T6.2",
+      "phase": 6,
+      "title": "Final composite and automated QA (src/qa/checks.py all green)",
+      "status": "todo",
+      "commit": null,
+      "next_action": ""
+    },
+    {
+      "id": "T7.1",
+      "phase": 7,
+      "title": "README with reproduction steps and stills",
+      "status": "todo",
+      "commit": null,
+      "next_action": ""
+    },
+    {
+      "id": "T7.2",
+      "phase": 7,
+      "title": "Final video posted for Gate 4",
+      "status": "todo",
+      "commit": null,
+      "next_action": ""
+    },
+    {
+      "id": "T7.3",
+      "phase": 7,
+      "title": "GitHub Release, lessons, Pattern AM playbook entry, remove heartbeat",
+      "status": "todo",
+      "commit": null,
+      "next_action": "blocked until G4"
+    }
+  ],
+  "render_jobs": [],
+  "notes": [
+    "Sleep was already disabled on this laptop (AC and DC), so no power setting was changed.",
+    "Draft stills render in about 2 s, full-resolution preview (128 samples) in about 20 s on the RTX 4060; the first render after a cold start spends about 75 s loading kernels.",
+    "While the camera is parked, src/comp/composite.py takes everything outside the wet part of the tank from the filmed plate.",
+    "Renders needed per scape (python src/comp/assemble.py --needs): 01 606-967, 02 952-1282, 03 1267-1597, 04 1582-1912, 05 1897-2309. Sequence render: blender -b --python src/blender/build.py -- --scape ID --frames A-B --outdir <work>/renders/ID --quality final.",
+    "When several Blender renders share the GPU, set AQUARIUM_CPU_DENOISE=1 to avoid OIDN out-of-memory errors.",
+    "Lamp is ten spot LEDs totalling 50 W by default; scapes override via LIGHT/WATER dicts (see src/blender/README.md).",
+    "Scapes 02 and 03 were briefed before fish.School existed: convert them from fish.shoal to SCAPE + fish.School + animate(ctx, frame) like scape 01, and add shrimp/snail where their briefs left TODOs.",
+    "Polish to do before final render: match the rendered glass edge colour to the filmed pale cyan (EDGE_GLOW and absorption in src/blender/tank.py) so the hand-over at frame 700 does not shift the edge strips; verify caustics are visible on sand and stone in motion.",
+    "Root cause worth remembering: any object a scape creates must be a Cycles caustics receiver or it gets no lamp light through the water. build.py now marks every object created after the base scene, including scatter sources.",
+    "Never run two Blender renders at once on this machine (16 GB RAM): it triggered a low-memory stop of all background jobs. Subagents rendering in parallel count too.",
+    "Heartbeat: session cron job 9650455f, every 30 minutes (13,43 * * * *). Session-only; recreate it if the session restarts. Slow it to every 3 hours whenever everything is waiting on the owner.",
+    "Renders take a machine-wide lock (build.render_lock), so renders started side by side queue instead of overlapping. Still never start a long sequence render while subagents are iterating on stills: it would hold the lock for its whole run.",
+    "The shoal is one simulation for the whole film. Any change to any scape's SWIM, or to the timeline, changes the fish's path from that point on. Settle all SWIMs before the final render and never mix frames rendered before and after such a change.",
+    "Film is now ten scapes, 3450 frames (115 s), about 3260 frames to render. At final quality that is roughly double the earlier estimate; time one final frame per scape before starting and tell the owner the total."
+  ]
 }

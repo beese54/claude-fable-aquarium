@@ -33,7 +33,7 @@ import paths  # noqa: E402
 # --- constants from definition_of_done.md and the brief ------------------------
 
 W, H, FPS = 1080, 1920, 30
-DURATION_S = (70.0, 80.0)
+DURATION_S = (105.0, 125.0)
 MAX_BYTES = 95_000_000             # "under 95 MB": decimal MB, the stricter reading
 SSIM_MIN = 0.95
 SEAM_FACTOR = 1.5
@@ -53,7 +53,9 @@ FREEZE_BIG_LEVELS, FREEZE_BIG_PIXELS = 20, 50
 # black when 98% of its pixels are. Y here is limited range (16..235).
 BLACK_Y = 16 + 0.10 * 219
 BLACK_FRAC = 0.98
-SCAPES = ["01_iwagumi", "02_dutch", "03_forest", "04_blackwater", "05_floating"]
+# film order
+SCAPES = ["01_iwagumi", "02_dutch", "06_mountain", "03_forest", "09_riverbed",
+          "07_jungle", "04_blackwater", "10_lotus", "08_cove", "05_floating"]
 SCAPE_MIN_FRAMES = 210
 CAPTIONS_MIN = 7
 CAPTION_BAND = (1540, 1610)        # rows; assemble.py draws captions on a baseline at 1585
@@ -67,6 +69,7 @@ PARALLAX_MIN_RATIO = 1.15
 NEAR_MM = (150.0, 0.0, 150.0)      # centre of the front glass
 FAR_MM = (150.0, 1822.0, 150.0)    # wall straight behind it
 FISH_MIN = 8
+STEP_MAX_MM = 4.5                  # farthest a fish may move in one frame (135 mm/s): more is a jump
 DEPTH_MIN_MM = 50.0
 
 # Spell check: the words the captions are expected to use plus a little thematic
@@ -74,6 +77,7 @@ DEPTH_MIN_MM = 50.0
 VOCAB = set("""
 every empty tank is a blank page imagine stillness abundance forest beneath the
 surface river world away impossible whatever you can imagine build created with
+mountains under water stream that never stops jungle in glass pond bloom hidden cove
 an and of in on to into from your our it its this that what if be is are was
 one new deep quiet calm still wild green garden stone stones water light life
 living dream dreams create make made grow grows anything everything something
@@ -550,6 +554,18 @@ def check_livestock(ctx):
     except Exception:
         centre = np.array([152.0, -555.0, 143.0])
     parts, bad, shrimp, snail = [], [], [], []
+    # One shoal for the whole film: every scape poses the same simulated fish, so
+    # their path cannot break at a transition. Check the run itself for a jump.
+    import timeline as film_timeline
+    on_screen = film_timeline.visible()
+    data = school.film(ctx.cache_dir)
+    pos, f0 = data["pos"], int(data["frame_start"])
+    step = float(np.linalg.norm(np.diff(pos, axis=0), axis=2).max())
+    parts.append(f"one shoal of {pos.shape[1]}, frames {f0}-{f0 + pos.shape[0] - 1}, largest step {step:.1f} mm/frame")
+    if step > STEP_MAX_MM:
+        bad.append(f"a fish moves {step:.1f} mm in one frame (limit {STEP_MAX_MM})")
+    if f0 + pos.shape[0] < int(tl["total_frames"]):
+        bad.append("the shoal's run ends before the film does")
     for sid in SCAPES:
         mod = Path(ctx.scapes_dir) / f"{sid}.py"
         if not mod.is_file():
@@ -567,25 +583,17 @@ def check_livestock(ctx):
             parts.append(f"{sid}: unparseable")
             bad.append(f"{mod.name} does not parse (line {e.lineno})")
             continue
-        caches = sorted(Path(ctx.cache_dir).glob(f"school_{sid}_*.npz"), key=lambda p: p.stat().st_mtime)
-        if not caches:
-            hint = "module uses fish.School but it has not been run" if n_school else "module has no fish.School (static shoal?)"
-            parts.append(f"{sid}: no cache")
-            bad.append(f"{sid}: no school_{sid}_*.npz cache ({hint})")
+        if not n_school:
+            parts.append(f"{sid}: no shoal")
+            bad.append(f"{sid}: module does not call fish.School()")
             continue
-        data = np.load(caches[-1])
-        pos, f0 = data["pos"], int(data["frame_start"])
         seg = segs.get(sid)
         if seg is None:
             parts.append(f"{sid}: not in timeline")
             bad.append(f"{sid} missing from timeline")
             continue
-        a, b = seg["start"] - f0, seg["end"] - f0
-        if a < 0 or b > pos.shape[0]:
-            parts.append(f"{sid}: cache {f0}-{f0 + pos.shape[0] - 1} short")
-            bad.append(f"{sid}: cache {caches[-1].name} covers frames {f0}-{f0 + pos.shape[0] - 1}, "
-                       f"scape is on screen {seg['start']}-{seg['end'] - 1}")
-            continue
+        first, last = on_screen[sid]                   # counting the dissolves either side
+        a, b = max(first - f0, 0), last + 1 - f0
         rep = school.report({"pos": pos[a:b]}, camera_mm=centre)
         k = rep["fish_with_5cm_depth_change"]
         parts.append(f"{sid}: {k}/{rep['fish']} fish >=5cm")

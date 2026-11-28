@@ -21,19 +21,41 @@ import plants
 import substrate
 import timeline
 import wood
-from bl_common import MM, new_material, new_mesh_object, shot_frames
+from bl_common import MM, new_material, new_mesh_object
 from scatter import collection_of, scatter, set_point_attribute
 
 SCAPE = "04_blackwater"
 
 # Canopy-filtered light: dimmer and warmer than the default white LED.
-LIGHT = dict(watts=44.0, colour=(1.0, 0.92, 0.80), fill=0.02, bounce=0.035)
+LIGHT = dict(watts=52.0, colour=(1.0, 0.93, 0.82), fill=0.03, bounce=0.045)
 # Tannin-stained water. Absorption per metre is density * (1 - tint), so blue
 # dies first: the back of the tank (30 cm away) goes amber-brown while fish
 # 15 cm in keep most of their colour. Red is absorbed too, so depth darkens
 # rather than only warms. Haze is kept faint and amber: any more, lit evenly by
 # the broad lamp, greys the whole tank into murk instead of drawing shafts.
-WATER = dict(tint=(0.74, 0.46, 0.15), density=12.0, scatter=0.08, scatter_colour=(0.90, 0.62, 0.30))
+#
+# Owner feedback on the first still: too dark; brighter, but still short of
+# clear water. The stain is about a third weaker than it was (weak tea rather
+# than strong) and the lamp a little stronger, so the bed and wood are read
+# clearly and the far glass is amber, not brown.
+WATER = dict(tint=(0.78, 0.52, 0.20), density=9.5, scatter=0.06, scatter_colour=(0.92, 0.68, 0.36))
+
+# Water the film's shoal may use while this scape is on screen (src/sim/school.py):
+# the open middle and front, below the floaters' roots (they reach down to about
+# 205 mm). The cylinders are the wood, as printed by _obstacles() at build time.
+SWIM = {
+    "box": (45, 255, 28, 178, 104, 176),
+    "floor": (62, 92),
+    "obstacles": [
+        (12, 132, 23, 276), (12, 156, 23, 280), (36, 132, 23, 280), (36, 156, 23, 283), (60, 108, 23, 113),
+        (60, 156, 23, 256), (60, 180, 23, 246), (60, 204, 23, 213), (84, 108, 23, 151), (84, 132, 23, 213),
+        (84, 156, 23, 238), (84, 180, 23, 238), (84, 204, 23, 232), (108, 84, 23, 111), (108, 108, 23, 151),
+        (108, 132, 23, 196), (108, 156, 23, 210), (108, 180, 23, 134), (108, 204, 23, 230), (132, 132, 23, 149),
+        (132, 156, 23, 130), (132, 180, 23, 158), (132, 204, 23, 166), (156, 132, 23, 133), (180, 204, 23, 259),
+        (204, 204, 23, 268), (228, 204, 23, 277), (252, 180, 23, 262), (252, 204, 23, 253), (276, 156, 23, 278),
+        (276, 180, 23, 276),
+    ],
+}
 
 # A curtain of fine roots from the bank hangs along the back glass: x range,
 # y range, how many, length range (mm).
@@ -575,10 +597,12 @@ def build(ctx):
     # The shoal keeps to the open water in the middle and front, clear of the
     # wood, and below the floaters' roots (they reach down to about 205 mm),
     # which are too fine to be obstacles but would show passing through a fish.
-    keep = _obstacles(hanging + fallen)
-    f0, f1 = shot_frames(SCAPE)
-    school = fish.School(_ground_key(), 14, f0, f1, box=(45, 255, 28, 175, 100, 168), seed=9,
-                         obstacles=keep, ground=ground)
+    # The wood where it could reach the shoal's water, for SWIM["obstacles"].
+    bx = SWIM["box"]
+    near_box = [o for o in _obstacles(hanging + fallen)
+                if bx[0] - 40 < o[0] < bx[1] + 40 and o[1] < bx[3] + 40 and o[3] > bx[4] - 10]
+    print("[obstacles] " + ", ".join(f"({x:.0f}, {y:.0f}, {r:.0f}, {top:.0f})" for x, y, r, top in sorted(near_box)))
+    school = fish.School()
     made += school.objects
 
     assets.mark_underwater(made, ctx)
@@ -590,5 +614,4 @@ def build(ctx):
 
 def animate(ctx, frame):
     """Everything that moves by code rather than by keyframes."""
-    n = len(ctx["school"].fish)
-    ctx["school"].pose(frame, grow=lambda i: timeline.arrival(frame, SCAPE, i, n))
+    ctx["school"].pose(frame)

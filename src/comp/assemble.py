@@ -126,6 +126,8 @@ def plate_frame(n, grain=True, hold_start=None):
 
 # --- transitions ----------------------------------------------------------------
 
+VEIL = 0.20               # how far the water whitens at the middle of a transition
+
 def _smooth(a, b, x):
     t = min(1.0, max(0.0, (x - a) / (b - a)))
     return t * t * (3 - 2 * t)
@@ -168,19 +170,31 @@ def lamp_glow():
     return comp._cache["glow"]
 
 
+def transition_mix(p):
+    """Share of the incoming scape, 0..1, at position p (0..1) through a transition."""
+    return _smooth(timeline.MIX[0], timeline.MIX[1], p)
+
+
 def transition_frame(a_img, b_img, p, k, bubbles, n=None):
-    """a_img, b_img: display frames (already composited). p: 0..1 through the transition."""
-    veil = math.sin(math.pi * p) ** 1.4
-    mix = _smooth(0.40, 0.60, p)
-    img = a_img * (1 - mix) + b_img * mix
+    """a_img, b_img: display frames (already composited; either may be None where
+    it is not seen). p: 0..1 through the transition.
+
+    One scape dissolves slowly into the next. The shoal is the same fish on the
+    same path in both pictures, so the fish stay solid and keep their course
+    while everything around them changes. A soft swell of light from the lamp
+    and a thin curtain of bubbles carry the change; neither is strong enough to
+    hide the fish."""
+    veil = math.sin(math.pi * p) ** 1.5
+    mix = transition_mix(p)
+    img = b_img if a_img is None else a_img if b_img is None else a_img * (1 - mix) + b_img * mix
     m = comp.wet_matte(frame=n)[..., None]
-    # the tank fills with light from the top down
+    # light gathers in the water from the top down
     yy = np.linspace(0, 1, H, dtype=np.float32)[:, None, None]
-    white = np.array([1.0, 0.985, 0.96], np.float32) * (1.0 - 0.10 * yy)
-    img = img * (1 - m * veil * 0.86) + white * (m * veil * 0.86)
-    img = img + (bubbles.layer(k, veil * 0.55)[..., None] * m)
-    # the lamp flares with it
-    img = img + lamp_glow()[..., None] * (0.16 * veil) * np.array([1.0, 0.97, 0.93], np.float32)
+    white = np.array([1.0, 0.985, 0.96], np.float32) * (1.0 - 0.25 * yy)
+    img = img * (1 - m * veil * VEIL) + white * (m * veil * VEIL)
+    img = img + (bubbles.layer(k, veil * 0.38)[..., None] * m)
+    # the lamp swells with it
+    img = img + lamp_glow()[..., None] * (0.10 * veil) * np.array([1.0, 0.97, 0.93], np.float32)
     return np.clip(img, 0, 1)
 
 
@@ -287,8 +301,9 @@ class Film:
                 if pulse > 0:
                     img = np.clip(img + lamp_glow()[..., None] * (0.22 * pulse) * np.array([1.0, 0.97, 0.93], np.float32), 0, 1)
             else:
-                a = plate_frame(n) if a_id is None else scape_frame(a_id, n)
-                b = scape_frame(s["to"], n)
+                mix = transition_mix(p)
+                a = None if mix >= 1 else plate_frame(n) if a_id is None else scape_frame(a_id, n)
+                b = None if mix <= 0 else scape_frame(s["to"], n)
                 if s["id"] not in self.bubbles:
                     self.bubbles[s["id"]] = Bubbles(seed=s["start"], frames=length)
                 img = transition_frame(a, b, p, k, self.bubbles[s["id"]], n)
@@ -300,22 +315,7 @@ class Film:
 
     def renders_needed(self):
         """Frame ranges each scape must be rendered for, including transition overlap."""
-        need = {}
-        segs = self.tl["segments"]
-        for i, s in enumerate(segs):
-            if s["kind"] != "scape":
-                continue
-            first, last = s["start"], s["end"] - 1
-            if i > 0 and segs[i - 1]["kind"] == "transition":
-                t = segs[i - 1]
-                first = t["rise"][0] if "rise" in t else t["start"] + int(0.38 * (t["end"] - t["start"]))
-            if i + 1 < len(segs) and segs[i + 1]["kind"] == "transition":
-                t = segs[i + 1]
-                last = t["start"] + int(0.62 * (t["end"] - t["start"]))
-            if i + 1 < len(segs) and segs[i + 1]["kind"] == "outro":
-                last = segs[i + 1]["end"] - 1
-            need[s["id"]] = (first, last)
-        return need
+        return timeline.visible()
 
 
 def encode(film, out, first, last, half=False, crf=17, audio=None, preset="slow"):
@@ -323,7 +323,11 @@ def encode(film, out, first, last, half=False, crf=17, audio=None, preset="slow"
     cmd = ["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", "bgr24", "-s", f"{w}x{h}", "-r", str(film.tl["fps"]), "-i", "-"]
     if audio and Path(audio).is_file():
         cmd += ["-ss", f"{first / film.tl['fps']:.4f}", "-i", str(audio)]
-    cmd += ["-c:v", "libx264", "-preset", preset, "-crf", str(crf), "-maxrate", "9M", "-bufsize", "18M",
+    # The finished file must stay under 95 MB to live in the repo: cap the video
+    # rate so that even a film that sits at the cap all the way through fits.
+    seconds = film.tl["total_frames"] / film.tl["fps"]
+    rate = int(min(9000, 0.93 * 95 * 8192 / seconds - 200))
+    cmd += ["-c:v", "libx264", "-preset", preset, "-crf", str(crf), "-maxrate", f"{rate}k", "-bufsize", f"{2 * rate}k",
             "-pix_fmt", "yuv420p", "-profile:v", "high", "-color_primaries", "bt709", "-color_trc", "bt709", "-colorspace", "bt709",
             "-movflags", "+faststart"]
     if audio and Path(audio).is_file():

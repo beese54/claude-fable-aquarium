@@ -2,6 +2,14 @@
 
 Rules learned on this project. Newest first.
 
+## Owner feedback on the first five design stills (2026-11-28)
+- What happened: the owner found the Iwagumi stones too big for the tank, the Dutch plant groups cramped into blocks, the Forest trees identical and symmetrically placed, the Blackwater too dark, and the Floating Islands big and crowded. They also asked that every tank leave the fish room to swim, and that the fish keep one steady path while the designs change.
+- Rule: scale everything to the real tank. In a 30 cm cube a main stone or tree above about two fifths of the water depth, or a group that fills the width, reads as oversized. Leave more open water than feels necessary.
+- Rule: arrange as nature would. No blocks, rows, hedges, repeated shapes or mirror symmetry. Every tree, stone and plant group is an individual; spacing is uneven; groups overlap at their edges.
+- Rule: a mood (dark water, dim light) must not cost legibility. Judge brightness against the other scapes side by side.
+- Rule: what carries across a cut must be continuous. The shoal is simulated once for the whole film and every scape poses the same fish; a scape declares its open water (SWIM) and the build reports any fish touching scenery.
+- Rule: when feedback changes the designs, do not spend render time on a draft of the old ones. Apply the feedback first, then render.
+
 ## One render at a time (2026-11-28)
 - What happened: I started a second Blender render alongside one already running. The machine (16 GB RAM) ran critically low on memory and Claude Code stopped both background jobs.
 - Rule: run one Blender render at a time. Chain jobs in sequence in a single command instead of starting a second in parallel. This includes subagents: do not have several of them rendering at once for long stretches.

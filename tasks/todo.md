@@ -28,13 +28,23 @@ The machine-readable ledger is `progress_tracking.json`. This file is the human 
 - [x] T4.4 Floating Islands
 - [x] T4.5 Reviews and **Gate 2 (owner): five design stills**
 
+## Phase 4b: owner feedback on the design stills (2026-11-28)
+- [x] F1 One shoal for the whole film; fish hold their path through every transition
+- [x] F2 Iwagumi: stones a fifth smaller
+- [ ] F3 Dutch: natural drifts instead of blocks
+- [ ] F4 Forest: every tree different, uneven placement
+- [x] F5 Blackwater: brighter water, still tea-coloured
+- [ ] F6 Floating Islands: fewer, smaller, spaced out
+- [ ] F7 Five more designs: Mountain, Jungle, Cove, Riverbed, Lotus pond
+- [ ] F8 Ten stills reviewed and posted. **Gate 2 again (owner)**
+
 ## Phase 5: motion, sound, draft
 - [x] T5.1 Animal and plant animation (baked)
 - [x] T5.2 Camera moves
 - [x] T5.3 Transitions
 - [x] T5.4 Compositor, captions, encode
 - [x] T5.5 Sound design
-- [ ] T5.6 Draft video. **Gate 3 (owner)**
+- [ ] T5.6 Draft video of all ten designs. **Gate 3 (owner)**
 
 ## Phase 6: final render
 - [ ] T6.1 Full-quality render of approved scapes

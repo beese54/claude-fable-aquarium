@@ -235,7 +235,7 @@
       "title": "Realism round 2: water surface seen from below, visible caustics, wet highlights, fish size spread and softness, layered cut faces",
       "status": "todo",
       "commit": null,
-      "next_action": "Start only when the draft render (T5.6) has finished, because it changes shared scene code. Priorities from round 4, in order: (1) the underside of the water surface reads as a procedural grey ripple texture and mirror images in it and in the side panes smear: try anisotropic, multi-scale, lower ripples and check what the band reflects; (2) caustics are computed but too soft to read: look at LED size, ripple wavelength and sampling; (3) wet specular highlights on stone; (4) fish: wider size spread, slight softness to match the render, visible shadows; (5) layering and a dark base line in the cut faces. Test with .\render.ps1 stills on 06_mountain, 09_riverbed and 07_jungle, then re-render the ten stills and have them reviewed again."
+      "next_action": "Changes shared scene code, so it must not overlap a running draft render. While T5.6 is on hold, single test stills with .\render.ps1 in the foreground are still allowed (one at a time); if this round changes the look before the draft resumes, delete <work>/renders_draft first so the draft is all one look. Priorities from round 4, in order: (1) the underside of the water surface reads as a procedural grey ripple texture and mirror images in it and in the side panes smear: try anisotropic, multi-scale, lower ripples and check what the band reflects; (2) caustics are computed but too soft to read: look at LED size, ripple wavelength and sampling; (3) wet specular highlights on stone; (4) fish: wider size spread, slight softness to match the render, visible shadows; (5) layering and a dark base line in the cut faces. Test with .\render.ps1 stills on 06_mountain, 09_riverbed and 07_jungle, then re-render the ten stills and have them reviewed again."
     },
     {
       "id": "T5.1",
@@ -281,9 +281,9 @@
       "id": "T5.6",
       "phase": 5,
       "title": "Low-quality full-length draft video of all ten designs (Gate 3)",
-      "status": "in_progress",
+      "status": "blocked",
       "commit": null,
-      "next_action": "Draft render restarted 2026-11-28 about 12:20 as ONE background job after the realism round (AQUARIUM_RENDER_SET=draft, python src/render_all.py --quality draft --step 2; about 1630 frames; log <work>/renders_draft/render_all.log). Resumable: rerun the same command if it stopped. Do not start any other render, and do not change src/sim/school.py, any SWIM literal or config/timeline.json while it runs (the shoal's path would change between scapes). When it says ALL DONE: python src/comp/audio.py, then with AQUARIUM_RENDER_SET=draft python src/comp/assemble.py --out review/04_draft.mp4 --half --crf 23 --preset fast; look at frames in every transition; send the file to the owner; post Gate 3."
+      "next_action": "HOLD: on 2026-11-28 about 12:45 Claude Code stopped the draft render because the machine was critically low on memory (it was the only render running; about 3 GB of 15.7 GB was free afterwards, the rest held by other applications). Do not restart it until the owner says to. State of <work>/renders_draft: 01_iwagumi 192/192, 02_dutch 95/156, the other eight 0. The frames are valid (nothing shared has changed since they were rendered) and the job resumes where it stopped: set AQUARIUM_RENDER_SET=draft, python src/render_all.py --quality draft --step 2. Then audio, assemble review/04_draft.mp4, send to the owner, Gate 3. The owner can stop these interruptions by starting Claude Code with CLAUDE_CODE_DISABLE_BG_SHELL_PRESSURE_REAP=1 in its environment, or by closing other applications while it renders."
     },
     {
       "id": "T6.1",
@@ -326,14 +326,7 @@
       "next_action": "blocked until G4"
     }
   ],
-  "render_jobs": [
-    {
-      "what": "draft, all ten scapes, step 2",
-      "started": "2026-11-28 12:20",
-      "command": "AQUARIUM_RENDER_SET=draft python src/render_all.py --quality draft --step 2",
-      "log": "<work>/renders_draft/render_all.log"
-    }
-  ],
+  "render_jobs": [],
   "notes": [
     "Sleep was already disabled on this laptop (AC and DC), so no power setting was changed.",
     "Draft stills render in about 2 s, full-resolution preview (128 samples) in about 20 s on the RTX 4060; the first render after a cold start spends about 75 s loading kernels.",

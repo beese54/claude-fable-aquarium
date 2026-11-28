@@ -59,6 +59,60 @@ Per scape:
 | 5 | Snail looks like a coin | Fixed: moved onto the sand, side-on |
 | 5 | Rock undersides look like cones | Open |
 
+## Owner feedback on the five design stills (2026-11-28)
+
+| Scape | Owner said | Disposition |
+|---|---|---|
+| 1 Iwagumi | Rocks too big for the tank; about 20% smaller | Done: all five stones 20% smaller |
+| 2 Dutch | Colours great, but cramped; reads as blocks of plant; wants a natural arrangement | Done: thirteen irregular drifts of mixed height around an open bay |
+| 3 Forest | Looks great, but leaves and branches identical and placement symmetrical | Done: six individual trees, uneven placement; stand moved back for swimming depth |
+| 4 Blackwater | Too dark; brighter, but not as bright as clear water | Done: stain about a third weaker, lamp a little stronger |
+| 5 Floating | Islands cramped and big for the tank | Done: four small islands spaced apart |
+| All | Adequate space for the fish to swim | Done: each scape declares open water (SWIM); every build reports fish within 11 mm of scenery (all ten at 0.0 to 0.1%) |
+| All | Fish keep one steady path through every transition | Done: one shoal simulated for the whole film; transitions are dissolves |
+| New | Five more designs | Done: Mountain, Riverbed, Jungle, Lotus pond, Cove |
+
+## Round 3: ten design stills (2026-11-28), before the fixes below
+
+Scores are the reviewer's (a fresh-context Opus subagent told only what is real and what is rendered).
+
+| Scape | Scale | Light | Grounding | Optics | Animals | Overall |
+|---|---|---|---|---|---|---|
+| 1 Iwagumi | 4 | 2 | 2 | 2 | 2 | 4/10 |
+| 2 Dutch | 3 | 2 | 3 | 2 | 2 | 3/10 |
+| 3 Mountain | 4 | 3 | 3 | 2 | 3 | 5/10 |
+| 4 Forest | 2 | 2 | 3 | 2 | 1 | 3/10 |
+| 5 Riverbed | 2 | 3 | 4 | 2 | 2 | 4/10 |
+| 6 Jungle | 3 | 3 | 3 | 3 | 2 | 4/10 |
+| 7 Blackwater | 2 | 3 | 3 | 2 | 2 | 3/10 |
+| 8 Lotus pond | 4 | 2 | 3 | 2 | 3 | 4/10 |
+| 9 Cove | 4 | 3 | 3 | 2 | 3 | 5/10 |
+| 10 Floating | 3 | 2 | 2 | 2 | 2 | 2/10 |
+
+The realism bar is not met. Shared findings, most damaging first:
+
+| Finding | Disposition |
+|---|---|
+| Lighting flat and murky: no hot spot under the lamp, no falloff from top to bottom, no dark undersides; water reads as uniform milky grey | In work (shared scene) |
+| The band under the water surface shows the same high-contrast ripple pattern in every still, like a tiled texture | In work (shared scene) |
+| Neons look like stickers: flat colour, ghostly fins, no shading from above; posed as even grids, or at random angles | In work (fish look; shoal model) |
+| Every substrate cut face is a smooth, evenly lit band with a wavy top; no grain pressed against the glass | In work (kit). Also found: the Iwagumi carpet was being scattered onto the vertical cut face, so blades hung down it |
+
+Per scape (the reviewer's most damaging points):
+
+| Scape | Finding | Disposition |
+|---|---|---|
+| 1 | Grass blades over the front cut face; stone lumpy with no contact shadow in the grass | In work |
+| 2 | Stems still read as separate saturated columns; nothing shades anything | Open: lighting fix first, then judge |
+| 3 Mountain | The two hills mirror each other around the path; cut face evenly lit | Open |
+| 4 Forest | Trees read as land trees with pom-pom crowns (diorama); sand path a flat cutout in the cut face; a stray moss clump at the waterline | Open. The owner said this design looks great, so the concept stays |
+| 5 Riverbed | Fish look small beside the oversized ribbon grass; dark seams where the bed meets the side glass | Open |
+| 6 Jungle | Ribbon plants line both side panes like curtains; crowded | Open |
+| 7 Blackwater | Root mass too big for the tank and seems to grow from the floating plants; uniform tint | Open: roots are meant as a bank tree's, see round 2 |
+| 8 Lotus | Stalks read as wires; the two crowns mirror each other; grass tufts in a row; gravel patches like decals | Open |
+| 9 Cove | Cut face like sponge cake; arch has no contact shadow | In work (kit, lighting) |
+| 10 Floating | Islands hang with no support (fantasy, as designed); bed a bare plain; dark troughs along the side panes; dotted vertical line (the sand-fall) | Justified in part: the floating is the concept. Bed and sand-fall open |
+
 ## Coordinator's own view after the fixes
 
 Not an independent score. Scapes 1, 2 and 5 improved most. The weakest remaining

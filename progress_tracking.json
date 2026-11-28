@@ -13,16 +13,16 @@
         "T6.1"
       ],
       "per_scape": {
-        "01_iwagumi": "feedback being applied",
-        "02_dutch": "feedback being applied",
-        "06_mountain": "new, in work",
+        "01_iwagumi": "feedback applied, to be posted again",
+        "02_dutch": "feedback applied, to be posted again",
+        "06_mountain": "new, built, to be posted",
         "03_forest": "feedback being applied",
-        "09_riverbed": "new, in work",
+        "09_riverbed": "new, built, to be posted",
         "07_jungle": "new, in work",
-        "04_blackwater": "feedback being applied",
+        "04_blackwater": "feedback applied, to be posted again",
         "10_lotus": "new, in work",
         "08_cove": "new, in work",
-        "05_floating": "feedback being applied"
+        "05_floating": "feedback applied, to be posted again"
       }
     },
     "G3_draft_video": {
@@ -185,9 +185,9 @@
       "id": "F3",
       "phase": "4b",
       "title": "Dutch: natural drifts instead of blocks, open bay for the fish",
-      "status": "in_progress",
-      "commit": null,
-      "next_action": "Subagent working on src/blender/scapes/02_dutch.py; review its gate2_02_dutch still, then commit."
+      "status": "done",
+      "commit": "9375024",
+      "next_action": ""
     },
     {
       "id": "F4",
@@ -201,17 +201,17 @@
       "id": "F5",
       "phase": "4b",
       "title": "Blackwater: brighter water, still tea-coloured",
-      "status": "in_progress",
-      "commit": null,
-      "next_action": "Tint and lamp changed; render the gate2 still at preview quality and compare with the old one."
+      "status": "done",
+      "commit": "c54f35d",
+      "next_action": ""
     },
     {
       "id": "F6",
       "phase": "4b",
       "title": "Floating Islands: fewer, smaller, spaced out",
-      "status": "in_progress",
-      "commit": null,
-      "next_action": "Subagent working on 05_floating.py; review its still, then commit."
+      "status": "done",
+      "commit": "6737766",
+      "next_action": ""
     },
     {
       "id": "F7",
@@ -219,7 +219,7 @@
       "title": "Five more designs: 06_mountain, 07_jungle, 08_cove, 09_riverbed, 10_lotus",
       "status": "in_progress",
       "commit": null,
-      "next_action": "06 and 07 with subagents; start 08, 09, 10 when those finish (keep the render queue short). Briefs: concept, owner's standing feedback, SWIM contract, edit only your own module."
+      "next_action": "Committed: 09_riverbed (6972f55), 07_jungle (f081fd8, a polish pass on its surface fringe and clearing is with its subagent), 06_mountain (f8f207e). Still with subagents: 08_cove, 10_lotus. Review each gate2 still, then commit."
     },
     {
       "id": "F8",

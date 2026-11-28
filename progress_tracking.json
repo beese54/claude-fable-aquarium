@@ -281,9 +281,9 @@
       "id": "T5.6",
       "phase": 5,
       "title": "Low-quality full-length draft video of all ten designs (Gate 3)",
-      "status": "in_progress",
+      "status": "blocked",
       "commit": null,
-      "next_action": "The owner said to resume on 2026-11-28 (Chrome closed, 6.2 GB free). Draft render running as ONE background job: AQUARIUM_RENDER_SET=draft, python src/render_all.py --quality draft --step 2 (about 1630 frames at about 5 s; log <work>/renders_draft/render_all.log). Resumable: if it stopped for any reason other than the low-memory guard, rerun the same command; if the guard stopped it, report and wait for the owner. When it says ALL DONE: python src/comp/audio.py; with AQUARIUM_RENDER_SET=draft python src/comp/assemble.py --out review/04_draft.mp4 --half --crf 23 --preset fast; check frames in every transition; send the file to the owner; post Gate 3."
+      "next_action": "HOLD: on 2026-11-28 at 15:06 Claude Code's low-memory guard stopped the draft render again (the only render running; Chrome was back to about 2 GB). Do not restart it until the owner says to. State of <work>/renders_draft, all valid (the look has been frozen since before they were rendered): nine scapes complete, 08_cove 127/156 (to frame 3051), 05_floating 0/190. About 220 frames, 20 minutes, remain: set AQUARIUM_RENDER_SET=draft, python src/render_all.py --quality draft --step 2. Meanwhile a partial rough cut (frames 0 to 3049, the first 101.6 s, through Cove) is being assembled in parts in <work>/qa_scratch/draft_parts (assemble.py --range ... --half --crf 23 --preset fast --no-audio, about 0.9 s per frame, three parts at a time), to be joined with ffmpeg concat, given the first 101.6 s of <work>/audio/soundtrack.wav, written to review/04_draft_partial.mp4 and sent to the owner. When the render is complete, assemble the whole film as review/04_draft.mp4 and post Gate 3."
     },
     {
       "id": "T6.1",
@@ -326,14 +326,7 @@
       "next_action": "blocked until G4"
     }
   ],
-  "render_jobs": [
-    {
-      "what": "draft, all ten scapes, step 2",
-      "started": "2026-11-28",
-      "command": "AQUARIUM_RENDER_SET=draft python src/render_all.py --quality draft --step 2",
-      "log": "<work>/renders_draft/render_all.log"
-    }
-  ],
+  "render_jobs": [],
   "notes": [
     "Sleep was already disabled on this laptop (AC and DC), so no power setting was changed.",
     "Draft stills render in about 2 s, full-resolution preview (128 samples) in about 20 s on the RTX 4060; the first render after a cold start spends about 75 s loading kernels.",

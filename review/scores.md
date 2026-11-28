@@ -93,10 +93,10 @@ The realism bar is not met. Shared findings, most damaging first:
 
 | Finding | Disposition |
 |---|---|
-| Lighting flat and murky: no hot spot under the lamp, no falloff from top to bottom, no dark undersides; water reads as uniform milky grey | In work (shared scene) |
-| The band under the water surface shows the same high-contrast ripple pattern in every still, like a tiled texture | In work (shared scene) |
-| Neons look like stickers: flat colour, ghostly fins, no shading from above; posed as even grids, or at random angles | In work (fish look; shoal model) |
-| Every substrate cut face is a smooth, evenly lit band with a wavy top; no grain pressed against the glass | In work (kit). Also found: the Iwagumi carpet was being scattered onto the vertical cut face, so blades hung down it |
+| Lighting flat and murky: no hot spot under the lamp, no falloff from top to bottom, no dark undersides; water reads as uniform milky grey | Partly fixed: about half the light on upward faces came from the soft stand-in sources; the lamp now dominates (see round 4) |
+| The band under the water surface shows the same high-contrast ripple pattern in every still, like a tiled texture | Open: fine ripples lowered, little gain (see round 4) |
+| Neons look like stickers: flat colour, ghostly fins, no shading from above; posed as even grids, or at random angles | Fixed in part: fish rebuilt; shoal has sub-groups, uneven spacing, level and side-on swimming (see round 4) |
+| Every substrate cut face is a smooth, evenly lit band with a wavy top; no grain pressed against the glass | In work (kit). Also found: the Iwagumi carpet was being scattered onto the vertical cut face, so blades hung down it. Fixed: grains at every cut face; scatters keep to the top |
 
 Per scape (the reviewer's most damaging points):
 
@@ -112,6 +112,57 @@ Per scape (the reviewer's most damaging points):
 | 8 Lotus | Stalks read as wires; the two crowns mirror each other; grass tufts in a row; gravel patches like decals | Open |
 | 9 Cove | Cut face like sponge cake; arch has no contact shadow | In work (kit, lighting) |
 | 10 Floating | Islands hang with no support (fantasy, as designed); bed a bare plain; dark troughs along the side panes; dotted vertical line (the sand-fall) | Justified in part: the floating is the concept. Bed and sand-fall open |
+
+## Round 4: the ten stills after the realism round (2026-11-28)
+
+Between rounds 3 and 4: the shoal was given sub-groups, uneven spacing, level
+and side-on swimming; the neon tetra was rebuilt; the lamp was made to
+dominate over the soft fill; every bed got real grains at its cut face; the
+grass on Iwagumi's cut face was traced to scatters using side faces and fixed.
+Scores are a second fresh-context reviewer's.
+
+| Scape | Scale | Light | Grounding | Optics | Animals | Overall | Round 3 |
+|---|---|---|---|---|---|---|---|
+| 1 Iwagumi | 4 | 2 | 3 | 2 | 3 | 4/10 | 4 |
+| 2 Dutch | 4 | 3 | 3 | 2 | 3 | 5/10 | 3 |
+| 3 Mountain | 4 | 3 | 4 | 3 | 3 | 6/10 | 5 |
+| 4 Forest | 3 | 3 | 3 | 2 | 3 | 4/10 | 3 |
+| 5 Riverbed | 4 | 3 | 3 | 1 | 3 | 4/10 | 4 |
+| 6 Jungle | 3 | 3 | 3 | 1 | 2 | 3/10 | 4 |
+| 7 Blackwater | 3 | 3 | 2 | 2 | 2 | 3/10 | 3 |
+| 8 Lotus pond | 4 | 3 | 3 | 2 | 3 | 4/10 | 4 |
+| 9 Cove | 4 | 3 | 4 | 3 | 3 | 6/10 | 5 |
+| 10 Floating | 4 | 3 | 3 | 3 | 3 | 5/10 | 2 |
+
+Mean 4.4 (round 3: 3.7). Better, and still well short of "a viewer believes it
+is filmed". Shared findings, most damaging first:
+
+| Finding | Disposition |
+|---|---|
+| Optics: the underside of the water surface is the same grey ripple texture in every still (in Riverbed, with its stronger ripples, an obvious cell pattern); reflections in it break up; the side-pane images are smeared flat copies | Open, now the first priority. The band is the computed mirror image seen in a surface displaced by two layers of isotropic noise; the noise is what reads as procedural |
+| Light: a flat milky veil; no caustics visible on bed or rocks; no falloff under the lamp; no wet highlights | Partly addressed (lamp now dominant, shadows on sand in Lotus and Riverbed), still open. The caustics are computed but too soft to read at this size |
+| Fish: identical size, perfectly level, evenly spaced, crisper than the render around them, no shadow | Partly addressed (round 3 said flat stickers in grids; this round scores animals 3 in eight of ten). Open: size spread, a little depth softness, shadows |
+| Substrate faces: even noise, no layers | Partly addressed (grains are there; grounding rose in five scapes). Open: layering, dark line at the bottom pane |
+
+Per scape, the reviewer's worst point and what happens to it:
+
+| Scape | Worst point | Disposition |
+|---|---|---|
+| 1 Iwagumi | Main stone reads as a sculpt: uniform grey, no wet highlights; carpet has a ruler-straight front edge | Open |
+| 2 Dutch | Stems in solid colour columns; red and yellow read as plastic | Open; the owner liked the colours and asked for a looser arrangement, which was done |
+| 3 Mountain | Two rock groups mirror each other around the path | Open, for the owner's view |
+| 4 Forest | A bush alone in the surface band (a tree's mirror image); trees like model-railway foliage | Open; the owner said this design looks great |
+| 5 Riverbed | Cell pattern under the surface; seams at the sides of the bed | Open (surface work) |
+| 6 Jungle | Green streaks smear down from the waterline (mirror images of the ribbons); planting in tiers | Open (surface work) |
+| 7 Blackwater | Roots hang from a flat green slab at the surface; litter is a sheet with a hard rim | Open |
+| 8 Lotus | Leaves papery, stalks evenly kinked; sand a flat patch with a hard border | Open |
+| 9 Cove | Fish in an evenly spaced diagonal; rocks evenly lit | Open |
+| 10 Floating | Moss domes like broccoli in an even ring; the sand-fall reads as a string | Open |
+
+Composition, as the reviewer saw it: Jungle crowded; Blackwater's roots too big
+for the tank; Mountain, Forest and Cove share one template (two banks around a
+central sand path); Lotus has two mirrored clumps. These are for the owner to
+weigh against their own feedback.
 
 ## Coordinator's own view after the fixes
 

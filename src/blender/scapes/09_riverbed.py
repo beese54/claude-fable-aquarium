@@ -34,7 +34,7 @@ SCAPE = "09_riverbed"
 
 # A little less soft fill than the default: the pale sand throws light back up
 # onto the stones, and their rounded forms need the shaded side to read.
-LIGHT = dict(fill=0.005, bounce=0.02)
+LIGHT = dict(watts=42.0, fill=0.005, bounce=0.02)
 # A stream: clear and a touch cool, with a livelier surface than a still tank.
 # The fine ripples are shorter than the kit's default, which brings their focus
 # (about wavelength^2 / (13 x height)) down toward the bed: the lamp's light
@@ -589,29 +589,19 @@ def _dress_bed(bed, made):
             name="Grit", density=1.1e5, weight_attr="w_grit", seed=9, scale=(0.60, 1.40),
             align="NORMAL", tilt=math.pi)
 
-    # Against the front glass the bed is seen in section. Real gravel shows there
-    # as stones pressed flat to the pane, so flat pebbles are set into the cut
-    # face, standing proud of it by under a millimetre (the gap to the glass is 1.2).
-    xs = [7.0 + 2.0 * i for i in range(144)]
-    rows = 12
-    verts, faces, weight = [], [], []
-    for x in xs:
-        ztop = ground(x, 6.2) - 1.5
-        for j in range(rows + 1):
-            z = 30.0 + (ztop - 30.0) * j / rows
-            verts.append((x * MM, 6.2 * MM, z * MM))
-            d = (ztop - z) / 30.0
-            weight.append(max(0.25, 1.0 - _sand(x, 6.2) * (1 - _smooth(0.1, 0.35, d))))
-    for i in range(len(xs) - 1):
-        for j in range(rows):
-            a = i * (rows + 1) + j
-            faces.append((a, a + rows + 1, a + rows + 2, a + 1))
-    face = new_mesh_object("FrontFace", verts, faces)
-    set_point_attribute(face, "w", weight)
-    scatter(face, collection_of("FaceSrc", _sources("Face", 12, 6.0, 2, 0.0, 0.0, seed=13, thick_mm=2.6)),
-            name="FacePebbles", min_distance=3.4 * MM, weight_attr="w", seed=13, scale=(0.55, 1.25),
-            align="NORMAL", tilt=0.10, keep_surface=False, sink=0.65 * MM)
-    made.append(face)
+    # Against the glass the bed is seen in section: flat pebbles pressed to the
+    # pane with dark pores between them, under a skin of sand where sand lies.
+    made += substrate.add_cut_face(
+        bed, sources=_sources("Face", 12, 6.0, 2, 0.0, 0.0, seed=13, thick_mm=4.4), size_mm=6.0, thick_mm=4.4,
+        weight=lambda x, y, d: max(0.25, 1.0 - _sand(x, y) * (1 - _smooth(3.0, 10.0, d))),
+        spacing=0.55, scale=(0.55, 1.25), tilt=0.25, seed=13, name="FacePebbles", layers=1, tone=(1.4, 0.75))
+    made += substrate.add_cut_face(
+        bed, sources=_sources("FaceFine", 12, 2.4, 1, 0.0, 0.0, seed=15), size_mm=2.4, spacing=0.7, seed=15,
+        name="FaceGravel", recess_mm=1.2, layers=2, tone=(1.2, 0.6), backing=(0.035, 0.031, 0.027))
+    made += substrate.add_cut_face(
+        bed, substrate.sand_mix("FaceSand", pale=(0.66, 0.60, 0.50)), size_mm=1.3, seed=14, name="FaceSand",
+        tone=(1.3, 0.6),
+        weight=lambda x, y, d: _sand(x, y) * (1 - _smooth(2.0, 8.0, d)))
 
 
 # --- ribbon grass --------------------------------------------------------------------
@@ -820,7 +810,7 @@ def _branch_material():
 def build(ctx):
     made = []
 
-    bed = substrate.build_bed(ground, "RiverBed")
+    bed = substrate.build_bed(ground, "RiverBed", gap_mm=3.0)      # room for round pebbles against the glass
     bed.obj.data.materials.append(_bed_material())
     made.append(bed.obj)
     _dress_bed(bed, made)

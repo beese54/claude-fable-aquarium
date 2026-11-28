@@ -465,33 +465,6 @@ def _granules(bed, material, size_mm, weight, seed, name, spacing=0.72):
                    seed=seed, weight_attr=weight, scale=(0.55, 1.3), align="NORMAL", tilt=math.pi, sink=size_mm * MM * 0.2)
 
 
-def _front_glow(ctx, objs, watts):
-    """Room light on the bed's cut face. The lamp is overhead, so grains pressed
-    against the front glass catch it only on their upper sides and the face
-    reads far darker than the same sand does on top; in the filmed room the
-    glass front is lit softly from the camera's side. A low, wide source in
-    front of the tank, linked to the face grains alone, puts that back."""
-    col = bpy.data.collections.new("MtCutFace")
-    for o in objs:
-        col.objects.link(o)
-    ld = bpy.data.lights.new("MtFrontGlow", "AREA")
-    ld.shape = "RECTANGLE"
-    ld.size, ld.size_y = 0.34, 0.10
-    ld.energy = watts
-    ld.color = (1.0, 0.97, 0.92)
-    ob = bpy.data.objects.new("MtFrontGlow", ld)
-    ctx["scene"].collection.objects.link(ob)
-    ob.location = (0.15, -0.28, 0.11)
-    aim = Vector((0.15, 0.0, 0.045)) - ob.location
-    ob.rotation_euler = aim.to_track_quat("-Z", "Y").to_euler()
-    ob.visible_camera = False
-    ob.visible_glossy = False
-    ob.visible_transmission = False
-    ob.light_linking.receiver_collection = col
-    ob.light_linking.blocker_collection = ctx["underwater"]
-    return ob
-
-
 def _loose(bed, made, name, source, weight, density, scale, seed, sink_mm):
     """Grains strewn at random on a copy of the bed. An even spacing of equal
     grains reads as a perforated sheet; real soil and sand lie anyhow, in heaps."""
@@ -606,23 +579,18 @@ def build(ctx):
     _paint_all(bed, "soil", lambda x, y, d: (1.0 - path_fac(x, y, soft=5.0)) * (d < 40))
     _paint_all(bed, "grit", lambda x, y, d: path_fac(x, y, soft=6.0) * (0.55 + 0.45 * _smooth(-0.4, 0.4, _n2(x, y, 0.06, 8.0)))
                * (d < 26))
-    # where each kind meets the glass its cut face is a wall of grains, not a flat sheet
-    edge = lambda x, y: min(x - 6.2, 293.8 - x, y - 6.2, 293.8 - y) < 0.6
-    _paint_all(bed, "soil_face", lambda x, y, d: (1.0 - path_fac(x, y, soft=5.0)) * edge(x, y) * (d < 30))
-    _paint_all(bed, "sand_face", lambda x, y, d: path_fac(x, y, soft=5.0) * edge(x, y) * (d < 30))
     soil = substrate.soil_material("MtSoil")
     _granules(bed, soil, 2.4, "soil", 5, "SoilGrains")
     fine_soil = collection_of("MtSoilFine_src", [substrate._granule(f"MtSoilFine_{k}", 0.8 * MM, 300 + k, soil) for k in range(4)])
     _loose(bed, made, "SoilFine", fine_soil, "soil", 2.6e5, (0.6, 1.5), 7, 0.3)
-    faces = [_loose(bed, made, "SoilFace", fine_soil, "soil_face", 5.0e5, (0.8, 1.7), 8, 0.5)]
     # pale grains with some tan and a few dark ones, as in any bag of real sand
     grit = _sand_grains("MtGrit", [((0.70, 0.65, 0.56), 4), ((0.62, 0.54, 0.43), 3), ((0.44, 0.35, 0.25), 2), ((0.15, 0.12, 0.10), 1)])
     _loose(bed, made, "SandGrit", grit, "grit", 1.6e5, (0.55, 1.5), 17, 0.25)
-    # the cut face stands in shade, so its grains are the palest of the mix
-    face = _sand_grains("MtFace", [((0.86, 0.80, 0.69), 6), ((0.74, 0.66, 0.54), 2), ((0.40, 0.32, 0.24), 1)])
-    faces.append(_loose(bed, made, "SandFace", face, "sand_face", 3.4e6, (0.45, 1.1), 18, 0.3))
-    # a second layer set further back closes the gaps between them, so no flat bed shows through
-    faces.append(_loose(bed, made, "SandFaceBack", face, "sand_face", 2.4e6, (0.8, 1.4), 19, 0.7))
+    # where each kind meets the glass its cut face is the kit's wall of grains
+    made += substrate.add_soil_face(bed, seed=5, name="SoilFace", weight=lambda x, y, d: 1.0 - path_fac(x, y, soft=5.0))
+    made += substrate.add_cut_face(
+        bed, substrate.sand_mix("MtFace", pale=(0.76, 0.70, 0.60), tan=(0.66, 0.58, 0.46), brown=(0.44, 0.35, 0.25)),
+        size_mm=1.2, seed=18, name="SandFace", tone=(1.3, 0.6), room=0.2, vary=0.35, weight=lambda x, y, d: path_fac(x, y, soft=5.0))
 
     # scree: broken stone round every foot and along the valley's shore, smaller with distance
     def _patch(x, y):
@@ -711,7 +679,6 @@ def build(ctx):
     _SRC.clear()
 
     assets.mark_underwater(made, ctx)
-    _front_glow(ctx, faces, 0.7)
     ctx["bed"] = bed
     ctx["school"] = school
     ctx["shrimp"] = dict(rock=(rock_shrimp, perch), sand=sand_shrimp)

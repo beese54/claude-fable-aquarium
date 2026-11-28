@@ -39,7 +39,7 @@ SCAPE = "08_cove"
 
 # A little less soft fill than the default: the pale beach throws plenty of
 # light back up, and the hollow under the fallen stone has to stay in shadow.
-LIGHT = dict(fill=0.006, bounce=0.02)
+LIGHT = dict(watts=43.0, fill=0.006, bounce=0.02)
 
 # Water the film's shoal may use while this scape is on screen (src/sim/school.py):
 # the bowl of the cove, in front of the arch and over the beach. The cylinders
@@ -623,33 +623,6 @@ def _buce_spots(rocks, joints, field, rng, count):
     return picked
 
 
-def _table_bounce(ctx):
-    """The lamp's spill makes the pale table in front of the tank bright (it is
-    in the filmed plate), and that throws light back low through the front
-    glass. It is what lights the cut face of the sand in a real tank; without
-    it the face is a dark band. A narrow strip just in front of the tray, aimed
-    steeply downward so it reaches the sand's face and little else, lighting
-    only what is under water."""
-    ld = bpy.data.lights.new("CoveTableBounce", "AREA")
-    ld.shape = "RECTANGLE"
-    ld.size, ld.size_y = 0.30, 0.03
-    ld.energy = 0.32
-    ld.color = (0.93, 0.96, 1.0)
-    ld.spread = math.radians(70)
-    ld.specular_factor = 0.0             # no glints on wet leaves from a light that is not really there
-    ob = bpy.data.objects.new("CoveTableBounce", ld)
-    ctx["scene"].collection.objects.link(ob)
-    ob.location = (0.15, -0.05, 0.10)
-    aim = Vector((0.15, 0.005, 0.045)) - ob.location
-    ob.rotation_euler = aim.to_track_quat("-Z", "Y").to_euler()
-    ob.visible_camera = False
-    ob.visible_glossy = False
-    ob.visible_transmission = False
-    ob.light_linking.receiver_collection = ctx["underwater"]
-    ob.light_linking.blocker_collection = ctx["underwater"]
-    return ob
-
-
 # --- build -------------------------------------------------------------------------
 
 def build(ctx):
@@ -703,6 +676,9 @@ def build(ctx):
     paint("pebble", np.maximum(np.exp(-((near - 5.0) / 10.0) ** 2) * _np_smooth(-0.15, 0.35, pb),
                                0.05 * _np_smooth(0.25, 0.5, pc)) * open_sand)
     _grit(bed, made)
+    made += substrate.add_cut_face(
+        bed, substrate.sand_mix("CoveFace", pale=(0.72, 0.67, 0.57), tan=(0.62, 0.53, 0.41), brown=(0.44, 0.34, 0.23)),
+        size_mm=1.2, seed=8, tone=(1.3, 0.6), room=0.2, vary=0.35)
 
     rubble = collection_of("CoveRubbleSrc", _rubble_sources(40.0))
     scatter(bed.obj, rubble, name="Crumbs", min_distance=3.0 * MM, weight_attr="crumb", seed=51,
@@ -768,7 +744,6 @@ def build(ctx):
     made += school.objects
 
     assets.mark_underwater(made, ctx)
-    _table_bounce(ctx)
     ctx["bed"] = bed
     ctx["school"] = school
     ctx["cove"] = dict(rock_shrimp=rock_shrimp, sand_shrimp=sand_shrimp, perch=perch_rock.co[best].copy(),

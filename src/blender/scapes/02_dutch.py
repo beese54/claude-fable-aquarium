@@ -390,6 +390,7 @@ def build(ctx):
     bed.obj.data.materials.append(soil)
     substrate.add_granules(bed, soil, size_mm=2.4, seed=9)
     made.append(bed.obj)
+    made += substrate.add_soil_face(bed, seed=9)
 
     xy = np.array(bed.top_xy_mm, dtype=np.float64)
     x, y = xy[:, 0], xy[:, 1]

@@ -34,7 +34,7 @@ SCAPE = "05_floating"
 
 # Less soft fill than the other scapes: the islands' shadows on the pale sand are
 # what make them read as really hanging there, and fill washes them out.
-LIGHT = dict(fill=0.006, bounce=0.018)
+LIGHT = dict(watts=42.0, fill=0.006, bounce=0.018)
 
 # Water the film's shoal may use while this scape is on screen (src/sim/school.py).
 # Each island with its root curtain is a hanging cylinder (x, y, radius, top, bottom);
@@ -648,6 +648,7 @@ def build(ctx):
     bed.obj.data.materials.append(_sand_material())
     made.append(bed.obj)
     _grit(bed, made)
+    made += substrate.add_cut_face(bed, substrate.sand_mix("FloatFace"), size_mm=1.2, seed=4, tone=(1.3, 0.6), room=0.15)
 
     # the sand-fall
     path = _FallPath(lip, ground(lip.x / MM, lip.y / MM) - 1.5, seed=3)

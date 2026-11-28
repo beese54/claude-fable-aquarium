@@ -9,6 +9,8 @@ import math
 
 import bpy
 
+BED_TOP = "bed_top"      # boolean face attribute: the top surface of a substrate bed
+
 
 def set_point_attribute(obj, name, values):
     """Write a per-vertex float attribute (used to weight scatter density)."""
@@ -33,7 +35,7 @@ def collection_of(name, objects, hide=True):
 
 def scatter(target, source_collection, name="Scatter", density=None, min_distance=None, density_max=None,
             weight_attr=None, seed=0, scale=(0.8, 1.2), align="NORMAL", spin=True, tilt=0.0,
-            keep_surface=True, sink=0.0, sway=None):
+            keep_surface=True, sink=0.0, sway=None, top_only=None, lift=0.0):
     """Add a Geometry Nodes modifier to `target` that scatters `source_collection`.
 
     density        points per square metre (random mode)
@@ -44,6 +46,13 @@ def scatter(target, source_collection, name="Scatter", density=None, min_distanc
     sink           metres to push each instance into the surface along its up axis
     sway           (amplitude in radians, spatial frequency per metre, speed) to
                    make instances lean with a drifting current; None for none
+    top_only       None: on a substrate bed (a mesh whose faces carry the
+                   boolean `bed_top` attribute that substrate.build_bed writes)
+                   scatter on the top surface only, never on the vertical cut
+                   faces at the glass; on any other mesh use every face.
+                   False: every face, even on a bed. True: upward faces only.
+    lift           metres to move each instance along the surface normal,
+                   whatever its own lean (negative sets it into the surface)
     """
     tree = bpy.data.node_groups.new(name, "GeometryNodeTree")
     tree.interface.new_socket("Geometry", in_out="INPUT", socket_type="NodeSocketGeometry")
@@ -60,6 +69,23 @@ def scatter(target, source_collection, name="Scatter", density=None, min_distanc
     dist = N.new("GeometryNodeDistributePointsOnFaces")
     dist.inputs["Seed"].default_value = seed
     L.new(own.outputs["Mesh"], dist.inputs["Mesh"])
+    if top_only is None and target.type == "MESH" and target.data.attributes.get(BED_TOP) is not None:
+        # A bed's skirt is the cross-section seen through the glass. Weights
+        # painted on the top bleed down it (the skirt's lower vertices are 0, its
+        # upper ones are not), so without this plants grow out of the cut face.
+        sel = N.new("GeometryNodeInputNamedAttribute")
+        sel.data_type = "BOOLEAN"
+        sel.inputs["Name"].default_value = BED_TOP
+        L.new(sel.outputs["Attribute"], dist.inputs["Selection"])
+    elif top_only:
+        nrm = N.new("GeometryNodeInputNormal")
+        sep = N.new("ShaderNodeSeparateXYZ")
+        L.new(nrm.outputs["Normal"], sep.inputs[0])
+        up = N.new("ShaderNodeMath")
+        up.operation = "GREATER_THAN"
+        up.inputs[1].default_value = 0.2
+        L.new(sep.outputs["Z"], up.inputs[0])
+        L.new(up.outputs[0], dist.inputs["Selection"])
     if min_distance:
         dist.distribute_method = "POISSON"
         dist.inputs["Distance Min"].default_value = min_distance
@@ -91,7 +117,17 @@ def scatter(target, source_collection, name="Scatter", density=None, min_distanc
 
     inst = N.new("GeometryNodeInstanceOnPoints")
     inst.inputs["Pick Instance"].default_value = True
-    L.new(dist.outputs["Points"], inst.inputs["Points"])
+    points = dist.outputs["Points"]
+    if lift:
+        off = N.new("ShaderNodeVectorMath")
+        off.operation = "SCALE"
+        off.inputs["Scale"].default_value = lift
+        L.new(dist.outputs["Normal"], off.inputs[0])
+        move = N.new("GeometryNodeSetPosition")
+        L.new(points, move.inputs["Geometry"])
+        L.new(off.outputs["Vector"], move.inputs["Offset"])
+        points = move.outputs["Geometry"]
+    L.new(points, inst.inputs["Points"])
     L.new(info.outputs["Instances"], inst.inputs["Instance"])
 
     # Random spin about the instance's own up axis, plus a random lean.

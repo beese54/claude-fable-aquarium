@@ -69,6 +69,7 @@ def build(ctx):
     bed.obj.data.materials.append(soil)
     substrate.add_granules(bed, soil, size_mm=2.6, seed=5)
     made.append(bed.obj)
+    made += substrate.add_soil_face(bed, seed=5)
 
     stones = []
     for k, (name, model, x, y, h, pre, rot, buried) in enumerate(STONES):

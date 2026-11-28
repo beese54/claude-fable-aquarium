@@ -27,7 +27,7 @@ from scatter import collection_of, scatter, set_point_attribute
 SCAPE = "04_blackwater"
 
 # Canopy-filtered light: dimmer and warmer than the default white LED.
-LIGHT = dict(watts=52.0, colour=(1.0, 0.93, 0.82), fill=0.03, bounce=0.045)
+LIGHT = dict(watts=43.0, colour=(1.0, 0.93, 0.82), fill=0.03, bounce=0.045)
 # Tannin-stained water. Absorption per metre is density * (1 - tint), so blue
 # dies first: the back of the tank (30 cm away) goes amber-brown while fish
 # 15 cm in keep most of their colour. Red is absorbed too, so depth darkens
@@ -492,6 +492,9 @@ def build(ctx):
     bed = substrate.build_bed(ground, "Sand")
     bed.obj.data.materials.append(_sand())
     made.append(bed.obj)
+    made += substrate.add_cut_face(
+        bed, substrate.sand_mix("BlackwaterFace", pale=(0.56, 0.47, 0.34), tan=(0.46, 0.36, 0.24), brown=(0.30, 0.22, 0.14)),
+        size_mm=1.2, seed=4, tone=(1.0, 0.5))
 
     # hanging roots and branches
     hanging = []

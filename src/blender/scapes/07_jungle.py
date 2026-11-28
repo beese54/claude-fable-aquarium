@@ -680,6 +680,7 @@ def build(ctx):
     scatter(bed.obj, collection_of("CoarseSrc", coarse), name="Coarse", density=26000.0, weight_attr="all", seed=3,
             scale=(0.7, 1.25), align="NORMAL", tilt=math.pi, sink=0.3 * MM)
     made.append(bed.obj)
+    made += substrate.add_soil_face(bed, colours=((0.034, 0.026, 0.020), (0.060, 0.038, 0.022)), seed=7)
 
     xy = np.array(bed.top_xy_mm, dtype=np.float64)
     x, y = xy[:, 0], xy[:, 1]

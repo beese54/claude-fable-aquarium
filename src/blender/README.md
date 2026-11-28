@@ -56,7 +56,8 @@ Each single-frame build prints a `[swim]` line: the share of fish positions,
 over all the frames the scape is on screen, that lie within 11 mm of scape
 geometry, and what they touch. Keep it under about 2% by adjusting SWIM or the
 layout. `--no-render` builds and checks without rendering:
-`.ender.ps1 -Scape <id> -Frame <n> -Name x -Extra "--no-render"`.
+`.
+ender.ps1 -Scape <id> -Frame <n> -Name x -Extra "--no-render"`.
 `python src/sim/school.py` prints where the shoal goes in every scape.
 
 Blender renders take a machine-wide lock, so two renders started at once run
@@ -66,20 +67,60 @@ one after the other; a build may sit waiting for a few minutes.
 
 | Module | What it gives |
 |---|---|
-| `substrate.build_bed(height_fn, name)` | Solid bed; `height_fn(x_mm, y_mm)` returns top height in mm. Returns a `Bed`: `.obj`, `.at(x, y, lift_mm=0)` (world point on the surface), `.z(x, y)`, `.set_weight(name, fn)` (paint a 0..1 attribute for scatter density). |
-| `substrate.soil_material()`, `substrate.add_granules(bed, material, size_mm)` | Dark aquarium soil with real granules. |
+| `substrate.build_bed(height_fn, name, gap_mm=1.2)` | Solid bed, stopping `gap_mm` short of the glass; `height_fn(x_mm, y_mm)` returns top height in mm. Returns a `Bed`: `.obj`, `.at(x, y, lift_mm=0)` (world point on the surface), `.z(x, y)`, `.set_weight(name, fn)` (paint a 0..1 attribute for scatter density). |
+| `substrate.soil_material()`, `substrate.add_granules(bed, material, size_mm)` | Dark aquarium soil with real granules on the bed's top. |
+| `substrate.add_cut_face(bed, material, size_mm, ...)`, `substrate.add_soil_face(bed, ...)` | The bed in section at the glass: instanced grains packed into the gap between the bed and the pane, with a ragged top line and a tone that falls with depth. Returns objects; do `made += ...`. Every scape calls it (see below). `substrate.sand_mix(name, pale=...)` gives a list of sand materials to pass as `material`. |
 | `materials.white_sand()`, `beach_sand()`, `dark_gravel()`, `river_pebbles()`, `leaf_litter_floor()`, `driftwood()`, `dark_bogwood()`, `moss_surface()` | Scanned PBR materials by box projection: assign to any mesh, no UVs needed. `materials.pbr_box(...)` for others in `config/assets.json`. |
 | `assets.import_model(id)` | Import a CC0 scan; returns its mesh objects (some ids hold several pieces). |
 | `assets.place(obj, at, height_mm= or longest_mm=, pre_rot_deg=, rot_deg=, sink_mm=)` | Scale and stand an object on a point. `pre_rot_deg` chooses which face is down. |
 | `assets.grade_stone(obj, ...)` | Seiryu look (blue-grey, veins, strata). Pass `dark=`, `light=`, `rust=`, `algae=`, `vein_amount=` to make other stone. |
 | `assets.footprint_radius_mm(obj)`, `assets.world_bounds(obj)` | Sizes after placing. |
 | `plants.hairgrass_tufts()`, `carpet_sprigs()`, `moss_fronds()`, `dead_leaves()`, `floaters()`, `stem_plants(species)` | Lists of small source objects for scattering. Species are the keys of `plants.STEM_SPECIES`. |
-| `scatter.collection_of(name, objects)` then `scatter.scatter(target, collection, ...)` | Geometry Nodes scatter onto any mesh: `min_distance=` (Poisson) or `density=` (per m2), `weight_attr=`, `scale=(lo, hi)`, `align="UP"` or `"NORMAL"`, `tilt=`, `sway=(amp, per_metre, speed)`. Several scatters can sit on one object. |
+| `scatter.collection_of(name, objects)` then `scatter.scatter(target, collection, ...)` | Geometry Nodes scatter onto any mesh: `min_distance=` (Poisson) or `density=` (per m2), `weight_attr=`, `scale=(lo, hi)`, `align="UP"` or `"NORMAL"`, `tilt=`, `sway=(amp, per_metre, speed)`, `lift=` (metres along the surface normal). Several scatters can sit on one object. On a bed (or any object sharing its mesh) only the top surface is used, never the vertical faces at the glass; pass `top_only=False` to use every face. |
 | `wood.grow(start, direction, length_mm, radius_mm, seed=, depth=, gravity=, wander=, children=)` then `wood.finish(skin, name, material)` | Branching driftwood: `gravity<0` grows up like a tree, `>0` hangs like roots. `skin.tips` lists branch ends (position, direction, radius). |
 | `fish.shoal(n, centre_mm, spread_mm, seed=, heading_deg=, keep_out=, floor=)` | Places neon tetras for a still; returns `Tetra` objects (`.obj`). |
 | `shrimp.Shrimp(name)`, `snail.Snail(name)` then `.pose(position, yaw=, t=, up=)` | Red cherry shrimp and nerite snail standing on any surface. |
 
 See what the kit looks like with `tests/kit_sheet.py` (plants, wood), `tests/stone_sheet.py` (stones in four orientations) and `tests/closeup.py` (animals).
+
+## The cut face at the glass
+
+The camera looks through the front glass, so the bed's cross-section (tray
+line at Z = 38 up to the bed's top) is in every shot. `build_bed` leaves it a
+flat skirt; `add_cut_face` is what makes it substrate, and every scape calls it:
+
+```python
+made += substrate.add_soil_face(bed, seed=5)                                         # dark soil (a preset)
+made += substrate.add_cut_face(bed, substrate.sand_mix("Face"), size_mm=1.2, tone=(1.3, 0.6))   # sand
+# two kinds in one face: call once per kind with weight(x_mm, y_mm, depth_mm) -> 0..1
+made += substrate.add_soil_face(bed, weight=lambda x, y, d: 1 - on_path(x, y))
+made += substrate.add_cut_face(bed, sand, size_mm=1.2, weight=lambda x, y, d: on_path(x, y) * (d < 8))
+```
+
+- Grains are Geometry Nodes instances on a hidden sheet over the skirt, packed
+  into the gap between the bed's solid and the pane: the front face to below
+  the tray line, the left and right faces 10 mm deep. The side faces show only
+  as a seam in the side panes' mirror; with the gap left empty that seam was a
+  dark trough.
+- `tone=(top, bottom)` multiplies the grain colour at the top of the face and
+  `fade_mm` below it; patches and faint level bands are added, and each grain
+  differs from the next by `vary`. It rides on the instances (`cut_dark`) and
+  is read by the grain material (`shade_for_cut_face`, applied for you), so one
+  material can serve the top of the bed and its face.
+- `room=` is soft light from the room on the pane, as the grains' own glow
+  (strongest where a grain is turned to the glass). It replaces the area
+  lamps scapes used to aim at their cut face: it costs no samples and lights
+  nothing else. Dark soil needs it (0.9 in the preset), bright white sand a
+  little (0.3), most sand none. It is an absolute amount: if the lamp or the
+  exposure changes a great deal, retune it. Do not add a lamp for the face.
+- `size_mm`: at 1080 px across 300 mm a grain needs about 3 mm to read as a
+  granule; sand at 1.2 mm reads as speckle, which is right for sand.
+- Coarse stone: `build_bed(..., gap_mm=3.0)` so pebbles can stand out of the
+  bed and look round, your own pebbles as `sources=` (with `thick_mm`, small
+  `tilt`), a finer kind with `recess_mm=` behind them, and `backing=` (a dark
+  colour) for the pores. `scapes/09_riverbed.py` is the example.
+- Anything scattered on the bed stays on its top (see `scatter`), so carpets
+  no longer hang down the face. Paint weights with `Bed.set_weight` as before.
 
 ## What makes a still read as real (learned on scape 1)
 

@@ -35,7 +35,7 @@ from scatter import collection_of, scatter, set_point_attribute
 SCAPE = "10_lotus"
 
 # Crisp light: the pads' shadows are the point, so the soft fill is kept low.
-LIGHT = dict(watts=52.0, colour=(0.92, 0.96, 1.0), fill=0.004, bounce=0.012)
+LIGHT = dict(watts=40.0, colour=(0.92, 0.96, 1.0), fill=0.004, bounce=0.012)
 
 # Water the film's shoal may use while this scape is on screen (src/sim/school.py):
 # the open middle, above the crowns and below the pads. The stalks are a
@@ -804,26 +804,29 @@ def build(ctx):
                                           bump=1.0, bump_distance=0.0012))
     me.materials.append(materials.pbr_box("PondSand", "damp_beach_sand", scale=8.0, tint=(0.96, 0.90, 0.78), saturation=0.75,
                                           value=1.32, bump=0.5, bump_distance=0.0006, roughness=0.6))
-    # The cut face at the front glass is lit only by the room, which in this scene
-    # is dim; it takes a lighter copy of the gravel so its grains can be seen.
-    me.materials.append(materials.pbr_box("PondSection", "pebbles", scale=15.0, saturation=0.7, value=2.0,
-                                          bump=1.0, bump_distance=0.0015))
     for p in me.polygons:
         if p.normal.z > 0.5 and _sandy(p.center.x / MM, p.center.y / MM) > 0.5:
             p.material_index = 1
-        elif p.normal.y < -0.5:
-            p.material_index = 2
     made.append(bed.obj)
 
-    # Real grains over the gravel (and thinly strewn on the sand), and on the
-    # cut face at the front glass, so the bed's edge and section are grainy.
+    # Real grains over the gravel (and thinly strewn on the sand), so the bed's
+    # edge is grainy; its section at the glass is the kit's wall of grains.
     def gravel(x, y):
         s = _sandy(x, y)
         return max(1.0 - _smooth(0.25, 0.6, s), 0.10 * _patch(x, y, 5.1, 2.2) * _smooth(20, 70, y))
     ntop = len(bed.top_xy_mm)
-    set_point_attribute(bed.obj, "gravel", [gravel(x, y) for x, y in bed.top_xy_mm] +
-                        [1.0 if v.co.y < 8 * MM else 0.0 for v in me.vertices[ntop:]])
+    set_point_attribute(bed.obj, "gravel", [gravel(x, y) for x, y in bed.top_xy_mm] + [0.0] * (len(me.vertices) - ntop))
     grain_mat = _stone_material("PondGrain", value=0.85, algae=0.12, speck_scale=2200.0)
+    # in section: gravel throughout, under a skin of sand where sand lies on top
+    face = [_pebble(f"FaceGrain_{k}", (1.45 * random.Random(k).uniform(0.8, 1.2), 1.15, 1.0), 300 + k, grain_mat, subdiv=2)
+            for k in range(7)]
+    skin = lambda x, y: min(1.0, 2.0 * _sandy(x, y))
+    made += substrate.add_cut_face(
+        bed, sources=face, size_mm=2.8, thick_mm=2.0, seed=3, name="FaceGravel", tone=(1.0, 0.5), room=0.7, spacing=0.62,
+        weight=lambda x, y, d: 1.0 - skin(x, y) * (1.0 - _smooth(4.0, 7.0, d)), backing=(0.012, 0.011, 0.010))
+    made += substrate.add_cut_face(
+        bed, substrate.sand_mix("FaceSand", pale=(0.64, 0.58, 0.48)), size_mm=1.2, seed=5, name="FaceSand", tone=(1.3, 0.6),
+        weight=lambda x, y, d: skin(x, y) * (1.0 - _smooth(5.0, 9.0, d)))
     grains = [_pebble(f"Grain_{k}", (1.35 * random.Random(k).uniform(0.8, 1.2), 1.05, 0.8 * random.Random(k + 9).uniform(0.8, 1.2)),
                       100 + k, grain_mat, subdiv=2) for k in range(7)]
     scatter(bed.obj, collection_of("GrainSrc", grains), name="Gravel", min_distance=2.0 * MM, weight_attr="gravel", seed=3,

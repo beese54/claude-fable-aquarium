@@ -217,28 +217,6 @@ def _paint_all(bed, name, fn):
     set_point_attribute(bed.obj, name, [fn(c.x / MM, c.y / MM, ground(c.x / MM, c.y / MM) - c.z / MM) for c in co])
 
 
-def _split_skirt(bed, cuts=30):
-    """The kit's bed drops each border vertex straight to the floor in one
-    face. Cut those faces into rows so the face at the glass can carry a
-    painted layering (sand over soil) and granules in it."""
-    me = bed.obj.data
-    n_top = len(bed.top_xy_mm)
-    bm = bmesh.new()
-    bm.from_mesh(me)
-    tall = [e for e in bm.edges
-            if abs(e.verts[0].co.x - e.verts[1].co.x) < 1e-7 and abs(e.verts[0].co.y - e.verts[1].co.y) < 1e-7
-            and abs(e.verts[0].co.z - e.verts[1].co.z) > 3 * MM]
-    bmesh.ops.subdivide_edges(bm, edges=tall, cuts=cuts, use_grid_fill=True)
-    bm.to_mesh(me)
-    bm.free()
-    me.update()
-    # new vertices come after the old, so the top surface keeps its order
-    for i in range(0, n_top, max(1, n_top // 50)):
-        (x, y), v = bed.top_xy_mm[i], me.vertices[i]
-        assert abs(v.co.x / MM - x) < 1e-3 and abs(v.co.y / MM - y) < 1e-3, "bed vertex order changed"
-    set_point_attribute(bed.obj, "all", [1.0] * len(me.vertices))
-
-
 # --- materials ------------------------------------------------------------------
 
 def _floor_material():
@@ -814,7 +792,6 @@ def build(ctx):
 
     # bed: soil and sand in one mesh, split by painted attributes
     bed = substrate.build_bed(ground, "ForestFloor")
-    _split_skirt(bed)
     bed.obj.data.materials.append(_floor_material())
     _paint_all(bed, "path", lambda x, y, d: path_fac(x, y))
     _paint_all(bed, "top_mm", lambda x, y, d: ground(x, y))
@@ -847,6 +824,14 @@ def build(ctx):
     pale = substrate.sand_material("SandGrain", colour=(0.66, 0.62, 0.55))
     _granules(bed, pale, 1.3, "edge_sand", 9, "SandGrains", spacing=0.9)
     made.append(bed.obj)
+    # in section at the glass: soil granules, with the path's sand as a lens settling into them
+    made += substrate.add_soil_face(
+        bed, seed=5, name="SoilFace",
+        weight=lambda x, y, d: 1.0 - path_fac(x, y, soft=4.0) * (1.0 - _smooth(sand_depth(x, y) - 1.0, sand_depth(x, y) + 2.5, d)))
+    made += substrate.add_cut_face(
+        bed, substrate.sand_mix("ForestFace", pale=(0.72, 0.68, 0.60)), size_mm=1.2, seed=9, name="SandFace",
+        tone=(1.3, 0.6),
+        weight=lambda x, y, d: path_fac(x, y, soft=4.0) * (1.0 - _smooth(sand_depth(x, y) - 1.5, sand_depth(x, y) + 1.0, d)))
 
     # trees
     bark = {"Tree_old": materials.dark_bogwood("Bark_old"),

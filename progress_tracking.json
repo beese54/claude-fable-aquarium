@@ -8,21 +8,21 @@
       "blocks": []
     },
     "G2_design_stills": {
-      "status": "ten stills posted again on 2026-11-28 after the owner's feedback (review/03_design_all.jpg); awaiting owner. Final render (T6.1) must not start for a scape until the owner approves its still",
+      "status": "APPROVED by the owner on 2026-11-28 (\"The ten stills look great, please continue\"), for the stills of commit 33121e1. The look is frozen at that commit: no further changes to scapes, fish, lighting, water or SWIM unless the owner asks.",
       "blocks": [
         "T6.1"
       ],
       "per_scape": {
-        "01_iwagumi": "still posted 2026-11-28, awaiting owner",
-        "02_dutch": "still posted 2026-11-28, awaiting owner",
-        "06_mountain": "still posted 2026-11-28, awaiting owner",
-        "03_forest": "still posted 2026-11-28, awaiting owner",
-        "09_riverbed": "still posted 2026-11-28, awaiting owner",
-        "07_jungle": "still posted 2026-11-28, awaiting owner",
-        "04_blackwater": "still posted 2026-11-28, awaiting owner",
-        "10_lotus": "still posted 2026-11-28, awaiting owner",
-        "08_cove": "still posted 2026-11-28, awaiting owner",
-        "05_floating": "still posted 2026-11-28, awaiting owner"
+        "01_iwagumi": "approved 2026-11-28",
+        "02_dutch": "approved 2026-11-28",
+        "06_mountain": "approved 2026-11-28",
+        "03_forest": "approved 2026-11-28",
+        "09_riverbed": "approved 2026-11-28",
+        "07_jungle": "approved 2026-11-28",
+        "04_blackwater": "approved 2026-11-28",
+        "10_lotus": "approved 2026-11-28",
+        "08_cove": "approved 2026-11-28",
+        "05_floating": "approved 2026-11-28"
       }
     },
     "G3_draft_video": {
@@ -233,9 +233,9 @@
       "id": "F9",
       "phase": "4b",
       "title": "Realism round 2: water surface seen from below, visible caustics, wet highlights, fish size spread and softness, layered cut faces",
-      "status": "in_progress",
-      "commit": null,
-      "next_action": "Done: wave-train water surface (cf1821b, checked on Riverbed, Jungle and Iwagumi mid-fill); two middle LED chips carry 60% of the lamp for crisper shadows, and the shoal has a size spread (bc35811); ten stills re-rendered and sent to the owner. Still open: the net of ripple light on the bed does not read (taller waves only made the mirror band busier; next idea: check whether Cycles MNEE gives focusing at all here by rendering one LED alone over bare sand); wet highlights on stone; fish slightly crisper than the render around them; layering and a dark base line in the cut faces. After those, a third fresh-context review (round 5) and record it in review/scores.md. One foreground still at a time; memory is short."
+      "status": "done",
+      "commit": "33121e1",
+      "next_action": "Closed: the owner approved the ten stills as they are. Not done, recorded as known limitations in review/scores.md: no readable net of ripple light on the bed, no wet highlights on stone, fish a little crisper than the render around them, no layering in the cut faces."
     },
     {
       "id": "T5.1",
@@ -281,9 +281,9 @@
       "id": "T5.6",
       "phase": 5,
       "title": "Low-quality full-length draft video of all ten designs (Gate 3)",
-      "status": "blocked",
+      "status": "in_progress",
       "commit": null,
-      "next_action": "HOLD: on 2026-11-28 about 12:45 Claude Code stopped the draft render because the machine was critically low on memory (it was the only render running). Do not restart it until the owner says to. The 287 frames in <work>/renders_draft are STALE (the water surface changed afterwards): delete that folder first. Then, as ONE job: set AQUARIUM_RENDER_SET=draft, python src/render_all.py --quality draft --step 2 (about 1630 frames, about 5 s each); python src/comp/audio.py; with AQUARIUM_RENDER_SET=draft python src/comp/assemble.py --out review/04_draft.mp4 --half --crf 23 --preset fast; check frames in every transition; send to the owner; Gate 3. The owner can stop the interruptions by starting Claude Code with CLAUDE_CODE_DISABLE_BG_SHELL_PRESSURE_REAP=1 in its environment, or by closing other applications while it renders."
+      "next_action": "The owner said to resume on 2026-11-28 (Chrome closed, 6.2 GB free). Draft render running as ONE background job: AQUARIUM_RENDER_SET=draft, python src/render_all.py --quality draft --step 2 (about 1630 frames at about 5 s; log <work>/renders_draft/render_all.log). Resumable: if it stopped for any reason other than the low-memory guard, rerun the same command; if the guard stopped it, report and wait for the owner. When it says ALL DONE: python src/comp/audio.py; with AQUARIUM_RENDER_SET=draft python src/comp/assemble.py --out review/04_draft.mp4 --half --crf 23 --preset fast; check frames in every transition; send the file to the owner; post Gate 3."
     },
     {
       "id": "T6.1",
@@ -291,7 +291,7 @@
       "title": "Full-quality render of approved scapes (detached, resumable)",
       "status": "todo",
       "commit": null,
-      "next_action": "blocked until G2 per scape"
+      "next_action": "Unblocked by the owner's approval of the stills. Start after the draft has been assembled and looked at (a fault found in the draft is cheaper to fix before the final render). First time one final-quality frame per scape and tell the owner the total. Then ONE background job: python src/render_all.py --quality final (about 3260 frames; resumable). Nothing shared may change while it runs."
     },
     {
       "id": "T6.2",
@@ -326,7 +326,14 @@
       "next_action": "blocked until G4"
     }
   ],
-  "render_jobs": [],
+  "render_jobs": [
+    {
+      "what": "draft, all ten scapes, step 2",
+      "started": "2026-11-28",
+      "command": "AQUARIUM_RENDER_SET=draft python src/render_all.py --quality draft --step 2",
+      "log": "<work>/renders_draft/render_all.log"
+    }
+  ],
   "notes": [
     "Sleep was already disabled on this laptop (AC and DC), so no power setting was changed.",
     "Draft stills render in about 2 s, full-resolution preview (128 samples) in about 20 s on the RTX 4060; the first render after a cold start spends about 75 s loading kernels.",

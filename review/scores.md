@@ -164,6 +164,26 @@ for the tank; Mountain, Forest and Cove share one template (two banks around a
 central sand path); Lotus has two mirrored clumps. These are for the owner to
 weigh against their own feedback.
 
+## After round 4, and the owner's decision (2026-11-28)
+
+Changes after the round 4 scores: the water surface became interfering wave
+trains (wavefronts under the surface instead of a cell pattern), two of the
+lamp's ten chips carry most of its output (crisper shadows), and the shoal got
+a size spread (24 to 36 mm). These stills were not independently re-scored.
+
+The owner saw the resulting ten stills and approved them: "The ten stills look
+great, please continue". The look is frozen at that point.
+
+Known limitations carried into the film, from the round 4 findings:
+
+| Finding | State |
+|---|---|
+| No readable net of ripple light on the bed | Not solved. Taller wave trains only made the mirror band busier |
+| No wet highlights on stone | Not done |
+| Fish a little crisper than the render around them; no visible fish shadows | Not done |
+| Cut faces have grains but no layering or dark base line | Not done |
+| Mountain, Forest and Cove share a two-banks-and-a-path layout; Lotus has two similar crowns; Jungle is dense at the sides; Blackwater's roots are large | Left as designed; the owner approved the compositions |
+
 ## Coordinator's own view after the fixes
 
 Not an independent score. Scapes 1, 2 and 5 improved most. The weakest remaining

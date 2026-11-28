@@ -21,11 +21,12 @@ Every criterion names the check that can fail it. Automated checks live in
 |---|---|---|
 | R1 | Camera solve reprojection error 2 px or less (RMS over the tank corners) | `src/plate/solve_camera.py` prints RMS; `review/01_camera_overlay.jpg` |
 | R2 | Parallax in every scape: tracked near and far points move by different amounts over the shot (ratio 1.15 or more) | `checks.py parallax` |
-| R3 | Every scape has 8 or more neon tetras whose distance to the camera changes by 5 cm or more while the scape is on screen | `checks.py livestock` reads baked animation data |
+| R3 | The fish swim in real depth without leaving the side-on view the owner asked for: in every scape the middle fish of the shoal changes its distance to the camera by 2 cm or more while the scape is on screen, and over the film the median heading is within 30 degrees of side-on | `checks.py livestock` reads baked animation data |
 | R4 | Red shrimp in at least two scapes; a snail in at least one | `checks.py livestock` |
 | R5 | Coordinator scores each scape still 4 of 5 or higher on: scale, light match, contact shadows, water and glass optics, animal motion | Scores recorded in `review/scores.md` |
 | R6 | A fresh-context reviewer lists what reveals CG in each still; each item is fixed or justified | Recorded in `review/scores.md` |
 | R8 | One shoal for the whole film: every scape poses the same simulated fish, and no fish moves more than 4.5 mm in one frame anywhere in the run, so the shoal's path is unbroken through every transition | `checks.py livestock` |
+| R10 | A fish goes where it points: over the whole run no fish moves backward along its own heading (it turns its body to change course) | `checks.py livestock` |
 | R9 | Every scape leaves the shoal open water: fewer than 2% of fish positions within 11 mm of scape geometry while it is on screen | `[swim]` line printed by every single-frame build of `src/blender/build.py` |
 | R7 | Owner approves the ten design stills (Gate 2) and the final video (Gate 4) | Recorded in `progress_tracking.json` |
 

@@ -45,7 +45,7 @@ if str(SRC) not in sys.path:
 
 FPS = 30
 SUBSTEPS = 4
-VERSION = 32     # bump whenever the model changes, so cached runs are not reused
+VERSION = 35     # bump whenever the model changes, so cached runs are not reused
 COUNT = 12       # fish in the film's shoal
 SEED = 4
 LEAD = 100       # frames before a scape appears that the shoal starts making room for it
@@ -56,6 +56,9 @@ TURN_RATE = 1.7  # fastest a cruising fish turns its body, rad/s (quicker in a d
 PACE_MIN = 0.3   # a hovering fish barely creeps forward, mm/s; it never goes backward
 HOVER = 2.0      # typical creep of a fish that is where it wants to be, mm/s
 CONTENT = 8.5    # pull (mm/s) below which a fish leaves its heading alone
+DEPTH_ROAM = 0.40  # share of the open depth the shoal's centre ranges over (its length: all of it)
+SIDE_ON = 0.45   # how much of a wish to move toward or away from the front glass a fish acts on (1 = all of it)
+REST_TURN = 0.7  # how briskly an unhurried fish swings back to side-on, per second
 HOLD = 5.0       # how firmly a fish keeps its course against a pull, as mm/s of pull
 PITCH = 0.21     # most a fish may nose up or down, as rise over run (about 12 degrees)
 MIN_SHARED = (90.0, 60.0, 40.0)     # least width (x, y, z) worth calling water common to two scapes
@@ -121,7 +124,7 @@ def environment(plan, frames):
 
 
 def simulate(plan, frame_start, frame_end, n=COUNT, seed=SEED,
-             spread=(72.0, 45.0, 30.0), cruise=22.0, tour=(34.0, 22.0, 21.0), warmup_s=12.0):
+             spread=(58.0, 45.0, 30.0), cruise=22.0, tour=(30.0, 26.0, 21.0), warmup_s=12.0):
     """Simulate `n` fish for frames [frame_start, frame_end) of the film.
 
     plan       film_plan(): scapes in order, each with first, last, box, floor, obstacles
@@ -157,7 +160,9 @@ def simulate(plan, frame_start, frame_end, n=COUNT, seed=SEED,
         # In a shallow box the group tightens so that it still has room to travel:
         # depth is what shows the tank is three-dimensional.
         sp = np.minimum(spread0, half * np.array([0.8, 0.36, 0.8]))
-        return centre, np.maximum(half - sp * 0.9, 0.0), sp
+        # The shoal ranges the length of the tank and only a little front to back, as
+        # fish in a tank do: seen from the room they pass to and fro, side-on.
+        return centre, np.maximum(half - sp * 0.9, 0.0) * np.array([1.0, DEPTH_ROAM, 1.0]), sp
 
     centre, roam, sp = water(ENV[0])
     # Each fish's place in the group. Real neons do not space themselves evenly:
@@ -281,7 +286,7 @@ def simulate(plan, frame_start, frame_end, n=COUNT, seed=SEED,
         Dv = H * HOLD + pull                       # set against the way it is already facing
         if darting.any():
             Dv = np.where(darting[:, None], Dv + rng.normal(0, 1, (n, 3)) * np.array([30.0, 30.0, 6.0]), Dv)
-        Dv[:, 1] *= 0.62                           # a preference for moving across the tank rather than at the glass
+        Dv[:, 1] *= SIDE_ON                        # a strong preference for swimming across the tank, side-on to the room
         demand = np.linalg.norm(pull, axis=1)
         dvn = np.linalg.norm(Dv, axis=1)
         Dd = np.where(dvn[:, None] > 0.5, Dv / (dvn[:, None] + 1e-9), H)
@@ -307,6 +312,9 @@ def simulate(plan, frame_start, frame_end, n=COUNT, seed=SEED,
         urgency = np.clip((demand - CONTENT) / 20.0, 0.0, 1.0)
         turn = np.minimum(ang, TURN_RATE * urgency * (1.0 + burst / 35.0) * dt)
         Hn = H * np.cos(turn)[:, None] + perp / pn[:, None] * np.sin(turn)[:, None]
+        # A fish with nothing pressing settles side-on to the length of the tank,
+        # the way resting tetras hang in the water, turning gently on the spot.
+        Hn[:, 0] += np.where(Hn[:, 0] >= 0, 1.0, -1.0) * REST_TURN * dt * (1.0 - urgency)
         hxy = np.maximum(np.linalg.norm(Hn[:, :2], axis=1), 1e-6)
         Hn[:, 2] = np.clip(Hn[:, 2], -PITCH * hxy, PITCH * hxy)
         Hn /= np.linalg.norm(Hn, axis=1, keepdims=True)

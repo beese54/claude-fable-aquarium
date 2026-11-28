@@ -69,6 +69,9 @@ PARALLAX_MIN_RATIO = 1.15
 NEAR_MM = (150.0, 0.0, 150.0)      # centre of the front glass
 FAR_MM = (150.0, 1822.0, 150.0)    # wall straight behind it
 FISH_MIN = 8
+DEPTH_MEDIAN_MIN_MM = 20.0         # the middle fish of the shoal changes its distance to the camera by this much per scape
+SIDE_ON_MEDIAN_MAX_DEG = 30.0      # the owner wants the fish seen mostly from the side
+BACKWARD_MAX_MM_S = 0.5            # a fish never moves backward along its own heading
 STEP_MAX_MM = 4.5                  # farthest a fish may move in one frame (135 mm/s): more is a jump
 DEPTH_MIN_MM = 50.0
 
@@ -566,6 +569,16 @@ def check_livestock(ctx):
         bad.append(f"a fish moves {step:.1f} mm in one frame (limit {STEP_MAX_MM})")
     if f0 + pos.shape[0] < int(tl["total_frames"]):
         bad.append("the shoal's run ends before the film does")
+    # A fish goes where it points, and is mostly seen from the side.
+    fwd = data["fwd"]
+    along = float((np.sum(np.diff(pos, axis=0) * fwd[:-1], axis=2) * FPS).min())
+    off = np.abs(fwd[..., 1]) / (np.linalg.norm(fwd[..., :2], axis=2) + 1e-9)
+    side = float(np.degrees(np.arcsin(np.median(off))))
+    parts.append(f"slowest motion along a fish's own heading {along:.2f} mm/s; median angle from side-on {side:.0f} deg")
+    if along < -BACKWARD_MAX_MM_S:
+        bad.append(f"a fish moves backward at {-along:.1f} mm/s")
+    if side > SIDE_ON_MEDIAN_MAX_DEG:
+        bad.append(f"median heading is {side:.0f} deg from side-on (limit {SIDE_ON_MEDIAN_MAX_DEG:.0f})")
     for sid in SCAPES:
         mod = Path(ctx.scapes_dir) / f"{sid}.py"
         if not mod.is_file():
@@ -595,10 +608,10 @@ def check_livestock(ctx):
         first, last = on_screen[sid]                   # counting the dissolves either side
         a, b = max(first - f0, 0), last + 1 - f0
         rep = school.report({"pos": pos[a:b]}, camera_mm=centre)
-        k = rep["fish_with_5cm_depth_change"]
-        parts.append(f"{sid}: {k}/{rep['fish']} fish >=5cm")
-        if k < FISH_MIN:
-            bad.append(f"{sid}: only {k} fish change depth by {DEPTH_MIN_MM:.0f} mm")
+        med = rep["depth_change_mm_min_median_max"][1]
+        parts.append(f"{sid}: depth median {med:.0f} mm")
+        if med < DEPTH_MEDIAN_MIN_MM:
+            bad.append(f"{sid}: the middle fish changes depth by only {med:.0f} mm (need {DEPTH_MEDIAN_MIN_MM:.0f})")
     parts.append(f"shrimp in {','.join(shrimp) or 'none'}; snail in {','.join(snail) or 'none'}")
     if len(shrimp) < 2:
         bad.append(f"shrimp in {len(shrimp)} scape modules, need 2")

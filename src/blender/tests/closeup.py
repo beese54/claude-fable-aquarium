@@ -4,6 +4,10 @@
 
 Renders three views (side, three-quarter, front-ish) side by side under a soft
 top light on a mid-grey ground, with a tail-beat pose so the bend can be judged.
+The tetra gets six views in two rows (side, three-quarter, head-on; the other
+side, going away, tail-on) under the tank's kind of light: a hard lamp above
+and behind, broad soft light from overhead and a weak fill from the front.
+It waits for the machine-wide render lock like every other render.
 """
 import argparse
 import math
@@ -57,13 +61,24 @@ def main():
     span = 0.0
     if a.what == "tetra":
         import fish
-        poses = [((-0.045, 0, 0), (1, 0, 0), 0.6, 0.6, 0.0),
-                 ((0.0, 0, 0), (0.75, -0.66, 0.05), 2.2, 0.7, 0.25),
-                 ((0.042, 0, 0), (0.25, -0.97, 0.0), 4.0, 0.5, -0.2)]
+        # position is the fish's snout, so each is shifted to sit in its cell
+        poses = [((-0.028, 0, 0.018), (1, 0, 0), 0.6, 0.6, 0.0),
+                 ((0.012, -0.012, 0.018), (0.75, -0.66, 0.05), 2.2, 0.7, 0.25),
+                 ((0.045, -0.016, 0.018), (0.04, -1.0, 0.0), 4.0, 0.4, 0.0),
+                 ((-0.062, 0, -0.018), (-1, 0.08, 0), 1.4, 0.8, -0.35),
+                 ((-0.012, 0.012, -0.018), (-0.70, 0.70, 0.08), 3.0, 0.6, 0.2),
+                 ((0.045, 0.016, -0.018), (0.04, 1.0, 0.06), 5.0, 0.5, 0.0)]
         for i, (pos, fwd, ph, amp, bend) in enumerate(poses):
             t = fish.Tetra(f"Tetra{i}")
             t.pose(pos, fwd, phase=ph, amp=amp, bend=bend)
+        me = t.obj.data
+        xs = [v.co.x for v in me.vertices]
+        zs = [v.co.z for v in me.vertices]
+        print(f"[closeup] tetra at size 1.0: {1000 * (max(xs) - min(xs)):.1f} mm long, "
+              f"{1000 * (max(zs) - min(zs)):.1f} mm tall with fins, {len(me.vertices)} vertices, {len(me.polygons)} faces")
         span = 0.135
+        scene.render.resolution_y = 1000
+        world.node_tree.nodes["Background"].inputs["Color"].default_value = (0.20, 0.23, 0.24, 1)
     elif a.what == "shrimp":
         import shrimp
         ts = [float(v) for v in a.shrimp_t.split(",")]
@@ -102,7 +117,10 @@ def main():
     look_at(cam, (0, 0, 0.0))
     scene.camera = cam
 
-    for loc, energy, size in (((0.0, -0.10, 0.25), 1.6, 0.25), ((-0.2, -0.3, 0.05), 0.4, 0.3)):
+    lights = (((0.0, -0.10, 0.25), 1.6, 0.25), ((-0.2, -0.3, 0.05), 0.4, 0.3))
+    if a.what == "tetra":
+        lights = (((0.0, 0.13, 0.26), 2.2, 0.03), ((0.0, 0.0, 0.30), 2.4, 0.60), ((0.0, -0.40, 0.10), 0.35, 0.40))
+    for loc, energy, size in lights:
         ld = bpy.data.lights.new("L", "AREA")
         ld.energy = energy
         ld.size = size
@@ -111,6 +129,8 @@ def main():
         lo.location = loc
         look_at(lo, (0, 0, 0))
 
+    import build
+    build.render_lock()
     bpy.ops.render.render(write_still=True)
     print(f"[closeup] wrote {a.out}")
 

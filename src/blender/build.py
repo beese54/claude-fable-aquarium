@@ -28,7 +28,18 @@ import tank as tank_mod  # noqa: E402
 import timeline  # noqa: E402
 
 
-def build(scape="empty", frame=1, quality="preview", out=None, lamp_watts=None):
+# Balance between the lamp and the soft stand-in for trapped light (add_fill).
+# Measured on the round 3 stills: with the scapes' LIGHT values taken at face
+# value, about half of the light on an upward-facing surface came from the soft
+# sources, so nothing had a hot top, a dark underside or a hard shadow, and a
+# reviewer called every still flat. The lamp now carries the picture: its
+# output is raised and the soft sources lowered, for every scape alike, so the
+# scapes' own LIGHT dicts keep their meaning relative to each other.
+KEY_GAIN = 2.3
+AMBIENT_GAIN = 0.6
+
+
+def build(scape="empty", frame=1, quality="preview", out=None, lamp_watts=None, tweak=None):
     scene = bc.reset_scene()
     device = bc.setup_render(scene, quality, out)
     bc.add_camera(scene)
@@ -49,6 +60,10 @@ def build(scape="empty", frame=1, quality="preview", out=None, lamp_watts=None):
     light_cfg = dict(watts=50.0, colour=(0.90, 0.95, 1.0), fill=0.015, bounce=0.05)
     light_cfg.update(getattr(mod, "LIGHT", {}))
     water_cfg = dict(getattr(mod, "WATER", {}))
+    # look-development overrides from the command line (--fill, --bounce, --ripple-mm, --fine-mm)
+    for k, v in (tweak or {}).items():
+        if v is not None:
+            (light_cfg if k in ("fill", "bounce") else water_cfg)[k] = v
 
     room = room_mod.build_room()
     lamp = room_mod.build_lamp()
@@ -56,7 +71,7 @@ def build(scape="empty", frame=1, quality="preview", out=None, lamp_watts=None):
     room_mod.build_glass_dirt()
     watts = lamp_watts if lamp_watts is not None else light_cfg["watts"]
     for led in lamp["lights"]:
-        led.data.energy = watts / len(lamp["lights"])
+        led.data.energy = watts * KEY_GAIN / len(lamp["lights"])
         led.data.color = light_cfg["colour"]
 
     # Everything a scape puts under water goes in this collection, so lights can
@@ -195,7 +210,7 @@ def add_fill(ctx, key_watts):
         ld = bpy.data.lights.new(name, "AREA")
         ld.shape = "RECTANGLE"
         ld.size, ld.size_y = sx, sy
-        ld.energy = key_watts * frac
+        ld.energy = key_watts * frac * AMBIENT_GAIN
         ld.color = (0.92, 0.97, 1.0)
         ob = bpy.data.objects.new(name, ld)
         ctx["scene"].collection.objects.link(ob)
@@ -221,10 +236,15 @@ def main():
     ap.add_argument("--save")
     ap.add_argument("--lamp-watts", type=float)
     ap.add_argument("--no-render", action="store_true", help="build the scene and run the checks only")
+    ap.add_argument("--fill", type=float, help="look development: override the scape's fill fraction")
+    ap.add_argument("--bounce", type=float, help="look development: override the scape's bounce fraction")
+    ap.add_argument("--ripple-mm", type=float, help="look development: override the broad ripple height")
+    ap.add_argument("--fine-mm", type=float, help="look development: override the fine ripple height")
     a = ap.parse_args(bc.script_args())
 
     render_lock()
     t0 = time.time()
+    tweak = dict(fill=a.fill, bounce=a.bounce, ripple_mm=a.ripple_mm, fine_mm=a.fine_mm)
     if a.frames:
         span, _, step = a.frames.partition(":")
         first, last = (int(v) for v in span.split("-"))
@@ -235,7 +255,7 @@ def main():
         print(f"[seq] {len(frames)} frames requested, {len(frames) - len(todo)} already done")
         if not todo:
             return
-        scene, device, ctx = build(a.scape, todo[0], a.quality, None, a.lamp_watts)
+        scene, device, ctx = build(a.scape, todo[0], a.quality, None, a.lamp_watts, tweak)
         print(f"[build] scape={a.scape} quality={a.quality} device={device} built in {time.time() - t0:.1f}s")
         for f in todo:
             t1 = time.time()
@@ -251,7 +271,7 @@ def main():
 
     if not a.out and not a.no_render:
         sys.exit("--out is required for a single frame")
-    scene, device, ctx = build(a.scape, a.frame, a.quality, a.out, a.lamp_watts)
+    scene, device, ctx = build(a.scape, a.frame, a.quality, a.out, a.lamp_watts, tweak)
     if a.save:
         bpy.ops.wm.save_as_mainfile(filepath=a.save)
     print(f"[build] scape={a.scape} frame={a.frame} quality={a.quality} device={device} built in {time.time() - t0:.1f}s")

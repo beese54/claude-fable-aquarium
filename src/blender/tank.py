@@ -111,7 +111,7 @@ def water_material(tint=(0.88, 0.975, 0.955), density=1.5, scatter=0.0, scatter_
     return mat
 
 
-def build_water(level_mm=268.0, collection=None, ripple_mm=0.35, ripple_scale=0.085, fine_mm=0.22, fine_scale=0.020, grid=200, material=None):
+def build_water(level_mm=268.0, collection=None, ripple_mm=0.35, ripple_scale=0.085, fine_mm=0.15, fine_scale=0.020, grid=200, material=None):
     """Water body up to `level_mm` above the tank's outer base."""
     lo = GLASS - OVERLAP
     hi = TANK - GLASS + OVERLAP

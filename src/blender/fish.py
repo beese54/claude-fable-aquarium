@@ -678,7 +678,11 @@ class School:
         self.frame_start = int(self.data["frame_start"])
         self.frames = self.data["pos"].shape[0]
         rng = random.Random(sim.SEED)
-        self.fish = [Tetra(f"{name}_{i:02d}", size=rng.uniform(*SIZE_RANGE)) for i in range(self.data["pos"].shape[1])]
+        # A real shoal is never one size: a couple of half-grown fish, most near
+        # full size, one or two big ones (24 to 36 mm). Fixed set, shuffled once.
+        sizes = [0.74, 0.80, 0.86, 0.90, 0.93, 0.96, 0.98, 1.0, 1.02, 1.04, 1.07, 1.10]
+        rng.shuffle(sizes)
+        self.fish = [Tetra(f"{name}_{i:02d}", size=sizes[i % len(sizes)]) for i in range(self.data["pos"].shape[1])]
 
     @property
     def objects(self):

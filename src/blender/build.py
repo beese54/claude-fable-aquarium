@@ -37,6 +37,7 @@ import timeline  # noqa: E402
 # scapes' own LIGHT dicts keep their meaning relative to each other.
 FILL_GLOSSY = False      # whether the soft sources may show as highlights on wet surfaces
 KEY_GAIN = 2.3
+LED_FOCUS = float(__import__("os").environ.get("AQUARIUM_LED_FOCUS", 0.6))   # 0.2 would be ten equal chips
 AMBIENT_GAIN = 0.6
 
 
@@ -73,8 +74,14 @@ def build(scape="empty", frame=1, quality="preview", out=None, lamp_watts=None, 
     glass = tank_mod.build_glass()
     room_mod.build_glass_dirt()
     watts = lamp_watts if lamp_watts is not None else light_cfg["watts"]
-    for led in lamp["lights"]:
-        led.data.energy = watts * KEY_GAIN / len(lamp["lights"])
+    # LED_FOCUS: share of the lamp's output carried by its two middle chips. With
+    # ten equal chips spread over the head, ten offset copies of the ripple light
+    # land on the bed and wash each other out; real fittings are rarely that even.
+    n_led = len(lamp["lights"])
+    middle = {n_led // 4, n_led // 4 + n_led // 2} if n_led >= 4 else set()
+    for k, led in enumerate(lamp["lights"]):
+        share = LED_FOCUS / len(middle) if k in middle else (1.0 - LED_FOCUS) / (n_led - len(middle))
+        led.data.energy = watts * KEY_GAIN * (share if middle else 1.0 / n_led)
         led.data.color = light_cfg["colour"]
 
     # Everything a scape puts under water goes in this collection, so lights can

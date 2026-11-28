@@ -283,7 +283,7 @@
       "title": "Low-quality full-length draft video of all ten designs (Gate 3)",
       "status": "blocked",
       "commit": null,
-      "next_action": "HOLD: on 2026-11-28 at 15:06 Claude Code's low-memory guard stopped the draft render again (the only render running; Chrome was back to about 2 GB). Do not restart it until the owner says to. State of <work>/renders_draft, all valid (the look has been frozen since before they were rendered): nine scapes complete, 08_cove 127/156 (to frame 3051), 05_floating 0/190. About 220 frames, 20 minutes, remain: set AQUARIUM_RENDER_SET=draft, python src/render_all.py --quality draft --step 2. Meanwhile a partial rough cut (frames 0 to 3049, the first 101.6 s, through Cove) is being assembled in parts in <work>/qa_scratch/draft_parts (assemble.py --range ... --half --crf 23 --preset fast --no-audio, about 0.9 s per frame, three parts at a time), to be joined with ffmpeg concat, given the first 101.6 s of <work>/audio/soundtrack.wav, written to review/04_draft_partial.mp4 and sent to the owner. When the render is complete, assemble the whole film as review/04_draft.mp4 and post Gate 3."
+      "next_action": "HOLD: the low-memory guard stopped the draft render at 15:06 on 2026-11-28; do not restart until the owner says to. Nine scapes complete, 08_cove 127/156, 05_floating 0/190 in <work>/renders_draft (all valid). A partial rough cut (first 101.7 s, through Cove) was sent to the owner as review/04_draft_partial.mp4 (cbacf1d). To finish: set AQUARIUM_RENDER_SET=draft, python src/render_all.py --quality draft --step 2 (about 220 frames, 20 minutes); then assemble the whole film. The assembler takes about 0.9 s per frame, longer than one foreground call allows: assemble in parts with --range (about 510 frames each, three at a time, --half --crf 23 --preset fast --no-audio), join with ffmpeg concat, add <work>/audio/soundtrack.wav, write review/04_draft.mp4, send it to the owner, post Gate 3."
     },
     {
       "id": "T6.1",
@@ -338,10 +338,10 @@
     "Polish to do before final render: match the rendered glass edge colour to the filmed pale cyan (EDGE_GLOW and absorption in src/blender/tank.py) so the hand-over at frame 700 does not shift the edge strips; verify caustics are visible on sand and stone in motion.",
     "Root cause worth remembering: any object a scape creates must be a Cycles caustics receiver or it gets no lamp light through the water. build.py now marks every object created after the base scene, including scatter sources.",
     "Never run two Blender renders at once on this machine (16 GB RAM): it triggered a low-memory stop of all background jobs. Subagents rendering in parallel count too.",
-    "Heartbeat: session cron job 9650455f, every 30 minutes (13,43 * * * *). Session-only; recreate it if the session restarts. Slow it to every 3 hours whenever everything is waiting on the owner.",
     "Renders take a machine-wide lock (build.render_lock), so renders started side by side queue instead of overlapping. Still never start a long sequence render while subagents are iterating on stills: it would hold the lock for its whole run.",
     "The shoal is one simulation for the whole film. Any change to any scape's SWIM, or to the timeline, changes the fish's path from that point on. Settle all SWIMs before the final render and never mix frames rendered before and after such a change.",
     "Film is now ten scapes, 3450 frames (115 s), about 3260 frames to render. At final quality that is roughly double the earlier estimate; time one final frame per scape before starting and tell the owner the total.",
-    "Never send two render commands in the same message: they interleave under the render lock and each call can outlast its timeout. One render command at a time, in sequence."
+    "Never send two render commands in the same message: they interleave under the render lock and each call can outlast its timeout. One render command at a time, in sequence.",
+    "Heartbeat: session cron job, every 30 minutes while work can move; every 3 hours while everything waits on the owner. Session-only; recreate it if the session restarts (CronList shows the current id)."
   ]
 }

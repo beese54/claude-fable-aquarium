@@ -14,19 +14,29 @@ import fish
 import plants
 import substrate
 import timeline
-from bl_common import MM, shot_frames
+from bl_common import MM
 from scatter import collection_of, scatter
 
 SCAPE = "01_iwagumi"
 
-# name, model, x, y, height above soil, how the scan is stood up, (lean, lean, heading), fraction buried
+# name, model, x, y, height above soil, how the scan is stood up, (lean, lean, heading), fraction buried.
+# Sized for a 30 cm cube: the main stone stands at about two fifths of the water
+# depth, so the group reads as a landscape with sky above it, not as boulders
+# filling the tank (owner feedback: the first version was a fifth too big).
 STONES = [
-    ("oyaishi",  "moon_rock_05", 108, 176, 150, (90, 0, 0), (0, -8, 200),  0.24),
-    ("fukuishi", "moon_rock_06", 204, 132, 84,  (90, 0, 0), (0, -10, 160), 0.26),
-    ("soeishi",  "moon_rock_03", 52,  120, 62,  (0, 90, 0), (0, -9, 30),   0.28),
-    ("sute_1",   "moon_rock_01", 252, 205, 30,  (0, 0, 0),  (0, -5, 140),  0.35),
-    ("sute_2",   "moon_rock_04", 150, 72,  20,  (0, 0, 0),  (0, -4, 25),   0.40),
+    ("oyaishi",  "moon_rock_05", 108, 176, 120, (90, 0, 0), (0, -8, 200),  0.24),
+    ("fukuishi", "moon_rock_06", 204, 132, 67,  (90, 0, 0), (0, -10, 160), 0.26),
+    ("soeishi",  "moon_rock_03", 52,  120, 50,  (0, 90, 0), (0, -9, 30),   0.28),
+    ("sute_1",   "moon_rock_01", 252, 205, 24,  (0, 0, 0),  (0, -5, 140),  0.35),
+    ("sute_2",   "moon_rock_04", 150, 72,  16,  (0, 0, 0),  (0, -4, 25),   0.40),
 ]
+
+# Water the film's shoal may use while this scape is on screen (src/sim/school.py).
+SWIM = {
+    "box": (40, 264, 28, 250, 112, 236),
+    "floor": (62, 122),
+    "obstacles": [(108, 176, 60, 232), (204, 132, 36, 162), (52, 120, 23, 138), (252, 205, 40, 128)],
+}
 
 
 def ground(x, y):
@@ -79,10 +89,10 @@ def build(ctx):
     scatter(bed.obj, tufts, name="Hairgrass", min_distance=3.3 * MM, weight_attr="carpet", seed=21,
             scale=(0.45, 1.15), align="UP", tilt=0.30, sway=(0.07, 9.0, 0.35))
 
-    # The shoal roams the open water above and to the right of the stones.
-    keep = [(sx, sy, r * 0.8, top) for _, sx, sy, r, top in stones]
-    f0, f1 = shot_frames(SCAPE)
-    school = fish.School(SCAPE, 12, f0, f1, box=(40, 264, 28, 250, 128, 236), seed=4, obstacles=keep, ground=ground)
+    # The film's one shoal; SWIM above says where it may go in this scape. These
+    # are the measured stones, printed so SWIM's cylinders can be kept true to them.
+    print("[stones] " + ", ".join(f"({sx}, {sy}, {r * 0.8:.0f}, {top:.0f})" for _, sx, sy, r, top in stones))
+    school = fish.School()
     made += school.objects
 
     assets.mark_underwater(made, ctx)

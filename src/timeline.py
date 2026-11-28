@@ -22,6 +22,40 @@ def _awakening():
     return next(s for s in _TL["segments"] if s["id"] == "awakening")
 
 
+# Share of a transition over which one scape dissolves into the next. The shoal
+# is the same in both (src/sim/school.py), so through the dissolve the fish hold
+# their course while the scape changes around them.
+MIX = (0.18, 0.82)
+
+
+def visible():
+    """{scape id: (first, last)}: the frames each scape is on screen for, counting
+    the part of the transitions on either side where it is still (or already) seen.
+    These are the frames that must be rendered. Film order."""
+    segs = _TL["segments"]
+    out = {}
+    for i, s in enumerate(segs):
+        if s["kind"] != "scape":
+            continue
+        first, last = s["start"], s["end"] - 1
+        if i > 0 and segs[i - 1]["kind"] == "transition":
+            t = segs[i - 1]
+            first = t["rise"][0] if "rise" in t else t["start"] + int(MIX[0] * (t["end"] - t["start"])) - 1
+        if i + 1 < len(segs) and segs[i + 1]["kind"] == "transition":
+            t = segs[i + 1]
+            last = t["start"] + int(MIX[1] * (t["end"] - t["start"])) + 1
+        if i + 1 < len(segs) and segs[i + 1]["kind"] == "outro":
+            last = segs[i + 1]["end"] - 1
+        out[s["id"]] = (first, last)
+    return out
+
+
+def still_frame(scape_id):
+    """The frame used for a scape's design still: two fifths of the way through its hold."""
+    s = next(s for s in _TL["segments"] if s["id"] == scape_id)
+    return int(s["start"] + 0.4 * (s["end"] - s["start"]))
+
+
 def is_filling(scape_id):
     return _awakening().get("to") == scape_id
 

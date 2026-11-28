@@ -17,5 +17,5 @@ $blender = "$env:ProgramFiles\Blender Foundation\Blender 4.5\blender.exe"
 $log = "$dir\$Name.log"
 $extraArgs = if ($Extra) { $Extra -split ' ' } else { @() }
 cmd /c "`"$blender`" -b --python `"$PSScriptRoot\src\blender\build.py`" -- --scape $Scape --frame $Frame --quality $Quality --out `"$dir\$Name.exr`" $Extra > `"$log`" 2>&1"
-Select-String -Path $log -Pattern '^\[build\]|^\[render\]|Error|Traceback|^\s+File .*line \d+|Exception' | ForEach-Object { $_.Line } | Select-Object -First 25
+Select-String -Path $log -Pattern '^\[build\]|^\[render\]|^\[swim\]|^\[lock\]|Error|Traceback|^\s+File .*line \d+|Exception' | ForEach-Object { $_.Line } | Select-Object -First 25
 python "$PSScriptRoot\src\comp\develop.py" "$dir\$Name.exr" "$dir\$Name.jpg"

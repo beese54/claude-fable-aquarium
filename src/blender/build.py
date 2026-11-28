@@ -71,7 +71,7 @@ def build(scape="empty", frame=1, quality="preview", out=None, lamp_watts=None):
         ripple = {k: water_cfg.pop(k) for k in ("ripple_mm", "ripple_scale", "fine_mm", "fine_scale") if k in water_cfg}
         material = tank_mod.water_material(**water_cfg) if water_cfg else None
         water, drift = tank_mod.build_water(level_mm=level, material=material, **ripple)
-        tank_mod.animate_ripples(drift, 0, 2400)
+        tank_mod.animate_ripples(drift, 0, timeline._TL["total_frames"] + 90)
         ctx["water"] = water
     protected = set(bpy.data.materials)        # room, lamp, glass, water: never hidden by the reveal
     scene_objects = set(bpy.data.objects)
@@ -92,8 +92,70 @@ def build(scape="empty", frame=1, quality="preview", out=None, lamp_watts=None):
         # the side glass and the surface; it is left out once there is water.
         lamp["cable"].hide_render = True
         add_fill(ctx, watts)
+        ctx["base_objects"] = scene_objects
     apply_frame(ctx, frame)
     return scene, device, ctx
+
+
+def render_lock():
+    """Wait for any other Blender render on this machine to finish, then hold the
+    lock until this process exits. Two path-traced scenes at once do not fit in
+    16 GB; with the lock, renders started side by side simply queue."""
+    if sys.platform != "win32":
+        return
+    import ctypes
+    k = ctypes.windll.kernel32
+    k.CreateMutexW.restype = ctypes.c_void_p
+    k.WaitForSingleObject.argtypes = [ctypes.c_void_p, ctypes.c_uint32]
+    handle = k.CreateMutexW(None, False, "AquariumDreamRender")
+    t0 = time.time()
+    k.WaitForSingleObject(handle, 0xFFFFFFFF)
+    if time.time() - t0 > 1.0:
+        print(f"[lock] waited {time.time() - t0:.0f}s for another render to finish")
+    globals()["_render_lock"] = handle
+
+
+def check_swim(ctx, reach_mm=11.0, every=5):
+    """Does the shoal have room in this scape? For the frames the scape is on
+    screen, short rays are cast from each fish in six directions; a fish counts
+    as touching when scape geometry (stone, wood, plants, bed) lies within
+    `reach_mm` of its middle. Prints one [swim] line; the fix for a high number
+    is the scape's SWIM literal (or moving what is in the way)."""
+    school = ctx.get("school")
+    scape = ctx.get("scape")
+    vis = timeline.visible().get(scape)
+    if school is None or vis is None:
+        return
+    scene = ctx["scene"]
+    ignore = {ob.name for ob in ctx.get("base_objects", ())} | {ob.name for ob in school.objects}
+    for ob in school.objects:
+        ob.hide_viewport = True
+    dg = bpy.context.evaluated_depsgraph_get()
+    dg.update()
+    dirs = [Vector(d) for d in ((1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1))]
+    reach = reach_mm * bc.MM
+    touched, worst, total = {}, {}, 0
+    for f in range(vis[0], vis[1] + 1, every):
+        k = min(max(f - school.frame_start, 0), school.frames - 1)
+        for i in range(len(school.fish)):
+            p = Vector(tuple(float(c) * bc.MM for c in school.data["pos"][k, i]))
+            total += 1
+            hit_name = None
+            for d in dirs:
+                hit, _, _, _, ob, _ = scene.ray_cast(dg, p, d, distance=reach)
+                if hit and ob is not None and ob.name not in ignore:
+                    hit_name = ob.name
+                    break
+            if hit_name:
+                touched[hit_name] = touched.get(hit_name, 0) + 1
+                worst.setdefault(hit_name, (f, i, tuple(round(c / bc.MM) for c in p)))
+    for ob in school.objects:
+        ob.hide_viewport = False
+    n = sum(touched.values())
+    detail = "; ".join(f"{name} x{c} (e.g. frame {worst[name][0]} fish {worst[name][1]} at {worst[name][2]} mm)"
+                       for name, c in sorted(touched.items(), key=lambda kv: -kv[1])[:6])
+    print(f"[swim] {scape}: {n}/{total} fish samples ({100.0 * n / max(total, 1):.1f}%) within {reach_mm:.0f} mm of the scape"
+          + (f": {detail}" if n else ""))
 
 
 def apply_frame(ctx, frame):
@@ -158,8 +220,10 @@ def main():
     ap.add_argument("--out")
     ap.add_argument("--save")
     ap.add_argument("--lamp-watts", type=float)
+    ap.add_argument("--no-render", action="store_true", help="build the scene and run the checks only")
     a = ap.parse_args(bc.script_args())
 
+    render_lock()
     t0 = time.time()
     if a.frames:
         span, _, step = a.frames.partition(":")
@@ -185,12 +249,16 @@ def main():
         print(f"[seq] done in {time.time() - t0:.0f}s")
         return
 
-    if not a.out:
+    if not a.out and not a.no_render:
         sys.exit("--out is required for a single frame")
-    scene, device, _ = build(a.scape, a.frame, a.quality, a.out, a.lamp_watts)
+    scene, device, ctx = build(a.scape, a.frame, a.quality, a.out, a.lamp_watts)
     if a.save:
         bpy.ops.wm.save_as_mainfile(filepath=a.save)
     print(f"[build] scape={a.scape} frame={a.frame} quality={a.quality} device={device} built in {time.time() - t0:.1f}s")
+    check_swim(ctx)
+    apply_frame(ctx, a.frame)
+    if a.no_render:
+        return
     t1 = time.time()
     bpy.ops.render.render(write_still=True)
     print(f"[render] {time.time() - t1:.1f}s -> {a.out}")

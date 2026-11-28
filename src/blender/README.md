@@ -31,6 +31,37 @@ def build(ctx):
 ```
 `scapes/01_iwagumi.py` is the worked example.
 
+## The shoal and its swimming room
+
+There is one shoal for the whole film (`src/sim/school.py`). Every scape calls
+`fish.School()` and gets the same twelve tetras on the same path, so they carry
+straight on while one scape dissolves into the next. A scape does not place the
+fish. It declares the water they may use while it is on screen, as a plain
+literal near the top of the module (it is read without importing the module):
+
+```python
+SWIM = {
+    "box": (xmin, xmax, ymin, ymax, zmin, zmax),   # open water the shoal roams, mm
+    "floor": (front_mm, back_mm),                  # bed height at the front and back glass
+    "obstacles": [(x, y, radius, top_z), ...],     # cylinders standing on the bed; add a 5th
+}                                                  # value bottom_z for a piece hanging in the water
+```
+
+Every scape must leave real open water: a box at least about 180 x 110 x 70 mm,
+most of it in the front two thirds of the tank where the fish read best, with
+nothing solid inside it that is not listed as an obstacle. Cover anything a
+fish could swim into (stone, wood, dense plant groups) with cylinders.
+
+Each single-frame build prints a `[swim]` line: the share of fish positions,
+over all the frames the scape is on screen, that lie within 11 mm of scape
+geometry, and what they touch. Keep it under about 2% by adjusting SWIM or the
+layout. `--no-render` builds and checks without rendering:
+`.ender.ps1 -Scape <id> -Frame <n> -Name x -Extra "--no-render"`.
+`python src/sim/school.py` prints where the shoal goes in every scape.
+
+Blender renders take a machine-wide lock, so two renders started at once run
+one after the other; a build may sit waiting for a few minutes.
+
 ## Pieces
 
 | Module | What it gives |
@@ -57,4 +88,6 @@ See what the kit looks like with `tests/kit_sheet.py` (plants, wood), `tests/sto
 - Keep the bed at least 60 mm high at the front glass so it shows as a band above the tray.
 - Vary everything: plant height, density, colour, stone size. Even coverage reads as computer made.
 - Fish go in loose groups at mixed angles, clear of the hardscape, in open water.
+- Scale to the tank: it is only 30 cm. A main stone or tree above about two fifths of the water depth, or groups that fill the width, read as oversized. Leave more open water than feels necessary.
+- Nothing in rows, blocks or mirror pairs. Vary spacing, lean, size and species mix; let groups interlock and overlap at their edges.
 - Check a `preview` crop at 100% before calling anything finished. Stones and wood must not look like clay; leaves must not look like plastic.
